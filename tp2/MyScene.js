@@ -4,6 +4,7 @@ import { MyTriangle } from "./MyTriangle.js";
 import { MyParallelogram } from "./MyParallelogram.js";
 import { MyTriangleSmall } from "./MyTriangleSmall.js";
 import { MyTriangleBig } from "./MyTriangleBig.js";
+import { MyUnitCube } from "./MyUnitCube.js";
 
 /**
  * MyScene
@@ -36,6 +37,7 @@ export class MyScene extends CGFscene {
     this.triangleSmall2 = new MyTriangleSmall(this);
     this.triangleBig1 = new MyTriangleBig(this);
     this.triangleBig2 = new MyTriangleBig(this);
+    this.unitCube = new MyUnitCube(this);
 
     //Objects connected to MyInterface
     this.displayAxis = true;
@@ -107,6 +109,9 @@ export class MyScene extends CGFscene {
                   ];
 
     this.multMatrix(sca);
+    this.unitCube.display();
+
+    /* Tangram Exercise
 
     // Diamond
     this.pushMatrix();
@@ -153,6 +158,7 @@ export class MyScene extends CGFscene {
     this.translate(1.6, -1.23, 0);
     this.parallelogram.display();
     this.popMatrix();
+    */
 
   }
 }
