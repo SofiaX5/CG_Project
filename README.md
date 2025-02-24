@@ -1,10 +1,10 @@
 # CG 2024/2025
 
-## Group T0xG0y
-| Name             | Number    | E-Mail             |
-| ---------------- | --------- | ------------------ |
-| John Doe         | 201901010 | ...                |
-| Jane Doe         | 201901011 | ...                |
+## Group T05G08
+| Name             | Number    | E-Mail                     |
+| ---------------- | --------- | -------------------------- |
+| Diana Nunes      | 202208247 | up202208247@edu.fe.up.pt   |
+| Sofia Gonçalves  | 202205020 | up202205020@edu.fe.up.pt   |
 
 ----
 
