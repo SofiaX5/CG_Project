@@ -46,7 +46,6 @@ export class MyUnitCube extends CGFobject {
             0, 4, 5,
             0, 5, 1,
             
-
             // Back Face - CLOCK
             6, 2, 3,
             6, 3, 7
