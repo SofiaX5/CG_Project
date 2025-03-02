@@ -115,7 +115,7 @@ export class MyScene extends CGFscene {
     this.multMatrix(sca);
 
     // 2. Tangram Exercise
-    this.translate(3.5, -3, 0.1);
+    //this.translate(3.5, -3, 0.1);
     // Diamond
     this.pushMatrix();
     this.multMatrix(tDiamond);
@@ -170,14 +170,15 @@ export class MyScene extends CGFscene {
     this.popMatrix();
 
     // 3. Unit Cube
-    this.pushMatrix();
+    /*this.pushMatrix();
     this.translate(1.5, -1, -0.6);
     this.scale(10, 8, 1);
     this.setDiffuse(1, 1, 1, 1.0);
     this.unitCube.display();
-    this.popMatrix();
+    this.popMatrix();*/
 
     // 4. Unit Cube Quad
-    //this.unitCubeQuad.display();
+    this.setDiffuse(0.2, 0.4, 0.8, 1.0);
+    this.unitCubeQuad.display();
   }
 }
