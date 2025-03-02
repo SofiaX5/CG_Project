@@ -115,21 +115,25 @@ export class MyScene extends CGFscene {
     this.multMatrix(sca);
 
     // 2. Tangram Exercise
+    this.translate(3.5, -3, 0.1);
     // Diamond
     this.pushMatrix();
     this.multMatrix(tDiamond);
+    this.setDiffuse(0, 1, 0, 1.0);
     this.diamond.display();
     this.popMatrix();
 
     // Big Triangle 1
     this.pushMatrix();
     this.translate(2, 0, 0);
+    this.setDiffuse(0, 0.5, 1, 1.0);
     this.triangleBig1.display();
     this.popMatrix();
 
     // Small Triangle 1
     this.pushMatrix();
     this.translate(5, 0, 0);
+    this.setDiffuse(0.67, 0.3, 0.76, 1.0);
     this.triangleSmall1.display();
     this.popMatrix();
 
@@ -137,12 +141,14 @@ export class MyScene extends CGFscene {
     this.pushMatrix();
     this.translate(1.4, -1.4, 0);
     this.rotate(Math.PI / 4, 0, 0, 1);
+    this.setDiffuse(1, 0.5, 0, 1.0);
     this.triangleBig2.display();
     this.popMatrix();
 
     // Small Triangle 2
     this.pushMatrix();
     this.translate(0, -3.8, 0);
+    this.setDiffuse(1, 0.08, 0.08, 1.0);
     this.triangleSmall2.display();
     this.popMatrix();
 
@@ -150,6 +156,7 @@ export class MyScene extends CGFscene {
     this.pushMatrix();
     this.rotate(Math.PI / 2, 0, 0, 1);
     this.translate(-1, 1, 0);
+    this.setDiffuse(1, 0.5, 0.82, 1.0);
     this.triangle.display();
     this.popMatrix();
 
@@ -158,16 +165,19 @@ export class MyScene extends CGFscene {
     this.rotate(Math.PI, 1, 0, 0);
     this.rotate(0.75 * Math.PI, 0, 0, 1); 
     this.translate(1.6, -1.23, 0);
+    this.setDiffuse(1, 1, 0, 1.0);
     this.parallelogram.display();
     this.popMatrix();
 
     // 3. Unit Cube
-    /*this.pushMatrix();
-    this.translate(0.5, -0.5, -0.5);
+    this.pushMatrix();
+    this.translate(1.5, -1, -0.6);
+    this.scale(10, 8, 1);
+    this.setDiffuse(1, 1, 1, 1.0);
     this.unitCube.display();
-    this.popMatrix();*/
+    this.popMatrix();
 
     // 4. Unit Cube Quad
-    this.unitCubeQuad.display();
+    //this.unitCubeQuad.display();
   }
 }
