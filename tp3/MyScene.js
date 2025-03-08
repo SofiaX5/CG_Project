@@ -202,7 +202,6 @@ export class MyScene extends CGFscene {
             this.axis.display();
 
         // ---- BEGIN Primitive drawing section
-        /*
         this.materials[this.selectedMaterial].apply();
 
         this.pushMatrix();
@@ -215,14 +214,6 @@ export class MyScene extends CGFscene {
         
         this.objects[this.selectedObject].display();
         this.popMatrix();
-        */
         // ---- END Primitive drawing section
-        
-        this.materials[this.selectedMaterial].apply();
-        this.pushMatrix();
-        this.scale(1,1,3);
-        this.cylinder.display();
-        this.popMatrix();
-        
     }
 }
