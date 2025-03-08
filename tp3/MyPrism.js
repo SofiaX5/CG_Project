@@ -38,7 +38,7 @@ export class MyPrism extends CGFobject {
                 this.vertices.push(x0,y0,stack, x0,y0,stack+diff_stack);
                 this.vertices.push(x,y,stack, x,y,stack+diff_stack);
                 this.indices.push(i+1, i, i+2);
-                this.indices.push(i+1, i+2,i+3);
+                this.indices.push(i+1, i+2, i+3);
                 this.normals.push(x_normal, y_normal, 0, x_normal, y_normal, 0, x_normal, y_normal, 0, x_normal, y_normal, 0);
     
                 x0=x; y0=y;
