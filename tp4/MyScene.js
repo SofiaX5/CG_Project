@@ -1,6 +1,7 @@
 import { CGFscene, CGFcamera, CGFaxis, CGFappearance, CGFtexture } from "../lib/CGF.js";
 import { MyQuad } from "./MyQuad.js";
 import { MyTangram } from "./MyTangram.js";
+import { MyUnitCubeQuad } from "./MyUnitCubeQuad.js";
 
 /**
  * MyScene
@@ -25,10 +26,20 @@ export class MyScene extends CGFscene {
         this.gl.depthFunc(this.gl.LEQUAL);
         this.enableTextures(true);
 
+        //Minecraft Textures
+        this.top = new CGFtexture(this, 'images/mineTop.png');
+        this.front = new CGFtexture(this, 'images/mineSide.png');
+        this.right = new CGFtexture(this, 'images/mineSide.png');
+        this.back = new CGFtexture(this, 'images/mineSide.png');
+        this.left = new CGFtexture(this, 'images/mineSide.png');
+        this.bottom = new CGFtexture(this, 'images/mineBottom.png');
+
+
         //Initialize scene objects
         this.axis = new CGFaxis(this);
         this.quad = new MyQuad(this);
         this.tangram = new MyTangram(this);
+        this.unitCubeQuad = new MyUnitCubeQuad(this, this.top, this.front, this.right, this.back, this.left, this.bottom);
 
         //------ Applied Material
         this.quadMaterial = new CGFappearance(this);
@@ -58,6 +69,9 @@ export class MyScene extends CGFscene {
         //-------Objects connected to MyInterface
         this.displayAxis = true;
         this.displayQuad = true;
+        this.useNearestFilter = true;
+        this.displayObject = 'Cube'; 
+        this.objectIDs = { 'Cube': 0, 'Tangram': 1 };
         this.scaleFactor = 5;
         this.selectedTexture = -1;        
         this.wrapS = 0;
@@ -142,8 +156,12 @@ export class MyScene extends CGFscene {
             this.quad.display();
         }
 
-        this.tangramMaterial.apply();
-        this.tangram.display();
+        if (this.displayObject == 'Cube') {
+            this.unitCubeQuad.display();
+        } else if (this.displayObject == 'Tangram') {
+            this.tangramMaterial.apply();
+            this.tangram.display();
+        }
         
 
         // ---- END Primitive drawing section
