@@ -6,10 +6,12 @@ uniform mat4 uMVMatrix;
 uniform mat4 uPMatrix;
 uniform mat4 uNMatrix;
 
+varying vec4 limit;
+
 
 void main() {
-	
-	
+    //limit = aVertexPosition;
 	gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+    limit =gl_Position;
 }
 
