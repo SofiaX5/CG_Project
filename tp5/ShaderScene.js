@@ -89,7 +89,8 @@ export class ShaderScene extends CGFscene {
 			new CGFshader(this.gl, "shaders/texture3anim.vert", "shaders/texture3anim.frag"),
 			new CGFshader(this.gl, "shaders/texture1.vert", "shaders/sepia.frag"),
 			new CGFshader(this.gl, "shaders/texture1.vert", "shaders/convolution.frag"),
-			new CGFshader(this.gl, "shaders/lemonberry.vert", "shaders/lemonberry.frag")
+			new CGFshader(this.gl, "shaders/lemonberry.vert", "shaders/lemonberry.frag"),
+			new CGFshader(this.gl, "shaders/texture1.vert", "shaders/grayscale.frag")
 
 		];
 
@@ -112,7 +113,8 @@ export class ShaderScene extends CGFscene {
 			'Animation example': 6,
 			'Sepia': 7,
 			'Convolution': 8,
-			'LemonBerry' : 9
+			'LemonBerry' : 9,
+			'GrayScale' : 10
 		};
 
 		// shader code panels references
