@@ -15,7 +15,7 @@ uniform float timeFactor;
 void main() {
 	vTextureCoord = aTextureCoord;
 
-	vec4 filter = texture2D(uWaterMap, vec2(0.0,0.1)+vTextureCoord+vec2(timeFactor*0.007,timeFactor*0.007));
+	vec4 filter = texture2D(uWaterMap, vec2(0.0,0.1)+vTextureCoord+vec2(timeFactor*0.007,timeFactor*0.007)); // multplicar pela normal
 	vec3 offset=vec3(.0,0.0,+filter.b*0.1);
 	gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition+offset, 1.0);
 }
