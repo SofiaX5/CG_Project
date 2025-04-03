@@ -1,5 +1,6 @@
-import { CGFscene, CGFcamera, CGFaxis } from "../lib/CGF.js";
+import { CGFscene, CGFcamera, CGFaxis, CGFappearance, CGFtexture, CGFshader } from "../lib/CGF.js";
 import { MyPlane } from "./MyPlane.js";
+import { MySphere } from "./MySphere.js";
 
 /**
  * MyScene
@@ -8,7 +9,10 @@ import { MyPlane } from "./MyPlane.js";
 export class MyScene extends CGFscene {
   constructor() {
     super();
+    this.texture = null;
+		this.appearance = null;
   }
+  
   init(application) {
     super.init(application);
 
@@ -25,11 +29,25 @@ export class MyScene extends CGFscene {
 
     this.enableTextures(true);
 
+    this.appearance = new CGFappearance(this);
+		this.appearance.setAmbient(0.3, 0.3, 0.3, 1);
+		this.appearance.setDiffuse(0.7, 0.7, 0.7, 1);
+		this.appearance.setSpecular(0.0, 0.0, 0.0, 1);
+		this.appearance.setShininess(120);
+
+    this.texture = new CGFtexture(this, "textures/earth.jpg");
+    this.appearance.setTexture(this.texture);
+    //this.appearance.setTextureWrap('CLAMP_TO_EDGE', 'CLAMP_TO_EDGE');
+
+    this.shader = new CGFshader(this.gl, "shaders/earth.vert", "shaders/earth.frag"),
+    this.setActiveShader(this.shader);
+
     this.setUpdatePeriod(50);
 
     //Initialize scene objects
     this.axis = new CGFaxis(this, 20, 1);
     this.plane = new MyPlane(this, 64);
+    this.sphere = new MySphere(this, 20, 20);
   }
   initLights() {
     this.lights[0].setPosition(200, 200, 200, 1);
@@ -79,9 +97,11 @@ export class MyScene extends CGFscene {
     // Clear image and depth buffer everytime we update the scene
     this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+
     // Initialize Model-View matrix as identity (no transformation
     this.updateProjectionMatrix();
     this.loadIdentity();
+    
     // Apply transformations corresponding to the camera position relative to the origin
     this.applyViewMatrix();
 
@@ -89,9 +109,15 @@ export class MyScene extends CGFscene {
     this.axis.display();
 
     this.setDefaultAppearance();
-
+    
+    /*
     this.scale(400, 1, 400);
     this.rotate(-Math.PI / 2, 1, 0, 0);
     this.plane.display();
+    */
+
+    this.appearance.apply();
+    this.scale(40, 40, 40);
+    this.sphere.display();
   }
 }
