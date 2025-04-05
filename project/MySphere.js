@@ -40,8 +40,7 @@ export class MySphere extends CGFobject {
             this.vertices.push(x, y, z);
             //this.normals.push(x, y, z);
             this.normals.push(this.inside ? -x : x, this.inside ? -y : y, this.inside ? -z : z);
-            //this.texCoords.push(1 - (slice / this.slices), 1 - ((stack + this.stacks) / (2 * this.stacks)));  // u -> dividimos em slices, v -> nºstack/total_stacks(entre 0-1)
-            this.texCoords.push(1 - (slice / this.slices), 1 - ((stack + this.stacks) / (2 * this.stacks)));
+            this.texCoords.push(1 - (slice / this.slices), 1 - ((stack + this.stacks) / (2 * this.stacks)));  // u -> dividimos em slices, v -> nºstack/total_stacks(entre 0-1)
             }
         }
 

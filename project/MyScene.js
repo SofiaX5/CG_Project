@@ -91,9 +91,10 @@ export class MyScene extends CGFscene {
       vec3.subtract(dir, this.camera.target, this.camera.position);
       vec3.normalize(dir, dir);
       
-      vec3.scaleAndAdd(this.camera.position, this.camera.position, dir, moveAmount);
-      vec3.scaleAndAdd(this.camera.target, this.camera.target, dir, moveAmount);
-      
+      this.camera.position[0] += dir[0] * moveAmount;
+      this.camera.position[2] += dir[2] * moveAmount;
+      this.camera.target[0] += dir[0] * moveAmount;
+      this.camera.target[2] += dir[2] * moveAmount;
       keysPressed = true;
     }
 
@@ -103,9 +104,11 @@ export class MyScene extends CGFscene {
       vec3.subtract(dir, this.camera.target, this.camera.position);
       vec3.normalize(dir, dir);
       
-      vec3.scaleAndAdd(this.camera.position, this.camera.position, dir, -moveAmount);
-      vec3.scaleAndAdd(this.camera.target, this.camera.target, dir, -moveAmount);
-      
+      this.camera.position[0] -= dir[0] * moveAmount;
+      this.camera.position[2] -= dir[2] * moveAmount; 
+      this.camera.target[0] -= dir[0] * moveAmount;
+      this.camera.target[2] -= dir[2] * moveAmount;
+
       keysPressed = true;
     }
 
