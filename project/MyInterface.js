@@ -17,6 +17,11 @@ export class MyInterface extends CGFinterface {
         // https://github.com/dataarts/dat.gui/blob/master/API.md
         this.gui = new dat.GUI();
 
+        const fovFolder = this.gui.addFolder('Camera Field of View');
+        fovFolder.add(this.scene, 'selectedFov', ['narrow', 'medium', 'wide', 'ultraWide'])
+            .name('FOV Setting')
+            .onChange(() => this.scene.updateCameraFov());
+
         this.initKeys();
 
         return true;

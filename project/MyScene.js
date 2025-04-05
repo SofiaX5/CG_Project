@@ -1,6 +1,7 @@
 import { CGFscene, CGFcamera, CGFaxis, CGFappearance, CGFtexture, CGFshader } from "../lib/CGF.js";
 import { MyPlane } from "./MyPlane.js";
 import { MySphere } from "./MySphere.js";
+import { MyPanorama } from "./MyPanorama.js";
 
 /**
  * MyScene
@@ -10,7 +11,16 @@ export class MyScene extends CGFscene {
   constructor() {
     super();
     this.texture = null;
+    this.panoramaTexture = null;
 		this.appearance = null;
+
+    this.fovValues = {
+      narrow: 0.4,  
+      medium: 0.8,  
+      wide: 1.2,    
+      ultraWide: 1.6 
+    };
+    this.selectedFov = 'medium';
   }
   
   init(application) {
@@ -39,6 +49,8 @@ export class MyScene extends CGFscene {
     this.appearance.setTexture(this.texture);
     //this.appearance.setTextureWrap('CLAMP_TO_EDGE', 'CLAMP_TO_EDGE');
 
+    this.panoramaTexture = new CGFtexture(this, "textures/panorama.jpg");
+
     this.shader = new CGFshader(this.gl, "shaders/earth.vert", "shaders/earth.frag"),
     this.setActiveShader(this.shader);
 
@@ -47,9 +59,11 @@ export class MyScene extends CGFscene {
     //Initialize scene objects
     this.axis = new CGFaxis(this, 20, 1);
     this.plane = new MyPlane(this, 64);
-    this.sphere = new MySphere(this, 20, 20);
+    this.sphere = new MySphere(this, 20, 20, false);
+    this.panorama = new MyPanorama(this, this.panoramaTexture);
   }
   initLights() {
+    this.lights[0].setPosition(0, 0, 0, 1);
     this.lights[0].setPosition(200, 200, 200, 1);
     this.lights[0].setDiffuse(1.0, 1.0, 1.0, 1.0);
     this.lights[0].enable();
@@ -57,29 +71,99 @@ export class MyScene extends CGFscene {
   }
   initCameras() {
     this.camera = new CGFcamera(
-      0.4,
-      0.1,
-      1000,
-      vec3.fromValues(200, 200, 200),
-      vec3.fromValues(0, 0, 0)
+      this.fovValues[this.selectedFov], 
+      0.1,                            
+      1000,                            
+      vec3.fromValues(0, 10, 0),       
+      vec3.fromValues(1, 10, 0)        
     );
   }
   checkKeys() {
+    const moveAmount = 2.0;
+    const rotateAmount = 0.05;
+    let keysPressed = false;
     var text = "Keys pressed: ";
-    var keysPressed = false;
 
     // Check for key codes e.g. in https://keycode.info/
     if (this.gui.isKeyPressed("KeyW")) {
       text += " W ";
+      const dir = vec3.create();
+      vec3.subtract(dir, this.camera.target, this.camera.position);
+      vec3.normalize(dir, dir);
+      
+      vec3.scaleAndAdd(this.camera.position, this.camera.position, dir, moveAmount);
+      vec3.scaleAndAdd(this.camera.target, this.camera.target, dir, moveAmount);
+      
       keysPressed = true;
     }
 
     if (this.gui.isKeyPressed("KeyS")) {
       text += " S ";
+      const dir = vec3.create();
+      vec3.subtract(dir, this.camera.target, this.camera.position);
+      vec3.normalize(dir, dir);
+      
+      vec3.scaleAndAdd(this.camera.position, this.camera.position, dir, -moveAmount);
+      vec3.scaleAndAdd(this.camera.target, this.camera.target, dir, -moveAmount);
+      
       keysPressed = true;
     }
-    if (keysPressed)
+
+    if (this.gui.isKeyPressed("KeyA")) {
+      const dir = vec3.create();
+      vec3.subtract(dir, this.camera.target, this.camera.position);
+      
+      const x = dir[0];
+      const z = dir[2];
+      dir[0] = x * Math.cos(rotateAmount) + z * Math.sin(rotateAmount);
+      dir[2] = -x * Math.sin(rotateAmount) + z * Math.cos(rotateAmount);
+      
+      vec3.add(this.camera.target, this.camera.position, dir);
+      keysPressed = true;
+    }
+    
+    if (this.gui.isKeyPressed("KeyD")) {
+      const dir = vec3.create();
+      vec3.subtract(dir, this.camera.target, this.camera.position);
+      
+      const x = dir[0];
+      const z = dir[2];
+      dir[0] = x * Math.cos(-rotateAmount) + z * Math.sin(-rotateAmount);
+      dir[2] = -x * Math.sin(-rotateAmount) + z * Math.cos(-rotateAmount);
+      
+      vec3.add(this.camera.target, this.camera.position, dir);
+      keysPressed = true;
+    }
+    
+    if (this.gui.isKeyPressed("KeyQ")) {
+      this.camera.position[1] += moveAmount;
+      this.camera.target[1] += moveAmount;
+      keysPressed = true;
+    }
+    
+    if (this.gui.isKeyPressed("KeyE")) {
+      this.camera.position[1] -= moveAmount;
+      this.camera.target[1] -= moveAmount;
+      keysPressed = true;
+    }
+
+
+
+    if (keysPressed){
       console.log(text);
+      this.lights[0].setPosition(
+        this.camera.position[0],
+        this.camera.position[1],
+        this.camera.position[2],
+        1
+      );
+      this.lights[0].update();
+    }
+  }
+
+  updateCameraFov() {
+    this.camera.fov = this.fovValues[this.selectedFov];
+    console.log("FOV updated to:", this.selectedFov, this.camera.fov);
   }
 
   update(t) {
@@ -110,14 +194,22 @@ export class MyScene extends CGFscene {
 
     this.setDefaultAppearance();
     
+    this.panorama.display();
     /*
     this.scale(400, 1, 400);
     this.rotate(-Math.PI / 2, 1, 0, 0);
     this.plane.display();
     */
 
+    this.pushMatrix();
     this.appearance.apply();
-    this.scale(40, 40, 40);
+    this.setActiveShader(this.shader); 
+    this.translate(50, 10, 0); 
+    this.scale(10, 10, 10);
     this.sphere.display();
+    this.popMatrix();
+    
+
+    this.setActiveShader(this.defaultShader);
   }
 }
