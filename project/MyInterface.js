@@ -17,13 +17,20 @@ export class MyInterface extends CGFinterface {
         // https://github.com/dataarts/dat.gui/blob/master/API.md
         this.gui = new dat.GUI();
 
+        //FOV
         const fovFolder = this.gui.addFolder('Camera Field of View');
         fovFolder.add(this.scene, 'selectedFov', ['narrow', 'medium', 'wide', 'ultraWide'])
             .name('FOV Setting')
             .onChange(() => this.scene.updateCameraFov());
 
-            
-        const buildingFolder = this.gui.addFolder('Building Appearance');
+        //Panorama
+        const panoramaFolder = this.gui.addFolder('Environment');
+        panoramaFolder.add(this.scene, 'selectedPanorama', ['field', 'city'])
+            .name('Panorama Background')
+            .onChange(() => this.scene.updatePanorama());
+        
+        //Building
+        const buildingFolder = this.gui.addFolder('Building');
         buildingFolder.add(this.scene, 'buildingAppearanceType', ['brick', 'lightGray'])
             .name('Building Material')
             .onChange(() => this.scene.updateBuildingAppearance());

@@ -1,6 +1,7 @@
 import {CGFobject, CGFappearance, CGFtexture} from '../lib/CGF.js';
 import {MyWindow} from './MyWindow.js';
 import {MyPlane} from './MyPlane.js';
+import {MyCircle} from './MyCircle.js';
 
 /**
  * MyBuilding
@@ -89,6 +90,7 @@ export class MyBuilding extends CGFobject {
         this.helipadAppearance.setTexture(this.helipadTexture);
         
         this.plane = new MyPlane(scene, 20);
+        this.circle = new MyCircle(scene, 30);
     }
     
     setAppearance(appearanceType) {
@@ -280,7 +282,7 @@ export class MyBuilding extends CGFobject {
         this.scene.rotate(-Math.PI / 2, 1, 0, 0);
         this.scene.scale(helipadSize, helipadSize, 1);
         this.helipadAppearance.apply();
-        this.plane.display();
+        this.circle.display();
         this.scene.popMatrix();
     }
 }

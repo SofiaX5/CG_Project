@@ -25,6 +25,8 @@ export class MyScene extends CGFscene {
     };
     this.selectedFov = 'medium';
 
+    this.selectedPanorama = 'field';
+
     this.buildingAppearanceType = 'brick';
   }
   
@@ -54,7 +56,12 @@ export class MyScene extends CGFscene {
     this.appearance.setTexture(this.texture);
     //this.appearance.setTextureWrap('CLAMP_TO_EDGE', 'CLAMP_TO_EDGE');
 
-    this.panoramaTexture = new CGFtexture(this, "textures/panoramas/panorama.jpg");
+    this.panoramaTextures = {
+      'field': new CGFtexture(this, "textures/panoramas/field.jpg"),
+      'city': new CGFtexture(this, "textures/panoramas/city.jpg")
+    };
+
+    this.panoramaTexture = this.panoramaTextures[this.selectedPanorama];
     this.windowTexture = new CGFtexture(this, "textures/building/window.jpg");
 
     this.shader = new CGFshader(this.gl, "shaders/earth.vert", "shaders/earth.frag"),
@@ -76,6 +83,11 @@ export class MyScene extends CGFscene {
       [0.9, 0.9, 0.9]     // building color 
     );
     
+  }
+
+  updatePanorama() {
+    this.panoramaTexture = this.panoramaTextures[this.selectedPanorama];
+    this.panorama.updateTexture(this.panoramaTexture);
   }
 
   updateBuildingAppearance() {
@@ -199,7 +211,6 @@ export class MyScene extends CGFscene {
 
   updateCameraFov() {
     this.camera.fov = this.fovValues[this.selectedFov];
-    console.log("FOV updated to:", this.selectedFov, this.camera.fov);
   }
 
   update(t) {

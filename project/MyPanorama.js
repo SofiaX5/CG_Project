@@ -20,6 +20,11 @@ export class MyPanorama  extends CGFobject {
 
         this.radius = 200;
     }
+
+    updateTexture(newTexture) {
+        this.texture = newTexture;
+        this.appearance.setTexture(this.texture);
+    }
     
     display() {
         this.appearance.apply();
