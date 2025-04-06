@@ -21,8 +21,11 @@ export class MyBuilding extends CGFobject {
         
 
         this.centerWidth = this.totalWidth * 0.4;
-        this.sideWidth = this.totalWidth * 0.3;   
-        this.depth = this.centerWidth * 0.8;      
+        this.sideWidth = this.totalWidth * 0.3; 
+        
+        this.centerDepth = this.centerWidth * 0.8;
+        this.sideDepth = this.centerWidth * 0.6;
+        //this.depth = this.centerWidth * 0.8;      
         
 
         this.buildingColor = buildingColor || [0.9, 0.9, 0.9];
@@ -69,8 +72,7 @@ export class MyBuilding extends CGFobject {
         this.scene.pushMatrix();
         
 
-        this.scene.translate(this.totalWidth / 2, this.floorHeight * this.sideFloors / 2, this.depth / 2);
-        
+        this.scene.translate(0, 0, 0);        
 
         this.drawLeftModule();
         this.drawCenterModule();
@@ -85,11 +87,11 @@ export class MyBuilding extends CGFobject {
         
         this.scene.translate(-this.sideWidth / 2 - this.centerWidth / 2, 0, 0);
         
-        this.drawModuleStructure(this.sideWidth, this.sideFloors, this.depth);
+        this.drawModuleStructure(this.sideWidth, this.sideFloors, this.sideDepth);
         
         // windows
         for (let floor = 0; floor < this.sideFloors; floor++) {
-            this.drawFloorWindows(this.sideWidth, floor, this.windowsPerFloor, true);
+            this.drawFloorWindows(this.sideWidth, floor, this.windowsPerFloor,this.sideDepth, true);
         }
         
         this.scene.popMatrix();
@@ -99,16 +101,14 @@ export class MyBuilding extends CGFobject {
     drawCenterModule() {
         this.scene.pushMatrix();
         
-        this.drawModuleStructure(this.centerWidth, this.centerFloors, this.depth);
+        this.drawModuleStructure(this.centerWidth, this.centerFloors, this.centerDepth);
         
         for (let floor = 1; floor < this.centerFloors; floor++) {
-            this.drawFloorWindows(this.centerWidth, floor, this.windowsPerFloor, true);
+            this.drawFloorWindows(this.centerWidth, floor, this.windowsPerFloor,this.centerDepth, true);
         }
         
         this.drawDoor();
-        
         this.drawSign();
-        
         this.drawHelipad();
         
         this.scene.popMatrix();
@@ -120,10 +120,10 @@ export class MyBuilding extends CGFobject {
         
         this.scene.translate(this.sideWidth / 2 + this.centerWidth / 2, 0, 0);
         
-        this.drawModuleStructure(this.sideWidth, this.sideFloors, this.depth);
+        this.drawModuleStructure(this.sideWidth, this.sideFloors, this.sideDepth);
         
         for (let floor = 0; floor < this.sideFloors; floor++) {
-            this.drawFloorWindows(this.sideWidth, floor, this.windowsPerFloor, true);
+            this.drawFloorWindows(this.sideWidth, floor, this.windowsPerFloor,this.sideDepth, true);
         }
         
         this.scene.popMatrix();
@@ -137,14 +137,14 @@ export class MyBuilding extends CGFobject {
         
         // Front 
         this.scene.pushMatrix();
-        this.scene.translate(0, 0, depth / 2);
+        this.scene.translate(0, height/2, depth / 2);
         this.scene.scale(width, height, 1);
         this.plane.display();
         this.scene.popMatrix();
         
         // Back 
         this.scene.pushMatrix();
-        this.scene.translate(0, 0, -depth / 2);
+        this.scene.translate(0, height/2, -depth / 2);
         this.scene.rotate(Math.PI, 0, 1, 0);
         this.scene.scale(width, height, 1);
         this.plane.display();
@@ -152,23 +152,23 @@ export class MyBuilding extends CGFobject {
         
         // Left 
         this.scene.pushMatrix();
-        this.scene.translate(-width / 2, 0, 0);
+        this.scene.translate(-width / 2, height/2, 0);
         this.scene.rotate(Math.PI / 2, 0, 1, 0);
-        this.scene.scale(depth, height, 1);
+        this.scene.scale(-depth, height, 1);
         this.plane.display();
         this.scene.popMatrix();
         
         // Right 
         this.scene.pushMatrix();
-        this.scene.translate(width / 2, 0, 0);
+        this.scene.translate(width / 2, height/2, 0);
         this.scene.rotate(-Math.PI / 2, 0, 1, 0);
-        this.scene.scale(depth, height, 1);
+        this.scene.scale(-depth, height, 1);
         this.plane.display();
         this.scene.popMatrix();
         
         // Roof
         this.scene.pushMatrix();
-        this.scene.translate(0, height / 2, 0);
+        this.scene.translate(0, height, 0);
         this.scene.rotate(-Math.PI / 2, 1, 0, 0);
         this.scene.scale(width, depth, 1);
         this.plane.display();
@@ -176,7 +176,7 @@ export class MyBuilding extends CGFobject {
         
         // Floor
         this.scene.pushMatrix();
-        this.scene.translate(0, -height / 2, 0);
+        this.scene.translate(0, 0, 0);
         this.scene.rotate(Math.PI / 2, 1, 0, 0);
         this.scene.scale(width, depth, 1);
         this.plane.display();
@@ -184,18 +184,17 @@ export class MyBuilding extends CGFobject {
     }
     
 
-    drawFloorWindows(moduleWidth, floor, windowCount, frontOnly = false) {
+    drawFloorWindows(moduleWidth, floor, windowCount, moduleDepth, frontOnly = false) {
         const windowWidth = moduleWidth / (windowCount * 2);
         const windowHeight = this.floorHeight * 0.6;
         const windowSpacing = moduleWidth / windowCount;
-        const floorY = -this.floorHeight * this.sideFloors / 2 + floor * this.floorHeight + this.floorHeight / 2;
-        
+        const floorY = floor * this.floorHeight + this.floorHeight / 2;        
         // Front 
         for (let i = 0; i < windowCount; i++) {
             const windowX = -moduleWidth / 2 + windowSpacing / 2 + i * windowSpacing;
             
             this.scene.pushMatrix();
-            this.scene.translate(windowX, floorY, this.depth / 2 + 0.05);
+            this.scene.translate(windowX, floorY, moduleDepth   / 2 + 0.05);
             this.scene.scale(windowWidth, windowHeight, 1);
             this.window.display();
             this.scene.popMatrix();
@@ -207,7 +206,7 @@ export class MyBuilding extends CGFobject {
                 const windowX = -moduleWidth / 2 + windowSpacing / 2 + i * windowSpacing;
                 
                 this.scene.pushMatrix();
-                this.scene.translate(windowX, floorY, -this.depth / 2 - 0.05);
+                this.scene.translate(windowX, floorY, -moduleDepth   / 2 - 0.05);
                 this.scene.rotate(Math.PI, 0, 1, 0);
                 this.scene.scale(windowWidth, windowHeight, 1);
                 this.window.display();
@@ -219,10 +218,10 @@ export class MyBuilding extends CGFobject {
     drawDoor() {
         const doorWidth = this.centerWidth * 0.2;
         const doorHeight = this.floorHeight * 0.8;
-        const doorY = -this.floorHeight * this.sideFloors / 2 + this.floorHeight / 2;
+        const doorY = this.floorHeight / 2 - doorHeight * 0.1;
         
         this.scene.pushMatrix();
-        this.scene.translate(0, doorY - doorHeight * 0.1, this.depth / 2 + 0.05);
+        this.scene.translate(0, doorY, this.centerDepth  / 2 + 0.05);
         this.scene.scale(doorWidth, doorHeight, 1);
         this.doorAppearance.apply();
         this.plane.display();
@@ -234,11 +233,10 @@ export class MyBuilding extends CGFobject {
         const signWidth = this.centerWidth * 0.3;
         const signHeight = this.floorHeight * 0.25;
         const doorHeight = this.floorHeight * 0.8;
-        const doorY = -this.floorHeight * this.sideFloors / 2 + this.floorHeight / 2;
-        const signY = doorY + doorHeight / 2 + signHeight / 2;
+        const signY = this.floorHeight;
         
         this.scene.pushMatrix();
-        this.scene.translate(0, signY, this.depth / 2 + 0.05);
+        this.scene.translate(0, signY, this.centerDepth  / 2 + 0.05);
         this.scene.scale(signWidth, signHeight, 1);
         this.signAppearance.apply();
         this.plane.display();
@@ -247,8 +245,8 @@ export class MyBuilding extends CGFobject {
     
 
     drawHelipad() {
-        const helipadSize = Math.min(this.centerWidth, this.depth) * 0.8;
-        const roofY = this.floorHeight * this.centerFloors / 2;
+        const helipadSize = Math.min(this.centerWidth, this.centerDepth ) * 0.8;
+        const roofY = this.floorHeight * this.centerFloors;
         
         this.scene.pushMatrix();
         this.scene.translate(0, roofY + 0.05, 0);
