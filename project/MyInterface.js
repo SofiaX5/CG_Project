@@ -22,6 +22,12 @@ export class MyInterface extends CGFinterface {
             .name('FOV Setting')
             .onChange(() => this.scene.updateCameraFov());
 
+            
+        const buildingFolder = this.gui.addFolder('Building Appearance');
+        buildingFolder.add(this.scene, 'buildingAppearanceType', ['brick', 'lightGray'])
+            .name('Building Material')
+            .onChange(() => this.scene.updateBuildingAppearance());
+
         this.initKeys();
 
         return true;

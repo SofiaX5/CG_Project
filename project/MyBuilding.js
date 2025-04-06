@@ -30,18 +30,42 @@ export class MyBuilding extends CGFobject {
 
         this.buildingColor = buildingColor || [0.9, 0.9, 0.9];
         
+        this.buildingTexture = new CGFtexture(scene, "textures/building/brick.jpg");
 
+        /*
         this.buildingAppearance = new CGFappearance(scene);
         this.buildingAppearance.setAmbient(this.buildingColor[0] * 0.5, this.buildingColor[1] * 0.5, this.buildingColor[2] * 0.5, 1);
         this.buildingAppearance.setDiffuse(this.buildingColor[0], this.buildingColor[1], this.buildingColor[2], 1);
         this.buildingAppearance.setSpecular(0.1, 0.1, 0.1, 1);
         this.buildingAppearance.setShininess(10.0);
+        */
+
+        this.buildingMaterials = {
+            'brick': null,
+            'lightGray': null
+        };
+        
+        this.buildingMaterials.brick = new CGFappearance(scene);
+        this.buildingMaterials.brick.setAmbient(0.8, 0.8, 0.8, 1);
+        this.buildingMaterials.brick.setDiffuse(0.9, 0.9, 0.9, 1);
+        this.buildingMaterials.brick.setSpecular(0.1, 0.1, 0.1, 1);
+        this.buildingMaterials.brick.setShininess(10.0);
+        this.buildingMaterials.brick.setTexture(this.buildingTexture);
+        this.buildingMaterials.brick.setTextureWrap('REPEAT', 'REPEAT');
+        
+        this.buildingMaterials.lightGray = new CGFappearance(scene);
+        this.buildingMaterials.lightGray.setAmbient(this.buildingColor[0] * 0.5, this.buildingColor[1] * 0.5, this.buildingColor[2] * 0.5, 1);
+        this.buildingMaterials.lightGray.setDiffuse(this.buildingColor[0], this.buildingColor[1], this.buildingColor[2], 1);
+        this.buildingMaterials.lightGray.setSpecular(0.1, 0.1, 0.1, 1);
+        this.buildingMaterials.lightGray.setShininess(10.0);
+        
+        this.buildingAppearance = this.buildingMaterials.brick;
         
         this.window = new MyWindow(scene, windowTexture);
         
-        this.doorTexture = new CGFtexture(scene, "textures/door.jpg");
-        this.signTexture = new CGFtexture(scene, "textures/bombeiros_sign.jpg");
-        this.helipadTexture = new CGFtexture(scene, "textures/helipad.jpg");
+        this.doorTexture = new CGFtexture(scene, "textures/building/door.jpg");
+        this.signTexture = new CGFtexture(scene, "textures/building/bombeiros_sign.jpg");
+        this.helipadTexture = new CGFtexture(scene, "textures/building/helipad.jpg");
         
         this.doorAppearance = new CGFappearance(scene);
         this.doorAppearance.setAmbient(0.9, 0.9, 0.9, 1);
@@ -67,6 +91,9 @@ export class MyBuilding extends CGFobject {
         this.plane = new MyPlane(scene, 20);
     }
     
+    setAppearance(appearanceType) {
+        this.buildingAppearance = this.buildingMaterials[appearanceType];
+    }
 
     display() {
         this.scene.pushMatrix();

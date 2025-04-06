@@ -24,6 +24,8 @@ export class MyScene extends CGFscene {
       ultraWide: 1.6 
     };
     this.selectedFov = 'medium';
+
+    this.buildingAppearanceType = 'brick';
   }
   
   init(application) {
@@ -52,8 +54,8 @@ export class MyScene extends CGFscene {
     this.appearance.setTexture(this.texture);
     //this.appearance.setTextureWrap('CLAMP_TO_EDGE', 'CLAMP_TO_EDGE');
 
-    this.panoramaTexture = new CGFtexture(this, "textures/panorama.jpg");
-    this.windowTexture = new CGFtexture(this, "textures/window.jpg");
+    this.panoramaTexture = new CGFtexture(this, "textures/panoramas/panorama.jpg");
+    this.windowTexture = new CGFtexture(this, "textures/building/window.jpg");
 
     this.shader = new CGFshader(this.gl, "shaders/earth.vert", "shaders/earth.frag"),
     this.setActiveShader(this.shader);
@@ -75,6 +77,11 @@ export class MyScene extends CGFscene {
     );
     
   }
+
+  updateBuildingAppearance() {
+    this.building.setAppearance(this.buildingAppearanceType);
+  }
+
   initLights() {
     this.lights[0].setPosition(0, 0, 0, 1);
     this.lights[0].setPosition(200, 200, 200, 1);
