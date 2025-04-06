@@ -113,30 +113,43 @@ export class MyScene extends CGFscene {
     }
 
     if (this.gui.isKeyPressed("KeyA")) {
-      const dir = vec3.create();
-      vec3.subtract(dir, this.camera.target, this.camera.position);
+      text += " A ";
       
-      const x = dir[0];
-      const z = dir[2];
-      dir[0] = x * Math.cos(rotateAmount) + z * Math.sin(rotateAmount);
-      dir[2] = -x * Math.sin(rotateAmount) + z * Math.cos(rotateAmount);
+      const forward = vec3.create();
+      vec3.subtract(forward, this.camera.target, this.camera.position);
+      vec3.normalize(forward, forward);
       
-      vec3.add(this.camera.target, this.camera.position, dir);
+      const up = vec3.fromValues(0, 1, 0);
+      const right = vec3.create();
+      vec3.cross(right, forward, up);
+      vec3.normalize(right, right);
+      
+      this.camera.position[0] -= right[0] * moveAmount;
+      this.camera.position[2] -= right[2] * moveAmount;
+      this.camera.target[0] -= right[0] * moveAmount;
+      this.camera.target[2] -= right[2] * moveAmount;
+
       keysPressed = true;
     }
     
     if (this.gui.isKeyPressed("KeyD")) {
-      const dir = vec3.create();
-      vec3.subtract(dir, this.camera.target, this.camera.position);
+      text += " D ";
+      const forward = vec3.create();
+      vec3.subtract(forward, this.camera.target, this.camera.position);
+      vec3.normalize(forward, forward);
       
-      const x = dir[0];
-      const z = dir[2];
-      dir[0] = x * Math.cos(-rotateAmount) + z * Math.sin(-rotateAmount);
-      dir[2] = -x * Math.sin(-rotateAmount) + z * Math.cos(-rotateAmount);
+      const up = vec3.fromValues(0, 1, 0);
+      const right = vec3.create();
+      vec3.cross(right, forward, up);
+      vec3.normalize(right, right);
       
-      vec3.add(this.camera.target, this.camera.position, dir);
-      keysPressed = true;
-    }
+      this.camera.position[0] += right[0] * moveAmount;
+      this.camera.position[2] += right[2] * moveAmount;
+      this.camera.target[0] += right[0] * moveAmount;
+      this.camera.target[2] += right[2] * moveAmount;
+
+        keysPressed = true;
+      }
     
     if (this.gui.isKeyPressed("KeyQ")) {
       this.camera.position[1] += moveAmount;
