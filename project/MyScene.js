@@ -2,6 +2,8 @@ import { CGFscene, CGFcamera, CGFaxis, CGFappearance, CGFtexture, CGFshader } fr
 import { MyPlane } from "./MyPlane.js";
 import { MySphere } from "./MySphere.js";
 import { MyPanorama } from "./MyPanorama.js";
+import { MyWindow } from "./MyWindow.js";
+import { MyBuilding } from "./MyBuilding.js";
 
 /**
  * MyScene
@@ -12,6 +14,7 @@ export class MyScene extends CGFscene {
     super();
     this.texture = null;
     this.panoramaTexture = null;
+    this.windowTexture = null;
 		this.appearance = null;
 
     this.fovValues = {
@@ -50,6 +53,7 @@ export class MyScene extends CGFscene {
     //this.appearance.setTextureWrap('CLAMP_TO_EDGE', 'CLAMP_TO_EDGE');
 
     this.panoramaTexture = new CGFtexture(this, "textures/panorama.jpg");
+    this.windowTexture = new CGFtexture(this, "textures/window.jpg");
 
     this.shader = new CGFshader(this.gl, "shaders/earth.vert", "shaders/earth.frag"),
     this.setActiveShader(this.shader);
@@ -61,6 +65,15 @@ export class MyScene extends CGFscene {
     this.plane = new MyPlane(this, 64);
     this.sphere = new MySphere(this, 20, 20, false);
     this.panorama = new MyPanorama(this, this.panoramaTexture);
+    this.building = new MyBuilding(
+      this,               
+      20,                 // total width
+      3,                  // side floors
+      2,                  // windows per floor
+      this.windowTexture, 
+      [0.9, 0.9, 0.9]     // building color 
+    );
+    
   }
   initLights() {
     this.lights[0].setPosition(0, 0, 0, 1);
@@ -211,12 +224,17 @@ export class MyScene extends CGFscene {
     this.setDefaultAppearance();
     
     this.panorama.display();
+
+    this.building.display();
     /*
     this.scale(400, 1, 400);
     this.rotate(-Math.PI / 2, 1, 0, 0);
     this.plane.display();
     */
 
+
+    //Esperfa
+    /*
     this.pushMatrix();
     this.appearance.apply();
     this.setActiveShader(this.shader); 
@@ -224,6 +242,7 @@ export class MyScene extends CGFscene {
     this.scale(10, 10, 10);
     this.sphere.display();
     this.popMatrix();
+    */
     
 
     this.setActiveShader(this.defaultShader);
