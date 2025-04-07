@@ -52,15 +52,15 @@ export class MyScene extends CGFscene {
 		this.appearance.setSpecular(0.0, 0.0, 0.0, 1);
 		this.appearance.setShininess(120);
 
-    this.texture = new CGFtexture(this, "textures/earth.jpg");
-    this.appearance.setTexture(this.texture);
-    //this.appearance.setTextureWrap('CLAMP_TO_EDGE', 'CLAMP_TO_EDGE');
+    this.earthTexture = new CGFtexture(this, "textures/general/earth.jpg");
+    this.appearance.setTexture(this.earthTexture);
 
     this.panoramaTextures = {
       'field': new CGFtexture(this, "textures/panoramas/field.jpg"),
       'city': new CGFtexture(this, "textures/panoramas/city.jpg")
     };
 
+    this.grassTexture = new CGFtexture(this, "textures/general/grass.jpg");
     this.panoramaTexture = this.panoramaTextures[this.selectedPanorama];
     this.windowTexture = new CGFtexture(this, "textures/building/window.jpg");
 
@@ -241,17 +241,24 @@ export class MyScene extends CGFscene {
 
     this.setDefaultAppearance();
     
+    this.pushMatrix();
     this.panorama.display();
-
     this.building.display();
-    /*
+    this.popMatrix();
+    
+    this.pushMatrix();
+
+    
     this.scale(400, 1, 400);
     this.rotate(-Math.PI / 2, 1, 0, 0);
+    this.appearance.setTexture(this.grassTexture);
+    this.appearance.apply();
     this.plane.display();
-    */
+    this.popMatrix();
+    
 
 
-    //Esperfa
+    // Esfera
     /*
     this.pushMatrix();
     this.appearance.apply();
