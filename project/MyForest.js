@@ -1,5 +1,6 @@
 import {CGFobject, CGFappearance, CGFtexture} from '../lib/CGF.js';
 import {MyTree} from './MyTree.js';
+import {getRandomFloat, getRandomInt, getRandomOrient, getRandomColorLeaf} from './Utils.js';
 
 /**
  * MyTForest
@@ -19,9 +20,8 @@ export class MyForest extends CGFobject {
 
         this.trees = [];
         for (let i = 0; i < numRows*numCols; i++) {
-            let tree = new MyTree(scene);
+            let tree = new MyTree(scene, getRandomFloat(0, 0.4), getRandomOrient(), getRandomInt(3, 8), getRandomFloat(0.2, 0.7), getRandomColorLeaf());
             this.trees.push(tree);
-            //getRandomInt(min, max)
         }
     }
     
