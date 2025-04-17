@@ -7,10 +7,11 @@ import {CGFobject} from '../lib/CGF.js';
  * @param stacks - number of divisions along the Y axis
 */
 export class MyCone extends CGFobject {
-    constructor(scene, slices, stacks) {
+    constructor(scene, slices, height, radius) {
         super(scene);
         this.slices = slices;
-        this.stacks = stacks;
+        this.height = height;
+        this.radius = radius;
         this.initBuffers();
     }
     initBuffers() {
@@ -22,13 +23,12 @@ export class MyCone extends CGFobject {
         var alphaAng = 2*Math.PI/this.slices;
 
         for(var i = 0; i < this.slices; i++){
-
-            this.vertices.push(Math.cos(ang), 0, -Math.sin(ang));
+            this.vertices.push(Math.cos(ang)*this.radius, 0, -Math.sin(ang)*this.radius);
             this.indices.push(i, (i+1) % this.slices, this.slices);
             this.normals.push(Math.cos(ang), Math.cos(Math.PI/4.0), -Math.sin(ang));
             ang+=alphaAng;
         }
-        this.vertices.push(0,1,0);
+        this.vertices.push(0,this.height,0);
         this.normals.push(0,1,0);
 
 

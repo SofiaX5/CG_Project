@@ -4,6 +4,7 @@ import { MySphere } from "./MySphere.js";
 import { MyPanorama } from "./MyPanorama.js";
 import { MyWindow } from "./MyWindow.js";
 import { MyBuilding } from "./MyBuilding.js";
+import { MyTree } from "./MyTree.js";
 
 /**
  * MyScene
@@ -74,6 +75,7 @@ export class MyScene extends CGFscene {
     this.plane = new MyPlane(this, 64);
     this.sphere = new MySphere(this, 20, 20, false);
     this.panorama = new MyPanorama(this, this.panoramaTexture);
+    this.tree = new MyTree(this);
     this.building = new MyBuilding(
       this,               
       20,                 // total width
@@ -112,7 +114,6 @@ export class MyScene extends CGFscene {
   }
   checkKeys() {
     const moveAmount = 2.0;
-    const rotateAmount = 0.05;
     let keysPressed = false;
     var text = "Keys pressed: ";
 
@@ -247,13 +248,17 @@ export class MyScene extends CGFscene {
     this.popMatrix();
     
     this.pushMatrix();
-
-    
     this.scale(400, 1, 400);
     this.rotate(-Math.PI / 2, 1, 0, 0);
     this.appearance.setTexture(this.grassTexture);
     this.appearance.apply();
     this.plane.display();
+    this.popMatrix();
+
+
+    this.pushMatrix();
+    this.translate(20, 20, 0);
+    this.tree.display();
     this.popMatrix();
     
 

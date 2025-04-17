@@ -5,12 +5,14 @@ import {CGFobject} from '../lib/CGF.js';
  * @param scene - Reference to MyScene object
  * @param slices - number of divisions around the Y axis
  * @param stacks - number of divisions along the Y axis
+ * @param radius
 */
 export class MyPyramid extends CGFobject {
-    constructor(scene, slices, stacks) {
+    constructor(scene, slices, stacks, radius) {
         super(scene);
         this.slices = slices;
         this.stacks = stacks;
+        this.radius = radius;
         this.initBuffers();
     }
     initBuffers() {
@@ -31,9 +33,9 @@ export class MyPyramid extends CGFobject {
             var ca=Math.cos(ang);
             var caa=Math.cos(ang+alphaAng);
 
-            this.vertices.push(0,1,0);
-            this.vertices.push(ca, 0, -sa);
-            this.vertices.push(caa, 0, -saa);
+            this.vertices.push(0,this.stacks,0);
+            this.vertices.push(ca*this.radius, 0, -sa*this.radius);
+            this.vertices.push(caa*this.radius, 0, -saa*this.radius);
 
             // triangle normal computed by cross product of two edges
             var normal= [

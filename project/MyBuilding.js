@@ -33,13 +33,6 @@ export class MyBuilding extends CGFobject {
         
         this.buildingTexture = new CGFtexture(scene, "textures/building/brick.jpg");
 
-        /*
-        this.buildingAppearance = new CGFappearance(scene);
-        this.buildingAppearance.setAmbient(this.buildingColor[0] * 0.5, this.buildingColor[1] * 0.5, this.buildingColor[2] * 0.5, 1);
-        this.buildingAppearance.setDiffuse(this.buildingColor[0], this.buildingColor[1], this.buildingColor[2], 1);
-        this.buildingAppearance.setSpecular(0.1, 0.1, 0.1, 1);
-        this.buildingAppearance.setShininess(10.0);
-        */
 
         this.buildingMaterials = {
             'brick': null,
