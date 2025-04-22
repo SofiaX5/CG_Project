@@ -6,6 +6,8 @@ import { MyWindow } from "./MyWindow.js";
 import { MyBuilding } from "./MyBuilding.js";
 import { MyTree } from "./MyTree.js";
 import { MyForest } from "./MyForest.js";
+import { MyHeli } from "./MyHeli.js";
+
 
 /**
  * MyScene
@@ -85,7 +87,8 @@ export class MyScene extends CGFscene {
       this.windowTexture, 
       [0.9, 0.9, 0.9]     // building color 
     );
-    
+    this.heli = new MyHeli(this);
+    this.heli.setPosition(0, this.building.floorHeight+5 * this.building.centerFloors + 0.5, 0);
   }
 
   updatePanorama() {
@@ -217,8 +220,10 @@ export class MyScene extends CGFscene {
 
   update(t) {
     this.checkKeys();
+    if (this.heli) {
+      this.heli.update(t);
+    }
   }
-
   setDefaultAppearance() {
     this.setAmbient(0.5, 0.5, 0.5, 1.0);
     this.setDiffuse(0.5, 0.5, 0.5, 1.0);
@@ -248,6 +253,10 @@ export class MyScene extends CGFscene {
     this.building.display();
     this.popMatrix();
     
+    this.pushMatrix();
+    this.heli.display();
+    this.popMatrix();
+
     this.pushMatrix();
     this.scale(400, 1, 400);
     this.rotate(-Math.PI / 2, 1, 0, 0);
