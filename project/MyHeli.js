@@ -4,6 +4,7 @@ import {MyCone} from './MyCone.js';
 import {MyPlane} from './MyPlane.js';
 import {MyCircle} from './MyCircle.js';
 import {MyPyramid} from './MyPyramid.js';
+import {MyCylinder} from './MyCustomCylinder.js';
 import {MyCustomCube} from './MyCustomCube.js';
 import {MyCustomParallelogram} from './MyCustomParallelogram.js';
 
@@ -49,7 +50,8 @@ export class MyHeli extends CGFobject {
         this.cone = new MyCone(this.scene, 20, 1, 1);
         this.plane = new MyPlane(this.scene, 1);
         this.circle = new MyCircle(this.scene, 30);
-        this.cylinder = new MyCone(this.scene, 20, 1, 1); // Using cone as cylinder
+        this.cylinder = new MyCylinder(this.scene, 20, 5); 
+        this.bucketCylinder = new MyCylinder(this.scene, 20, 5,0.7, 0.1); 
         this.pyramid = new MyPyramid(this.scene, 4, 1, 1);
         this.cube = new MyCustomCube(this.scene, 5, 3, 2);
         this.parallelogram = new MyCustomParallelogram(this.scene, 7, 3, 2, 3);
@@ -161,12 +163,7 @@ export class MyHeli extends CGFobject {
         this.sphere.display();
 
         
-        // Rotor shaft
-        this.scene.pushMatrix();
-        this.scene.scale(0.2, 1, 0.2);
-        this.cylinder.display();
-        this.scene.popMatrix();
-        
+
         // Rotor blades
         this.bladeMaterial.apply();
         this.scene.rotate(this.mainRotorAngle, 0, 1, 0);
@@ -213,7 +210,7 @@ export class MyHeli extends CGFobject {
         this.scene.translate(-this.bodyLength/3+1, this.bodyHeight/5, 0);
         this.scene.rotate(Math.PI/2, 0, 0, 1);
         this.scene.scale(this.tailRadius, this.tailLength, this.tailRadius);
-        this.cylinder.display();
+        this.cone.display();
         this.scene.popMatrix();
         
         // Tail fin
@@ -310,83 +307,42 @@ export class MyHeli extends CGFobject {
         this.scene.scale(0.9, 0.05, 0.2);
         this.cube.display();
         this.scene.popMatrix();
-        /*
-        // Left front strut
-        this.scene.pushMatrix();
-        this.scene.translate(this.bodyLength/4, -this.bodyHeight/2 - 0.8, this.bodyWidth/2 - 0.2);
-        this.scene.rotate(Math.PI/2, 1, 0, 0);
-        this.scene.scale(0.1, 0.1, 1.5);
-        this.cylinder.display();
-        this.scene.popMatrix();
-        
-        // Left rear strut
-        this.scene.pushMatrix();
-        this.scene.translate(-this.bodyLength/4, -this.bodyHeight/2 - 0.8, this.bodyWidth/2 - 0.2);
-        this.scene.rotate(Math.PI/2, 1, 0, 0);
-        this.scene.scale(0.1, 0.1, 1.5);
-        this.cylinder.display();
-        this.scene.popMatrix();
-        
-        // Left skid
-        this.scene.pushMatrix();
-        this.scene.translate(0, -this.bodyHeight/2 - 1.5, this.bodyWidth/2 - 0.2);
-        this.scene.rotate(Math.PI/2, 0, 1, 0);
-        this.scene.scale(0.1, 0.1, this.bodyLength*0.8);
-        this.cylinder.display();
-        this.scene.popMatrix();
-        
-        // Right front strut
-        this.scene.pushMatrix();
-        this.scene.translate(this.bodyLength/4, -this.bodyHeight/2 - 0.8, -this.bodyWidth/2 + 0.2);
-        this.scene.rotate(Math.PI/2, 1, 0, 0);
-        this.scene.scale(0.1, 0.1, 1.5);
-        this.cylinder.display();
-        this.scene.popMatrix();
-        
-        // Right rear strut
-        this.scene.pushMatrix();
-        this.scene.translate(-this.bodyLength/4, -this.bodyHeight/2 - 0.8, -this.bodyWidth/2 + 0.2);
-        this.scene.rotate(Math.PI/2, 1, 0, 0);
-        this.scene.scale(0.1, 0.1, 1.5);
-        this.cylinder.display();
-        this.scene.popMatrix();
-        
-        // Right skid
-        this.scene.pushMatrix();
-        this.scene.translate(0, -this.bodyHeight/2 - 1.5, -this.bodyWidth/2 + 0.2);
-        this.scene.rotate(Math.PI/2, 0, 1, 0);
-        this.scene.scale(0.1, 0.1, this.bodyLength*0.8);
-        this.cylinder.display();
-        this.scene.popMatrix();
-        */
         this.scene.popMatrix();
     }
     
     drawBucket() {
         // Rope
+        /* // ideia fixe para bucket holder
+        this.scene.pushMatrix();
+        this.metalMaterial.apply();
+        this.scene.translate(0, -this.bodyHeight, 0);
+        this.scene.rotate(Math.PI, 1, 0, 0);
+        this.scene.scale(1, this.ropeLength, 1);
+        this.cylinder.display();
+        this.scene.popMatrix();*/
         this.scene.pushMatrix();
         this.metalMaterial.apply();
         this.scene.translate(0, -this.bodyHeight/2, 0);
-        this.scene.rotate(Math.PI, 1, 0, 0);
-        this.scene.scale(0.05, this.ropeLength, 0.05);
+        this.scene.rotate(Math.PI/2, 1, 0, 0);
+        this.scene.scale(0.05, 0.05, this.ropeLength);
         this.cylinder.display();
         this.scene.popMatrix();
         
-        // Bucket body
+        // Bucket body - fix the orientation
         this.scene.pushMatrix();
         this.bucketMaterial.apply();
         this.scene.translate(0, -this.bodyHeight/2 - this.ropeLength - this.bucketHeight/2, 0);
-        this.scene.rotate(Math.PI, 1, 0, 0);
-        this.scene.scale(this.bucketRadius, this.bucketHeight, this.bucketRadius);
-        this.cylinder.display();
+        this.scene.rotate(Math.PI/2, 1, 0, 0);
+        this.scene.scale(this.bucketRadius, this.bucketRadius, this.bucketRadius);
+        this.bucketCylinder.display(); 
         this.scene.popMatrix();
         
         // Bucket bottom
         this.scene.pushMatrix();
         this.bucketMaterial.apply();
         this.scene.translate(0, -this.bodyHeight/2 - this.ropeLength - this.bucketHeight, 0);
-        this.scene.rotate(Math.PI, 1, 0, 0);
-        this.scene.scale(this.bucketRadius, 1, this.bucketRadius);
+        this.scene.rotate(Math.PI/2, 1, 0, 0);
+        this.scene.scale(this.bucketRadius, this.bucketRadius, this.bucketRadius);
         this.circle.display();
         this.scene.popMatrix();
         
@@ -394,7 +350,7 @@ export class MyHeli extends CGFobject {
         this.scene.pushMatrix();
         this.waterMaterial.apply();
         this.scene.translate(0, -this.bodyHeight/2 - this.ropeLength - this.bucketHeight*0.5, 0);
-        this.scene.scale(this.bucketRadius*0.9, this.bucketHeight*0.4, this.bucketRadius*0.9);
+        this.scene.scale(this.bucketRadius*0.9, this.bucketHeight*0.2, this.bucketRadius*0.9);
         this.sphere.display();
         this.scene.popMatrix();
     }
