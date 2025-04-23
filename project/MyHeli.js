@@ -25,7 +25,7 @@ export class MyHeli extends CGFobject {
         this.tailRadius = 0.4;
         
         this.mainRotorRadius = 5;
-        this.tailRotorRadius = 1;
+        this.tailRotorRadius = 3;
         
         this.bucketRadius = 0.8;
         this.bucketHeight = 1.2;
@@ -40,13 +40,11 @@ export class MyHeli extends CGFobject {
         this.y = 0;
         this.z = 0;
         
-        // Initialize objects
         this.initObjects();
         this.initMaterials();
     }
     
     initObjects() {
-        // Create all shapes needed for the helicopter
         this.sphere = new MySphere(this.scene, 20, 20);
         this.cone = new MyCone(this.scene, 20, 1, 1);
         this.plane = new MyPlane(this.scene, 1);
@@ -59,7 +57,6 @@ export class MyHeli extends CGFobject {
     }
     
     initMaterials() {
-        // Body material - Red for firefighting helicopter
         this.bodyMaterial = new CGFappearance(this.scene);
         this.bodyMaterial.setAmbient(0.5, 0.1, 0.1, 1);
         this.bodyMaterial.setDiffuse(0.8, 0.2, 0.2, 1);
@@ -105,41 +102,32 @@ export class MyHeli extends CGFobject {
     }
     
     update(deltaTime) {
-        // Update rotation angles for the propellers
         this.mainRotorAngle += deltaTime * 0.01;
         this.tailRotorAngle += deltaTime * 0.02;
     }
     
     display() {
-        // Save the current transformation matrix
         this.scene.pushMatrix();
         
-        // Apply position transformation
         this.scene.translate(this.x, this.y, this.z);
         
-        // Draw main body (fuselage)
         this.drawBody();
         
-        // Draw main rotor
         this.drawMainRotor();
         
-        // Draw tail boom and tail rotor
         this.drawTail();
         
-        // Draw landing gear
         this.drawLandingGear();
         
-        // Draw water bucket
         this.drawBucket();
         
-        // Restore the transformation matrix
         this.scene.popMatrix();
     }
     
     drawBody() {
         this.scene.pushMatrix();
         
-        // Main body - elongated sphere
+        // Main body 
         this.bodyMaterial.apply();
         this.scene.scale(this.bodyLength/2.5, this.bodyHeight/2, this.bodyWidth/2);
         this.sphere.display();
@@ -228,30 +216,24 @@ export class MyHeli extends CGFobject {
         this.cylinder.display();
         this.scene.popMatrix();
         
-        // Tail fin - vertical stabilizer
+        // Tail fin
         this.scene.pushMatrix();
         this.bodyMaterial.apply();
-        
         this.scene.translate(-this.bodyLength/2 - this.tailLength/1.2 + 2, this.bodyHeight/2-0.02, 0);
         this.scene.rotate(-Math.PI/6, 0, 0, 1);
         this.scene.scale(0.3, 0.2, 0.2);
         this.parallelogram.display();
         this.scene.popMatrix();
-        
-        // Horizontal stabilizer
+
+        // Tail rotor hub and blades 
         this.scene.pushMatrix();
-        this.bodyMaterial.apply();
-        this.scene.translate(-this.bodyLength/2 - this.tailLength + 0.5, 0, 0);
-        this.scene.rotate(Math.PI/2, 0, 0, 1);
-        this.scene.scale(0.2, 1, 0.8);
-        this.pyramid.display();
-        this.scene.popMatrix();
+        this.scene.translate(-this.bodyLength/2 - this.tailLength/1.2 + 2, this.bodyHeight/2-0.02, 0);
         
-        // Tail rotor hub
-        this.scene.pushMatrix();
+        // Rotor hub
         this.metalMaterial.apply();
-        this.scene.translate(-this.bodyLength/2 - this.tailLength + 0.2, this.tailRadius*2, this.tailRadius*2);
-        this.scene.scale(0.2, 0.2, 0.2);
+        this.scene.translate(0.65, 0, 0.2);
+
+        this.scene.scale(0.15, 0.1, 0.1);
         this.sphere.display();
         
         // Tail rotor blades
@@ -260,18 +242,17 @@ export class MyHeli extends CGFobject {
         
         // First tail blade
         this.scene.pushMatrix();
-        this.scene.rotate(0, 0, 0, 1);
         this.scene.translate(0, this.tailRotorRadius/2, 0);
-        this.scene.scale(0.1, this.tailRotorRadius, 0.05);
-        this.plane.display();
+        this.scene.scale(0.2, this.tailRotorRadius, 0.2);
+        this.cube.display();
         this.scene.popMatrix();
         
         // Second tail blade
         this.scene.pushMatrix();
         this.scene.rotate(Math.PI, 0, 0, 1);
         this.scene.translate(0, this.tailRotorRadius/2, 0);
-        this.scene.scale(0.1, this.tailRotorRadius, 0.05);
-        this.plane.display();
+        this.scene.scale(0.2, this.tailRotorRadius, 0.2);
+        this.cube.display();
         this.scene.popMatrix();
         
         this.scene.popMatrix();

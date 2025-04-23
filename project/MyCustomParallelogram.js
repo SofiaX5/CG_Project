@@ -15,17 +15,16 @@ export class MyCustomParallelogram extends CGFobject {
     }
    
     initBuffers() {
-
+        const halfDepth = this.depth / 2;
         this.vertices = [
-            0, 0, 0,                  // 0
-            this.width - this.offset, 0, 0,  // 1
-            this.offset, this.height, 0,     // 2
-            this.width, this.height, 0,      // 3
-
-            0, 0, this.depth,                  // 4
-            this.width - this.offset, 0, this.depth,  // 5
-            this.offset, this.height, this.depth,     // 6
-            this.width, this.height, this.depth       // 7
+            0, 0, -halfDepth,                  // 0
+            this.width - this.offset, 0, -halfDepth,  // 1
+            this.offset, this.height, -halfDepth,     // 2
+            this.width, this.height, -halfDepth,      // 3
+            0, 0, halfDepth,                  // 4
+            this.width - this.offset, 0, halfDepth,  // 5
+            this.offset, this.height, halfDepth,     // 6
+            this.width, this.height, halfDepth       // 7
         ];
         
         this.indices = [
