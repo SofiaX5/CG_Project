@@ -51,7 +51,7 @@ export class MyHeli extends CGFobject {
         this.plane = new MyPlane(this.scene, 1);
         this.circle = new MyCircle(this.scene, 30);
         this.cylinder = new MyCylinder(this.scene, 20, 5); 
-        this.bucketCylinder = new MyCylinder(this.scene, 20, 5,0.7, 0.1); 
+        this.bucketCylinder = new MyCylinder(this.scene, 20, 5,0.7); 
         this.pyramid = new MyPyramid(this.scene, 4, 1, 1);
         this.cube = new MyCustomCube(this.scene, 5, 3, 2);
         this.parallelogram = new MyCustomParallelogram(this.scene, 7, 3, 2, 3);
@@ -327,6 +327,7 @@ export class MyHeli extends CGFobject {
         this.scene.scale(0.05, 0.05, this.ropeLength);
         this.cylinder.display();
         this.scene.popMatrix();
+
         
         // Bucket body - fix the orientation
         this.scene.pushMatrix();
@@ -340,9 +341,9 @@ export class MyHeli extends CGFobject {
         // Bucket bottom
         this.scene.pushMatrix();
         this.bucketMaterial.apply();
-        this.scene.translate(0, -this.bodyHeight/2 - this.ropeLength - this.bucketHeight, 0);
+        this.scene.translate(0, -this.bodyHeight/2 - this.ropeLength - this.bucketHeight*1.15, 0);
         this.scene.rotate(Math.PI/2, 1, 0, 0);
-        this.scene.scale(this.bucketRadius, this.bucketRadius, this.bucketRadius);
+        this.scene.scale(this.bucketRadius*1.4, this.bucketRadius*1.4, this.bucketRadius*1.4);
         this.circle.display();
         this.scene.popMatrix();
         
