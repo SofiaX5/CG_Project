@@ -14,7 +14,7 @@ import {MyCustomParallelogram} from './MyCustomParallelogram.js';
  * @param scene - Reference to MyScene object
  */
 export class MyHeli extends CGFobject {
-    constructor(scene, hasBucket = true) {
+    constructor(scene, hasBucket = false) {
         super(scene);
         
         // Dimensions
@@ -106,6 +106,10 @@ export class MyHeli extends CGFobject {
     update(deltaTime) {
         this.mainRotorAngle += deltaTime * 0.01;
         this.tailRotorAngle += deltaTime * 0.02;
+    }
+
+    setBucket(hasBucket) {
+        this.hasBucket = hasBucket;
     }
     
     display() {

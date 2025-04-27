@@ -37,6 +37,13 @@ export class MyInterface extends CGFinterface {
 
         this.initKeys();
 
+        //Helicopter
+        const helicopterFolder = this.gui.addFolder('Helicopter');
+        helicopterFolder.add(this.scene, 'showHelicopterBucket')
+            .name('Bucket')
+            .onChange(() => this.scene.updateHelicopterBucket());
+        this.initKeys();
+
         return true;
     }
 
