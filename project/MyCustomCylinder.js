@@ -68,6 +68,14 @@ export class MyCylinder extends CGFobject {
         this.primitiveType = this.scene.gl.TRIANGLES;
         this.initGLBuffers();
     }
+
+    display() {
+        this.scene.gl.disable(this.scene.gl.CULL_FACE);
+        
+        super.display();
+        
+        this.scene.gl.enable(this.scene.gl.CULL_FACE);
+    }
     
 
     updateBuffers(complexity){

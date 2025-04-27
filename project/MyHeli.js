@@ -14,7 +14,7 @@ import {MyCustomParallelogram} from './MyCustomParallelogram.js';
  * @param scene - Reference to MyScene object
  */
 export class MyHeli extends CGFobject {
-    constructor(scene) {
+    constructor(scene, hasBucket = true) {
         super(scene);
         
         // Dimensions
@@ -34,8 +34,8 @@ export class MyHeli extends CGFobject {
         // Animation variables
         this.mainRotorAngle = 0;
         this.tailRotorAngle = 0;
-        this.ropeLength = 4;
-        
+        this.ropeLength = 5;
+        this.hasBucket = hasBucket;   
         // Position
         this.x = 0;
         this.y = 0;
@@ -59,48 +59,48 @@ export class MyHeli extends CGFobject {
     }
     
     initMaterials() {
+        // Body 
         this.bodyMaterial = new CGFappearance(this.scene);
-        this.bodyMaterial.setAmbient(0.5, 0.1, 0.1, 1);
-        this.bodyMaterial.setDiffuse(0.8, 0.2, 0.2, 1);
-        this.bodyMaterial.setSpecular(0.4, 0.4, 0.4, 1);
-        this.bodyMaterial.setShininess(50);
+        this.bodyMaterial.setAmbient(0.3, 0.05, 0.05, 1);    
+        this.bodyMaterial.setDiffuse(0.7, 0.1, 0.1, 1);     
+        this.bodyMaterial.setSpecular(1.0, 0.9, 0.9, 1);    
+        this.bodyMaterial.setShininess(200);                
         this.bodyTexture = new CGFtexture(this.scene, "textures/helicopter/body.jpg");
         this.bodyMaterial.setTexture(this.bodyTexture);
+        this.bodyMaterial.setTextureWrap('REPEAT', 'REPEAT');
         
-        // Glass material - Transparent blue
+        // Glass
         this.glassMaterial = new CGFappearance(this.scene);
-        this.glassMaterial.setAmbient(0.2, 0.2, 0.3, 0.9);
-        this.glassMaterial.setDiffuse(0.2, 0.2, 0.8, 0.5);
-        this.glassMaterial.setSpecular(0.9, 0.9, 0.9, 1);
-        this.glassMaterial.setShininess(150);
+        this.glassMaterial.setAmbient(0.2, 0.2, 0.3, 1.0);
+        this.glassMaterial.setDiffuse(0.1, 0.2, 0.3, 1.0); 
+        this.glassMaterial.setSpecular(0.9, 0.9, 0.9, 1.0);
+        this.glassMaterial.setShininess(200);
         
-        // Metal material - Dark grey
+        // Metal Accents
+        this.metalAccentsMaterial = new CGFappearance(this.scene);
+        this.metalAccentsMaterial.setAmbient(0.3, 0.3, 0.3, 1);
+        this.metalAccentsMaterial.setDiffuse(0.7, 0.7, 0.7, 1);
+        this.metalAccentsMaterial.setSpecular(0.9, 0.9, 0.9, 1);
+        this.metalAccentsMaterial.setShininess(100);
+        this.metalAccentsTexture = new CGFtexture(this.scene, "textures/helicopter/metal.jpg");
+        this.metalAccentsMaterial.setTexture(this.metalAccentsTexture);
+        this.metalAccentsMaterial.setTextureWrap('REPEAT', 'REPEAT');
+        
+        // Meta
         this.metalMaterial = new CGFappearance(this.scene);
-        this.metalMaterial.setAmbient(0.3, 0.3, 0.3, 1);
-        this.metalMaterial.setDiffuse(0.5, 0.5, 0.5, 1);
-        this.metalMaterial.setSpecular(0.7, 0.7, 0.7, 1);
-        this.metalMaterial.setShininess(100);
+        this.metalMaterial.setAmbient(0.1, 0.1, 0.1, 1);
+        this.metalMaterial.setDiffuse(0.25, 0.25, 0.25, 1);
+        this.metalMaterial.setSpecular(0.9, 0.9, 0.9, 1);
+        this.metalMaterial.setShininess(120);
         
-        // Blade material - Black
-        this.bladeMaterial = new CGFappearance(this.scene);
-        this.bladeMaterial.setAmbient(0.1, 0.1, 0.1, 1);
-        this.bladeMaterial.setDiffuse(0.2, 0.2, 0.2, 1);
-        this.bladeMaterial.setSpecular(0.3, 0.3, 0.3, 1);
-        this.bladeMaterial.setShininess(50);
-        
-        // Bucket material - Yellow
-        this.bucketMaterial = new CGFappearance(this.scene);
-        this.bucketMaterial.setAmbient(0.5, 0.5, 0.1, 1);
-        this.bucketMaterial.setDiffuse(0.9, 0.9, 0.2, 1);
-        this.bucketMaterial.setSpecular(0.1, 0.1, 0.1, 1);
-        this.bucketMaterial.setShininess(20);
-        
-        // Water material - Blue
+        // Water
         this.waterMaterial = new CGFappearance(this.scene);
         this.waterMaterial.setAmbient(0.1, 0.1, 0.5, 0.8);
         this.waterMaterial.setDiffuse(0.2, 0.2, 0.8, 0.5);
         this.waterMaterial.setSpecular(0.5, 0.5, 0.8, 1);
         this.waterMaterial.setShininess(80);
+        this.waterTexture = new CGFtexture(this.scene, "textures/helicopter/water.jpg");
+        this.waterMaterial.setTexture(this.waterTexture);
     }
     
     update(deltaTime) {
@@ -121,7 +121,9 @@ export class MyHeli extends CGFobject {
         
         this.drawLandingGear();
         
-        this.drawBucket();
+        if (this.hasBucket) {
+            this.drawBucket();
+        }
         
         this.scene.popMatrix();
     }
@@ -139,14 +141,14 @@ export class MyHeli extends CGFobject {
         this.sphere.display();
         
         this.scene.popMatrix();
-        /*
-        // Cockpit - glass dome at the front
+        
+        // Cockpit
         this.scene.pushMatrix();
         this.glassMaterial.apply();
-        this.scene.translate(this.bodyLength/3, this.bodyHeight/4, 0);
-        this.scene.scale(this.bodyLength/4, this.bodyHeight/3, this.bodyWidth/3);
+        this.scene.translate(this.bodyLength/5.5, this.bodyHeight/15, 0);
+        this.scene.scale(this.bodyLength/4, this.bodyHeight/3, this.bodyWidth/2.5);
         this.sphere.display();
-        this.scene.popMatrix();*/
+        this.scene.popMatrix();
     }
     
     drawMainRotor() {
@@ -158,14 +160,14 @@ export class MyHeli extends CGFobject {
         this.scene.scale(0.4, 0.4, 0.4);
         this.cube.display();
 
-        this.metalMaterial.apply();
+        this.metalAccentsMaterial.apply();
         this.scene.translate(0, this.bodyHeight/2 , 0);
         this.sphere.display();
 
         
 
         // Rotor blades
-        this.bladeMaterial.apply();
+        this.metalMaterial.apply();
         this.scene.rotate(this.mainRotorAngle, 0, 1, 0);
         
         // First blade
@@ -227,14 +229,14 @@ export class MyHeli extends CGFobject {
         this.scene.translate(-this.bodyLength/2 - this.tailLength/1.2 + 2, this.bodyHeight/2-0.02, 0);
         
         // Rotor hub
-        this.metalMaterial.apply();
+        this.metalAccentsMaterial.apply();
         this.scene.translate(0.65, 0, 0.2);
 
         this.scene.scale(0.15, 0.1, 0.1);
         this.sphere.display();
         
         // Tail rotor blades
-        this.bladeMaterial.apply();
+        this.metalMaterial.apply();
         this.scene.rotate(this.tailRotorAngle, 0, 0, 1);
         
         // First tail blade
@@ -312,16 +314,8 @@ export class MyHeli extends CGFobject {
     
     drawBucket() {
         // Rope
-        /* // ideia fixe para bucket holder
         this.scene.pushMatrix();
-        this.metalMaterial.apply();
-        this.scene.translate(0, -this.bodyHeight, 0);
-        this.scene.rotate(Math.PI, 1, 0, 0);
-        this.scene.scale(1, this.ropeLength, 1);
-        this.cylinder.display();
-        this.scene.popMatrix();*/
-        this.scene.pushMatrix();
-        this.metalMaterial.apply();
+        this.metalAccentsMaterial.apply();
         this.scene.translate(0, -this.bodyHeight/2, 0);
         this.scene.rotate(Math.PI/2, 1, 0, 0);
         this.scene.scale(0.05, 0.05, this.ropeLength);
@@ -329,9 +323,9 @@ export class MyHeli extends CGFobject {
         this.scene.popMatrix();
 
         
-        // Bucket body - fix the orientation
+        // Bucket body 
         this.scene.pushMatrix();
-        this.bucketMaterial.apply();
+        this.metalMaterial.apply();
         this.scene.translate(0, -this.bodyHeight/2 - this.ropeLength - this.bucketHeight/2, 0);
         this.scene.rotate(Math.PI/2, 1, 0, 0);
         this.scene.scale(this.bucketRadius, this.bucketRadius, this.bucketRadius);
@@ -340,18 +334,18 @@ export class MyHeli extends CGFobject {
         
         // Bucket bottom
         this.scene.pushMatrix();
-        this.bucketMaterial.apply();
+        this.metalMaterial.apply();
         this.scene.translate(0, -this.bodyHeight/2 - this.ropeLength - this.bucketHeight*1.15, 0);
         this.scene.rotate(Math.PI/2, 1, 0, 0);
         this.scene.scale(this.bucketRadius*1.4, this.bucketRadius*1.4, this.bucketRadius*1.4);
         this.circle.display();
         this.scene.popMatrix();
         
-        // Water - semi-transparent blue
+        // Water
         this.scene.pushMatrix();
         this.waterMaterial.apply();
         this.scene.translate(0, -this.bodyHeight/2 - this.ropeLength - this.bucketHeight*0.5, 0);
-        this.scene.scale(this.bucketRadius*0.9, this.bucketHeight*0.2, this.bucketRadius*0.9);
+        this.scene.scale(this.bucketRadius*0.95, this.bucketHeight*0.2, this.bucketRadius*0.95);
         this.sphere.display();
         this.scene.popMatrix();
     }

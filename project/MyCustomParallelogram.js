@@ -46,7 +46,17 @@ export class MyCustomParallelogram extends CGFobject {
             1, 5, 7,
             1, 7, 3
         ];
-        
+        this.texCoords = [
+            0, 1,       // bottom left
+            1, 1,       // bottom right
+            0, 0,       // top left
+            1, 0,       // top right
+
+            0, 1,       // bottom left
+            1, 1,       // bottom right
+            0, 0,       // top left
+            1, 0        // top right
+        ];
         
         this.primitiveType = this.scene.gl.TRIANGLES;
         this.initGLBuffers();

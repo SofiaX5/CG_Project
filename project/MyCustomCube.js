@@ -51,6 +51,32 @@ export class MyCustomCube extends CGFobject {
             6, 2, 3,
             6, 3, 7
         ];
+
+        this.normals = [
+            // Bot
+            0, -1, 0,
+            0, -1, 0,
+            0, -1, 0,
+            0, -1, 0,
+            // Top
+            0, 1, 0,
+            0, 1, 0,
+            0, 1, 0,
+            0, 1, 0
+        ];
+
+        this.texCoords = [
+            // Bot
+            1, 1,
+            0, 1,
+            1, 0,
+            0, 0,
+            // Top
+            1, 1,
+            0, 1,
+            1, 0,
+            0, 0
+        ];
         
         this.primitiveType = this.scene.gl.TRIANGLES;
         this.initGLBuffers();
