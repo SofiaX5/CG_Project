@@ -39,6 +39,7 @@ export class MyScene extends CGFscene {
 
     this.showHelicopterBucket = false;
     this.speedFactor = 1.0;
+    this.heliportHeight = 0;
   }
   
   init(application) {
@@ -95,7 +96,8 @@ export class MyScene extends CGFscene {
       [0.9, 0.9, 0.9]     // building color 
     );
     this.heli = new MyHeli(this);
-    this.heli.setPosition(0, this.building.floorHeight * 4 + this.heli.bodyHeight * 0.75, 0);
+    this.updateHeliportPosition();
+    //this.heli.setPosition(0, this.building.floorHeight * 4 + this.heli.bodyHeight * 0.75, 0);
   }
 
   updatePanorama() {
@@ -117,12 +119,22 @@ export class MyScene extends CGFscene {
       this.buildingColor,
       this.buildingAppearanceType
     )
-    this.heli.setPosition(0, 3 * (this.buildingSideFloors + 1) + this.heli.bodyHeight * 0.75, 0);
+    this.updateHeliportPosition();
+    //this.heli.setPosition(0, 3 * (this.buildingSideFloors + 1) + this.heli.bodyHeight * 0.75, 0);
   }
 
   updateHelicopterBucket() {
     this.heli.setBucket(this.showHelicopterBucket);
   }
+
+  updateHeliportPosition() {
+    // Calculate the height of the building's roof
+    const buildingHeight = this.building.floorHeight * (this.buildingSideFloors + 1);
+    this.heliportHeight = buildingHeight;
+    
+    // Set the heliport position for the helicopter
+    this.heli.setHeliportPosition(0, buildingHeight + this.heli.bodyHeight * 0.75, 0);
+}
 
   initLights() {
     this.lights[0].setPosition(0, 0, 0, 1);
@@ -188,20 +200,23 @@ export class MyScene extends CGFscene {
         keysPressed = true;
     }
     
-    if (this.gui.isKeyPressed("KeyP")) {
-        text += " P ";
-        this.heli.takeOff();
-        keysPressed = true;
-    }
-    
-    if (this.gui.isKeyPressed("KeyL")) {
-        text += " L ";
-        this.heli.land();
-        keysPressed = true;
+    if (this.gui.isKeyPressed("KeyP") && !this.pKeyActive) {
+      text += " P ";
+      this.heli.takeOff();
+      this.pKeyActive = true;
+      keysPressed = true;
+    } else if (!this.gui.isKeyPressed("KeyP")) {
+        this.pKeyActive = false;
     }
 
-    // Código original para movimento de câmera - manter ou adaptar conforme necessário
-    // ...
+    if (this.gui.isKeyPressed("KeyL") && !this.lKeyActive) {
+        text += " L ";
+        this.heli.land();
+        this.lKeyActive = true;
+        keysPressed = true;
+    } else if (!this.gui.isKeyPressed("KeyL")) {
+        this.lKeyActive = false;
+    }
 
     if (keysPressed){
         console.log(text);

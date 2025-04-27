@@ -34,8 +34,11 @@ export class MyHeli extends CGFobject {
         // Animation variables
         this.mainRotorAngle = 0;
         this.tailRotorAngle = 0;
+        this.mainRotorSpeed = 0;
+        this.tailRotorSpeed = 0;
+        this.maxRotorSpeed = 0.01;
         this.ropeLength = 5;
-        this.hasBucket = hasBucket; 
+        this.hasBucket = hasBucket;
 
         // Position and Movement
         this.x = posX;
@@ -46,9 +49,14 @@ export class MyHeli extends CGFobject {
         this.velocity = [0, 0, 0];
 
         // Heli State
-        this.state = "resting"; // "resting", "flying", "filling", "landing"
+        this.state = "resting"; // "resting", "taking_off", "flying", "landing", "filling"
         this.cruisingAltitude = 15;
         this.initialHeight = posY;
+        this.heliportX = 0;
+        this.heliportZ = 0;
+        this.landingAnimationTime = 0;
+        this.takeoffAnimationTime = 0;
+        this.animationDuration = 3000; // 3 seconds for takeoff/landing
         
         this.initObjects();
         this.initMaterials();
@@ -113,27 +121,89 @@ export class MyHeli extends CGFobject {
     }
     
     update(deltaTime) {
-        this.mainRotorAngle += deltaTime * 0.01;
-        this.tailRotorAngle += deltaTime * 0.02;
-        
-        if (this.state === "flying") {
-            this.x += this.velocity[0] * deltaTime * 0.01;
-            this.z += this.velocity[2] * deltaTime * 0.01;
-        } else if (this.state === "taking_off") {
-            this.y += 0.05 * deltaTime * 0.01;
-            if (this.y >= this.cruisingAltitude) {
-                this.y = this.cruisingAltitude;
-                this.state = "flying";
-            }
-        } else if (this.state === "landing") {
-            this.y -= 0.05 * deltaTime * 0.01;
-            if (this.y <= this.initialHeight) {
-                this.y = this.initialHeight;
-                this.state = "resting";
-
-            }
+        // Update rotors based on state
+        switch (this.state) {
+            case "resting":
+                // Slow down rotors if they're still spinning
+                this.mainRotorSpeed = Math.max(0, this.mainRotorSpeed - 0.0001 * deltaTime);
+                this.tailRotorSpeed = Math.max(0, this.tailRotorSpeed - 0.0002 * deltaTime);
+                break;
+                
+            case "taking_off":
+                // Increase rotor speed during takeoff
+                this.takeoffAnimationTime += deltaTime;
+                const takeoffProgress = Math.min(this.takeoffAnimationTime / this.animationDuration, 1);
+                
+                // Gradually increase rotor speed
+                this.mainRotorSpeed = this.maxRotorSpeed * Math.min(takeoffProgress * 2, 1);
+                this.tailRotorSpeed = this.maxRotorSpeed * 2 * Math.min(takeoffProgress * 2, 1);
+                
+                // Start rising after rotors reach minimum speed (25% of animation)
+                if (takeoffProgress > 0.25) {
+                    const riseProgress = (takeoffProgress - 0.25) / 0.75; // Rescale to 0-1 for the rising part
+                    this.y = this.initialHeight + (this.cruisingAltitude - this.initialHeight) * riseProgress;
+                }
+                
+                // Complete takeoff
+                if (takeoffProgress >= 1) {
+                    this.y = this.cruisingAltitude;
+                    this.state = "flying";
+                }
+                break;
+                
+            case "flying":
+                // Maintain full rotor speed
+                this.mainRotorSpeed = this.maxRotorSpeed;
+                this.tailRotorSpeed = this.maxRotorSpeed * 2;
+                
+                // Update position based on velocity
+                this.x += this.velocity[0] * deltaTime * 0.01;
+                this.z += this.velocity[2] * deltaTime * 0.01;
+                break;
+                
+            case "landing":
+                this.landingAnimationTime += deltaTime;
+                const landingProgress = Math.min(this.landingAnimationTime / this.animationDuration, 1);
+                
+                // First move to heliport position (first 40% of animation)
+                if (landingProgress < 0.4) {
+                    const moveProgress = landingProgress / 0.4;
+                    this.x = this.x + (this.heliportX - this.x) * moveProgress;
+                    this.z = this.z + (this.heliportZ - this.z) * moveProgress;
+                    
+                    // Also adjust angle to face forward
+                    const targetAngle = 0;
+                    this.angleYY = this.angleYY + (targetAngle - this.angleYY) * moveProgress;
+                }
+                // Then descend (remaining 60% of animation)
+                else {
+                    const descentProgress = (landingProgress - 0.4) / 0.6;
+                    this.y = this.cruisingAltitude + (this.initialHeight - this.cruisingAltitude) * descentProgress;
+                    
+                    // Slow down rotors during final approach
+                    if (descentProgress > 0.8) {
+                        const slowdownFactor = 1 - (descentProgress - 0.8) / 0.2;
+                        this.mainRotorSpeed = this.maxRotorSpeed * slowdownFactor;
+                        this.tailRotorSpeed = this.maxRotorSpeed * 2 * slowdownFactor;
+                    }
+                }
+                
+                // Complete landing
+                if (landingProgress >= 1) {
+                    this.y = this.initialHeight;
+                    this.state = "resting";
+                    this.velocity = [0, 0, 0];
+                }
+                break;
+                
+            case "filling":
+                // Implementation for water filling will go here
+                break;
         }
+        this.mainRotorAngle += deltaTime * this.mainRotorSpeed;
+        this.tailRotorAngle += deltaTime * this.tailRotorSpeed;
     }
+
 
     setBucket(hasBucket) {
         this.hasBucket = hasBucket;
@@ -408,17 +478,22 @@ export class MyHeli extends CGFobject {
         }
     }
     reset() {
-        this.x = 0;
+        this.x = this.heliportX;
         this.y = this.initialHeight;
-        this.z = 0;
+        this.z = this.heliportZ;
         this.angleYY = 0;
         this.velocity = [0, 0, 0];
         this.state = "resting";
+        this.mainRotorSpeed = 0;
+        this.tailRotorSpeed = 0;
+        this.landingAnimationTime = 0;
+        this.takeoffAnimationTime = 0;
     }
     
     takeOff() {
         if (this.state === "resting") {
             this.state = "taking_off";
+            this.takeoffAnimationTime = 0;
         } else if (this.state === "filling") {
             this.state = "flying";
             this.y = this.cruisingAltitude;
@@ -427,20 +502,30 @@ export class MyHeli extends CGFobject {
     
     land() {
         if (this.state === "flying") {
-            // Verifica se está sobre o lago !!!!
+            // Check if helicopter is over the lake (this will be implemented later)
             const isOverLake = false; 
             const isBucketEmpty = true; 
             
             if (isOverLake && isBucketEmpty) {
                 this.state = "filling";
-                // Implementar lógica para descer até o lago!!!!!!!!!!!!!!
+                // Logic for descending to lake will go here
             } else {
-                // G back to heliprto
-                this.x = 0;
-                this.z = 0;
-                this.angleYY = 0;
+                // Start landing animation
                 this.state = "landing";
+                this.landingAnimationTime = 0;
             }
+        }
+    }
+
+    setHeliportPosition(x, y, z) {
+        this.heliportX = x;
+        this.heliportZ = z;
+        this.initialHeight = y;
+        // If helicopter is resting, update its position too
+        if (this.state === "resting") {
+            this.x = x;
+            this.y = y;
+            this.z = z;
         }
     }
 }
