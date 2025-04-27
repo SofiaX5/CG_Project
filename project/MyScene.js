@@ -38,6 +38,7 @@ export class MyScene extends CGFscene {
     this.buildingColor = [0.9, 0.9, 0.9];
 
     this.showHelicopterBucket = false;
+    this.speedFactor = 1.0;
   }
   
   init(application) {
@@ -144,98 +145,69 @@ export class MyScene extends CGFscene {
     let keysPressed = false;
     var text = "Keys pressed: ";
 
-    // Check for key codes e.g. in https://keycode.info/
+    // Fator de velocidade para o helicóptero
+    const heliTurnFactor = 0.05 * this.speedFactor;
+    const heliAccelFactor = 0.02 * this.speedFactor;
+
+    // Controle do helicóptero
     if (this.gui.isKeyPressed("KeyW")) {
-      text += " W ";
-      const dir = vec3.create();
-      vec3.subtract(dir, this.camera.target, this.camera.position);
-      vec3.normalize(dir, dir);
-      
-      this.camera.position[0] += dir[0] * moveAmount;
-      this.camera.position[2] += dir[2] * moveAmount;
-      this.camera.target[0] += dir[0] * moveAmount;
-      this.camera.target[2] += dir[2] * moveAmount;
-      keysPressed = true;
+        text += " W ";
+        if (this.heli.state === "flying") {
+            this.heli.accelerate(heliAccelFactor);
+        }
+        keysPressed = true;
     }
 
     if (this.gui.isKeyPressed("KeyS")) {
-      text += " S ";
-      const dir = vec3.create();
-      vec3.subtract(dir, this.camera.target, this.camera.position);
-      vec3.normalize(dir, dir);
-      
-      this.camera.position[0] -= dir[0] * moveAmount;
-      this.camera.position[2] -= dir[2] * moveAmount; 
-      this.camera.target[0] -= dir[0] * moveAmount;
-      this.camera.target[2] -= dir[2] * moveAmount;
-
-      keysPressed = true;
+        text += " S ";
+        if (this.heli.state === "flying") {
+            this.heli.accelerate(-heliAccelFactor);
+        }
+        keysPressed = true;
     }
 
     if (this.gui.isKeyPressed("KeyA")) {
-      text += " A ";
-      
-      const forward = vec3.create();
-      vec3.subtract(forward, this.camera.target, this.camera.position);
-      vec3.normalize(forward, forward);
-      
-      const up = vec3.fromValues(0, 1, 0);
-      const right = vec3.create();
-      vec3.cross(right, forward, up);
-      vec3.normalize(right, right);
-      
-      this.camera.position[0] -= right[0] * moveAmount;
-      this.camera.position[2] -= right[2] * moveAmount;
-      this.camera.target[0] -= right[0] * moveAmount;
-      this.camera.target[2] -= right[2] * moveAmount;
-
-      keysPressed = true;
+        text += " A ";
+        if (this.heli.state === "flying") {
+            this.heli.turn(heliTurnFactor);
+        }
+        keysPressed = true;
     }
     
     if (this.gui.isKeyPressed("KeyD")) {
-      text += " D ";
-      const forward = vec3.create();
-      vec3.subtract(forward, this.camera.target, this.camera.position);
-      vec3.normalize(forward, forward);
-      
-      const up = vec3.fromValues(0, 1, 0);
-      const right = vec3.create();
-      vec3.cross(right, forward, up);
-      vec3.normalize(right, right);
-      
-      this.camera.position[0] += right[0] * moveAmount;
-      this.camera.position[2] += right[2] * moveAmount;
-      this.camera.target[0] += right[0] * moveAmount;
-      this.camera.target[2] += right[2] * moveAmount;
-
+        text += " D ";
+        if (this.heli.state === "flying") {
+            this.heli.turn(-heliTurnFactor);
+        }
         keysPressed = true;
-      }
-    
-    if (this.gui.isKeyPressed("KeyQ")) {
-      this.camera.position[1] += moveAmount;
-      this.camera.target[1] += moveAmount;
-      keysPressed = true;
     }
     
-    if (this.gui.isKeyPressed("KeyE")) {
-      this.camera.position[1] -= moveAmount;
-      this.camera.target[1] -= moveAmount;
-      keysPressed = true;
+    if (this.gui.isKeyPressed("KeyR")) {
+        text += " R ";
+        this.heli.reset();
+        keysPressed = true;
+    }
+    
+    if (this.gui.isKeyPressed("KeyP")) {
+        text += " P ";
+        this.heli.takeOff();
+        keysPressed = true;
+    }
+    
+    if (this.gui.isKeyPressed("KeyL")) {
+        text += " L ";
+        this.heli.land();
+        keysPressed = true;
     }
 
-
+    // Código original para movimento de câmera - manter ou adaptar conforme necessário
+    // ...
 
     if (keysPressed){
-      console.log(text);
-      this.lights[0].setPosition(
-        this.camera.position[0],
-        this.camera.position[1],
-        this.camera.position[2],
-        1
-      );
-      this.lights[0].update();
+        console.log(text);
+        this.lights[0].update();
     }
-  }
+}
 
   updateCameraFov() {
     this.camera.fov = this.fovValues[this.selectedFov];

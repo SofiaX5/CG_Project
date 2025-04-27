@@ -14,7 +14,7 @@ import {MyCustomParallelogram} from './MyCustomParallelogram.js';
  * @param scene - Reference to MyScene object
  */
 export class MyHeli extends CGFobject {
-    constructor(scene, hasBucket = false) {
+    constructor(scene, posX=0, posY=0, posZ=0, angleYY=0, speed=0, hasBucket = false) {
         super(scene);
         
         // Dimensions
@@ -35,11 +35,20 @@ export class MyHeli extends CGFobject {
         this.mainRotorAngle = 0;
         this.tailRotorAngle = 0;
         this.ropeLength = 5;
-        this.hasBucket = hasBucket;   
-        // Position
-        this.x = 0;
-        this.y = 0;
-        this.z = 0;
+        this.hasBucket = hasBucket; 
+
+        // Position and Movement
+        this.x = posX;
+        this.y = posY;
+        this.z = posZ;
+        this.angleYY = angleYY;
+        this.speed = speed;
+        this.velocity = [0, 0, 0];
+
+        // Heli State
+        this.state = "resting"; // "resting", "flying", "filling", "landing"
+        this.cruisingAltitude = 15;
+        this.initialHeight = posY;
         
         this.initObjects();
         this.initMaterials();
@@ -106,6 +115,24 @@ export class MyHeli extends CGFobject {
     update(deltaTime) {
         this.mainRotorAngle += deltaTime * 0.01;
         this.tailRotorAngle += deltaTime * 0.02;
+        
+        if (this.state === "flying") {
+            this.x += this.velocity[0] * deltaTime * 0.01;
+            this.z += this.velocity[2] * deltaTime * 0.01;
+        } else if (this.state === "taking_off") {
+            this.y += 0.05 * deltaTime * 0.01;
+            if (this.y >= this.cruisingAltitude) {
+                this.y = this.cruisingAltitude;
+                this.state = "flying";
+            }
+        } else if (this.state === "landing") {
+            this.y -= 0.05 * deltaTime * 0.01;
+            if (this.y <= this.initialHeight) {
+                this.y = this.initialHeight;
+                this.state = "resting";
+
+            }
+        }
     }
 
     setBucket(hasBucket) {
@@ -116,13 +143,11 @@ export class MyHeli extends CGFobject {
         this.scene.pushMatrix();
         
         this.scene.translate(this.x, this.y, this.z);
-        
+        this.scene.rotate(this.angleYY, 0, 1, 0);
+
         this.drawBody();
-        
         this.drawMainRotor();
-        
         this.drawTail();
-        
         this.drawLandingGear();
         
         if (this.hasBucket) {
@@ -359,5 +384,63 @@ export class MyHeli extends CGFobject {
         this.x = x;
         this.y = y;
         this.z = z;
+    }
+
+    turn(v) {
+        this.angleYY += v;
+        
+        const currentSpeed = Math.sqrt(this.velocity[0] * this.velocity[0] + this.velocity[2] * this.velocity[2]);
+        this.velocity[0] = -Math.sin(this.angleYY) * currentSpeed;
+        this.velocity[2] = -Math.cos(this.angleYY) * currentSpeed;
+    }
+    
+    accelerate(v) {
+        const currentSpeed = Math.sqrt(this.velocity[0] * this.velocity[0] + this.velocity[2] * this.velocity[2]);
+        const newSpeed = Math.max(0, currentSpeed + v);
+        
+        if (currentSpeed > 0) {
+            const factor = newSpeed / currentSpeed;
+            this.velocity[0] *= factor;
+            this.velocity[2] *= factor;
+        } else {
+            this.velocity[0] = -Math.sin(this.angleYY) * newSpeed;
+            this.velocity[2] = -Math.cos(this.angleYY) * newSpeed;
+        }
+    }
+    reset() {
+        this.x = 0;
+        this.y = this.initialHeight;
+        this.z = 0;
+        this.angleYY = 0;
+        this.velocity = [0, 0, 0];
+        this.state = "resting";
+    }
+    
+    takeOff() {
+        if (this.state === "resting") {
+            this.state = "taking_off";
+        } else if (this.state === "filling") {
+            this.state = "flying";
+            this.y = this.cruisingAltitude;
+        }
+    }
+    
+    land() {
+        if (this.state === "flying") {
+            // Verifica se está sobre o lago !!!!
+            const isOverLake = false; 
+            const isBucketEmpty = true; 
+            
+            if (isOverLake && isBucketEmpty) {
+                this.state = "filling";
+                // Implementar lógica para descer até o lago!!!!!!!!!!!!!!
+            } else {
+                // G back to heliprto
+                this.x = 0;
+                this.z = 0;
+                this.angleYY = 0;
+                this.state = "landing";
+            }
+        }
     }
 }
