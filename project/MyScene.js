@@ -135,7 +135,7 @@ export class MyScene extends CGFscene {
       this.fovValues[this.selectedFov], 
       0.1,                            
       1000,                            
-      vec3.fromValues(0, 10, 0),       
+      vec3.fromValues(0, 15, 30),       
       vec3.fromValues(1, 10, 0)        
     );
   }
