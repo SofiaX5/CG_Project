@@ -32,6 +32,10 @@ export class MyScene extends CGFscene {
     this.selectedPanorama = 'field';
 
     this.buildingAppearanceType = 'brick';
+    this.buildingWidth = 20;
+    this.buildingSideFloors = 3;
+    this.buildingWindowsPerFloor = 2;
+    this.buildingColor = [0.9, 0.9, 0.9];
 
     this.showHelicopterBucket = false;
   }
@@ -100,6 +104,19 @@ export class MyScene extends CGFscene {
 
   updateBuildingAppearance() {
     this.building.setAppearance(this.buildingAppearanceType);
+  }
+
+  updateBuilding = function() {
+    this.building = new MyBuilding(
+      this,
+      this.buildingWidth,
+      this.buildingSideFloors,
+      this.buildingWindowsPerFloor,
+      this.windowTexture,
+      this.buildingColor,
+      this.buildingAppearanceType
+    )
+    this.heli.setPosition(0, 3 * (this.buildingSideFloors + 1) + this.heli.bodyHeight * 0.75, 0);
   }
 
   updateHelicopterBucket() {

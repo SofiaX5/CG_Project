@@ -35,7 +35,31 @@ export class MyInterface extends CGFinterface {
             .name('Building Material')
             .onChange(() => this.scene.updateBuildingAppearance());
 
-        this.initKeys();
+            buildingFolder.add(this.scene, 'buildingWidth', 10, 40).step(1)
+            .name('Width')
+            .onChange(() => this.scene.updateBuilding());
+        
+        buildingFolder.add(this.scene, 'buildingSideFloors', 1, 6).step(1)
+            .name('Floors')
+            .onChange(() => this.scene.updateBuilding());
+        
+        buildingFolder.add(this.scene, 'buildingWindowsPerFloor', 1, 5).step(1)
+            .name('Windows Per Floor')
+            .onChange(() => this.scene.updateBuilding());
+        
+        // Color controllers 
+        const colorFolder = buildingFolder.addFolder('Building Color');
+        colorFolder.add(this.scene.buildingColor, '0', 0, 1).step(0.05)
+            .name('Red')
+            .onChange(() => this.scene.updateBuilding());
+        
+        colorFolder.add(this.scene.buildingColor, '1', 0, 1).step(0.05)
+            .name('Green')
+            .onChange(() => this.scene.updateBuilding());
+        
+        colorFolder.add(this.scene.buildingColor, '2', 0, 1).step(0.05)
+            .name('Blue')
+            .onChange(() => this.scene.updateBuilding());
 
         //Helicopter
         const helicopterFolder = this.gui.addFolder('Helicopter');
