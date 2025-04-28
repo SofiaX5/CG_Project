@@ -461,6 +461,7 @@ export class MyHeli extends CGFobject {
         const currentSpeed = Math.sqrt(this.velocity[0] * this.velocity[0] + this.velocity[2] * this.velocity[2]);
         const maxSpeed = 0.1;
         const newSpeed = Math.min(maxSpeed, Math.max(0, currentSpeed + v)); 
+        console.log(`Speed: ${newSpeed}`);
         
         if (currentSpeed > 0) {
             const factor = newSpeed / currentSpeed;

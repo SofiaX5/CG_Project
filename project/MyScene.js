@@ -169,7 +169,7 @@ export class MyScene extends CGFscene {
     if (this.gui.isKeyPressed("KeyS")) {
         text += " S ";
         if (this.heli.state === "flying") {
-            this.heli.accelerate(-heliAccelFactor);
+            this.heli.accelerate(-0.2*heliAccelFactor);
         }
         keysPressed = true;
     }
