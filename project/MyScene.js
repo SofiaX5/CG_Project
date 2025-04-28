@@ -128,11 +128,9 @@ export class MyScene extends CGFscene {
   }
 
   updateHeliportPosition() {
-    // Calculate the height of the building's roof
     const buildingHeight = this.building.floorHeight * (this.buildingSideFloors + 1);
     this.heliportHeight = buildingHeight;
     
-    // Set the heliport position for the helicopter
     this.heli.setHeliportPosition(0, buildingHeight + this.heli.bodyHeight * 0.75, 0);
 }
 
@@ -157,11 +155,9 @@ export class MyScene extends CGFscene {
     let keysPressed = false;
     var text = "Keys pressed: ";
 
-    // Fator de velocidade para o helicóptero
     const heliTurnFactor = 0.05 * this.speedFactor;
     const heliAccelFactor = 0.02 * this.speedFactor;
 
-    // Controle do helicóptero
     if (this.gui.isKeyPressed("KeyW")) {
         text += " W ";
         if (this.heli.state === "flying") {
