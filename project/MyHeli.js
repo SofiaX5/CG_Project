@@ -149,9 +149,10 @@ export class MyHeli extends CGFobject {
                 this.mainRotorSpeed = this.maxRotorSpeed;
                 this.tailRotorSpeed = this.maxRotorSpeed * 2;
                 
-                const timeStep = deltaTime / 1000;
+                const timeStep = deltaTime % 100;
                 this.x += this.velocity[0] * timeStep;
                 this.z += this.velocity[2] * timeStep;
+                console.log(`Timestep: [${timeStep},`);
                 console.log(`Position: [${this.x.toFixed(2)}, ${this.y.toFixed(2)}, ${this.z.toFixed(2)}]`);
                 break;
                 
@@ -448,8 +449,8 @@ export class MyHeli extends CGFobject {
         this.angleYY += v;
         
         const currentSpeed = Math.sqrt(this.velocity[0] * this.velocity[0] + this.velocity[2] * this.velocity[2]);
-        this.velocity[0] = -Math.sin(this.angleYY) * currentSpeed;
-        this.velocity[2] = -Math.cos(this.angleYY) * currentSpeed;
+        this.velocity[0] = Math.cos(this.angleYY) * currentSpeed;
+        this.velocity[2] = -Math.sin(this.angleYY) * currentSpeed;
     }
     
     accelerate(v) {
@@ -458,7 +459,7 @@ export class MyHeli extends CGFobject {
         if (this.state !== "flying" && v > 0) return;
     
         const currentSpeed = Math.sqrt(this.velocity[0] * this.velocity[0] + this.velocity[2] * this.velocity[2]);
-        const maxSpeed = 0.5;
+        const maxSpeed = 0.1;
         const newSpeed = Math.min(maxSpeed, Math.max(0, currentSpeed + v)); 
         
         if (currentSpeed > 0) {
@@ -466,8 +467,8 @@ export class MyHeli extends CGFobject {
             this.velocity[0] *= factor;
             this.velocity[2] *= factor;
         } else {
-            this.velocity[0] = -Math.sin(this.angleYY) * newSpeed;
-            this.velocity[2] = -Math.cos(this.angleYY) * newSpeed;
+            this.velocity[0] = Math.cos(this.angleYY) * newSpeed;
+            this.velocity[2] = -Math.sin(this.angleYY) * newSpeed;
         }
         
         console.log(`Velocity: [${this.velocity[0].toFixed(4)}, ${this.velocity[2].toFixed(4)}], Speed: ${newSpeed.toFixed(4)}`);
