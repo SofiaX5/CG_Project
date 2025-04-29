@@ -86,7 +86,14 @@ export class MyHeli extends CGFobject {
         this.bodyTexture = new CGFtexture(this.scene, "textures/helicopter/body.jpg");
         this.bodyMaterial.setTexture(this.bodyTexture);
         this.bodyMaterial.setTextureWrap('REPEAT', 'REPEAT');
-        
+
+        // Tail 
+        this.tailMaterial = new CGFappearance(this.scene);
+        this.tailMaterial.setAmbient(0.3, 0.05, 0.05, 1);    
+        this.tailMaterial.setDiffuse(0.7, 0.1, 0.1, 1);     
+        this.tailMaterial.setSpecular(1.0, 0.9, 0.9, 1);    
+        this.tailMaterial.setShininess(200);                
+
         // Glass
         this.glassMaterial = new CGFappearance(this.scene);
         this.glassMaterial.setAmbient(0.2, 0.2, 0.3, 1.0);
@@ -278,7 +285,7 @@ export class MyHeli extends CGFobject {
     drawTail() {
         // Tail boom
         this.scene.pushMatrix();
-        this.bodyMaterial.apply();
+        this.tailMaterial.apply();
         this.scene.translate(-this.bodyLength/3+1, this.bodyHeight/5, 0);
         this.scene.rotate(Math.PI/2, 0, 0, 1);
         this.scene.scale(this.tailRadius, this.tailLength, this.tailRadius);
@@ -436,24 +443,42 @@ export class MyHeli extends CGFobject {
     
     accelerate(v) {
         console.log(`State: ${this.state}`);
-
         if (this.state !== "flying" && v > 0) return;
-    
+       
         const currentSpeed = Math.sqrt(this.velocity[0] * this.velocity[0] + this.velocity[2] * this.velocity[2]);
-        const maxSpeed = 0.1;
-        const newSpeed = Math.min(maxSpeed, Math.max(0, currentSpeed + v)); 
-        console.log(`Speed: ${newSpeed}`);
+        const maxSpeed = 0.01;
         
+        const forwardX = Math.cos(this.angleYY);
+        const forwardZ = -Math.sin(this.angleYY);
+        const currentDirection = (currentSpeed > 0) ? 
+            (this.velocity[0] * forwardX + this.velocity[2] * forwardZ) / currentSpeed : 
+            1; 
+        
+        let newSpeed = currentSpeed * Math.sign(currentDirection) + v;
+        newSpeed = Math.max(-maxSpeed, Math.min(maxSpeed, newSpeed));
+        
+        console.log(`Speed: ${Math.abs(newSpeed)}, Direction: ${newSpeed >= 0 ? 'forward' : 'backward'}`);
+           
         if (currentSpeed > 0) {
-            const factor = newSpeed / currentSpeed;
-            this.velocity[0] *= factor;
-            this.velocity[2] *= factor;
+            if (Math.sign(currentDirection) !== Math.sign(newSpeed)) {
+                this.velocity[0] = forwardX * newSpeed;
+                this.velocity[2] = forwardZ * newSpeed;
+            } else {
+                const factor = Math.abs(newSpeed) / currentSpeed;
+                this.velocity[0] *= factor;
+                this.velocity[2] *= factor;
+                
+                if (newSpeed < 0 && currentDirection > 0) {
+                    this.velocity[0] = -this.velocity[0];
+                    this.velocity[2] = -this.velocity[2];
+                }
+            }
         } else {
-            this.velocity[0] = Math.cos(this.angleYY) * newSpeed;
-            this.velocity[2] = -Math.sin(this.angleYY) * newSpeed;
+            this.velocity[0] = forwardX * newSpeed;
+            this.velocity[2] = forwardZ * newSpeed;
         }
-        
-        console.log(`Velocity: [${this.velocity[0].toFixed(4)}, ${this.velocity[2].toFixed(4)}], Speed: ${newSpeed.toFixed(4)}`);
+           
+        console.log(`Velocity: [${this.velocity[0].toFixed(4)}, ${this.velocity[2].toFixed(4)}], Speed: ${Math.abs(newSpeed).toFixed(4)}`);
     }
 
     reset() {
