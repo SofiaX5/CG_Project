@@ -57,6 +57,7 @@ export class MyHeli extends CGFobject {
         this.landingAnimationTime = 0;
         this.takeoffAnimationTime = 0;
         this.animationDuration = 3000; // 3 secs for takeoff/landing
+        this.takeoffProgress = 0;
         
         this.initObjects();
         this.initMaterials();
@@ -128,18 +129,11 @@ export class MyHeli extends CGFobject {
                 break;
                 
             case "taking_off":
-                this.takeoffAnimationTime += deltaTime;
-                const takeoffProgress = Math.min(this.takeoffAnimationTime / this.animationDuration, 1);
-                
-                this.mainRotorSpeed = this.maxRotorSpeed * Math.min(takeoffProgress * 2, 1);
-                this.tailRotorSpeed = this.maxRotorSpeed * 2 * Math.min(takeoffProgress * 2, 1);
-                
-                if (takeoffProgress > 0.25) {
-                    const riseProgress = (takeoffProgress - 0.25) / 0.75; 
-                    this.y = this.initialHeight + (this.cruisingAltitude - this.initialHeight) * riseProgress;
-                }
-                
-                if (takeoffProgress >= 1) {
+                this.takeoffProgress += 0.5;
+                this.mainRotorSpeed = this.maxRotorSpeed * Math.min(this.takeoffProgress * 2, 1);
+                this.tailRotorSpeed = this.maxRotorSpeed * 2 * Math.min(this.takeoffProgress * 2, 1);
+                this.y += 0.05;
+                if (this.y >= this.cruisingAltitude) {
                     this.y = this.cruisingAltitude;
                     this.state = "flying";
                 }
@@ -157,32 +151,19 @@ export class MyHeli extends CGFobject {
                 break;
                 
             case "landing":
-                this.landingAnimationTime += deltaTime;
-                const landingProgress = Math.min(this.landingAnimationTime / this.animationDuration, 1);
+                this.takeoffProgress += 0.5;
+                this.mainRotorSpeed = this.maxRotorSpeed * Math.max(this.takeoffProgress * 0.5, 1);
+                this.tailRotorSpeed = this.maxRotorSpeed * 2 * Math.max(this.takeoffProgress * 0.5, 1);
+                this.y -= 0.05;
+                if (this.x < this.heliportX){this.x += 0.05;}
+                else if (this.x > this.heliportX){this.x -= 0.05;}
                 
-                if (landingProgress < 0.4) {
-                    const moveProgress = landingProgress / 0.4;
-                    this.x = this.x + (this.heliportX - this.x) * moveProgress;
-                    this.z = this.z + (this.heliportZ - this.z) * moveProgress;
-                    
-                    const targetAngle = 0;
-                    this.angleYY = this.angleYY + (targetAngle - this.angleYY) * moveProgress;
-                }
-                else {
-                    const descentProgress = (landingProgress - 0.4) / 0.6;
-                    this.y = this.cruisingAltitude + (this.initialHeight - this.cruisingAltitude) * descentProgress;
-                    
-                    if (descentProgress > 0.8) {
-                        const slowdownFactor = 1 - (descentProgress - 0.8) / 0.2;
-                        this.mainRotorSpeed = this.maxRotorSpeed * slowdownFactor;
-                        this.tailRotorSpeed = this.maxRotorSpeed * 2 * slowdownFactor;
-                    }
-                }
-                
-                if (landingProgress >= 1) {
+                if (this.y <= this.initialHeight) {
                     this.y = this.initialHeight;
                     this.state = "resting";
                     this.velocity = [0, 0, 0];
+                    this.mainRotorSpeed = 0;
+                    this.tailRotorSpeed = 0;
                 }
                 break;
                 
