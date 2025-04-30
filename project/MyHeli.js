@@ -14,7 +14,7 @@ import {MyCustomParallelogram} from './MyCustomParallelogram.js';
  * @param scene - Reference to MyScene object
  */
 export class MyHeli extends CGFobject {
-    constructor(scene, posX=0, posY=0, posZ=0, angleYY=0, speed=0.01, speedFactor = 1, hasBucket = false) {
+    constructor(scene, posX=0, posY=0, posZ=0, angleYY=0, speed=0.01, speedFactor = 1, cruisingHeight = 5, hasBucket = false) {
         super(scene);
         
         // Dimensions
@@ -56,7 +56,8 @@ export class MyHeli extends CGFobject {
 
         // Heli State
         this.state = "resting"; // resting,taking_off,flying,landing,filling
-        this.cruisingAltitude = 2.5 + posY;
+        this.cruisingHeight = cruisingHeight;
+        this.cruisingAltitude = cruisingHeight + posY;
         this.initialHeight = posY;
         this.heliportX = 0;
         this.heliportZ = 0;
@@ -164,7 +165,6 @@ export class MyHeli extends CGFobject {
                 console.log(`Position: [${this.x.toFixed(2)}, ${this.y.toFixed(2)}, ${this.z.toFixed(2)}]`);
                 break;
                 
-                // Fixed case "landing" in the update method
 
             case "landing":
                 const movingSpace = 0.2;
@@ -274,6 +274,12 @@ export class MyHeli extends CGFobject {
     }
     setSpeedFactor(speedFactor) {
         this.speedFactor = speedFactor;
+    }
+
+    setCruisingHeight(cruisingHeight) {
+        this.cruisingHeight = cruisingHeight;
+        this.cruisingAltitude = cruisingHeight + this.initialHeight;
+
     }
     
     display() {
@@ -620,7 +626,7 @@ export class MyHeli extends CGFobject {
             this.x = x;
             this.y = y;
             this.z = z;
-            this.cruisingAltitude = 2.5 + y;
+            this.cruisingAltitude = this.cruisingHeight + y;
 
         }
     }

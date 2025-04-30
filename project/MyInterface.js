@@ -66,6 +66,12 @@ export class MyInterface extends CGFinterface {
         helicopterFolder.add(this.scene, 'showHelicopterBucket')
             .name('Bucket')
             .onChange(() => this.scene.updateHelicopterBucket());
+
+        //CruisingHeight
+        helicopterFolder.add(this.scene, 'cruisingHeight', 5, 15).step(0.1)
+        .name('Cruising Height')
+        .onChange(() => this.scene.updateHelicopterCruisingHeight());
+
         //speedFactor
         helicopterFolder.add(this.scene, 'speedFactor', 0.1, 3).step(0.1)
             .name('Speed Factor')

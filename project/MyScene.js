@@ -40,6 +40,7 @@ export class MyScene extends CGFscene {
     this.showHelicopterBucket = false;
     this.speedFactor = 1.0;
     this.heliportHeight = 0;
+    this.cruisingHeight = 6.0;
   }
   
   init(application) {
@@ -128,6 +129,9 @@ export class MyScene extends CGFscene {
   }
   updateHelicopterSpeedFactor() {
     this.heli.setSpeedFactor(this.speedFactor);
+  }
+  updateHelicopterCruisingHeight() {
+    this.heli.setCruisingHeight(this.cruisingHeight);
   }
 
   updateHeliportPosition() {
