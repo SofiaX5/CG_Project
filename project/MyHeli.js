@@ -493,7 +493,7 @@ export class MyHeli extends CGFobject {
         // Bucket body 
         this.scene.pushMatrix();
         this.metalMaterial.apply();
-        this.scene.translate(0, -this.bodyHeight/2 - this.ropeLength - this.bucketHeight/2, 0);
+        this.scene.translate(0, - this.ropeLength - this.bucketHeight/2, 0);
         this.scene.rotate(Math.PI/2, 1, 0, 0);
         this.scene.scale(this.bucketRadius, this.bucketRadius, this.bucketRadius);
         this.bucketCylinder.display(); 
@@ -502,7 +502,7 @@ export class MyHeli extends CGFobject {
         // Bucket bottom
         this.scene.pushMatrix();
         this.metalMaterial.apply();
-        this.scene.translate(0, -this.bodyHeight/2 - this.ropeLength - this.bucketHeight*1.15, 0);
+        this.scene.translate(0, - this.ropeLength - this.bucketHeight*1.15, 0);
         this.scene.rotate(Math.PI/2, 1, 0, 0);
         this.scene.scale(this.bucketRadius*1.4, this.bucketRadius*1.4, this.bucketRadius*1.4);
         this.circle.display();
@@ -511,7 +511,7 @@ export class MyHeli extends CGFobject {
         // Water
         this.scene.pushMatrix();
         this.waterMaterial.apply();
-        this.scene.translate(0, -this.bodyHeight/2 - this.ropeLength - this.bucketHeight*0.5, 0);
+        this.scene.translate(0,- this.ropeLength - this.bucketHeight*0.5, 0);
         this.scene.scale(this.bucketRadius*0.95, this.bucketHeight*0.2, this.bucketRadius*0.95);
         this.sphere.display();
         this.scene.popMatrix();
