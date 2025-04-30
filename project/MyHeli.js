@@ -50,7 +50,7 @@ export class MyHeli extends CGFobject {
 
         // Heli State
         this.state = "resting"; // resting,taking_off,flying,landing,filling
-        this.cruisingAltitude = 15;
+        this.cruisingAltitude = 2.5 + posY;
         this.initialHeight = posY;
         this.heliportX = 0;
         this.heliportZ = 0;
@@ -561,6 +561,8 @@ export class MyHeli extends CGFobject {
             this.x = x;
             this.y = y;
             this.z = z;
+            this.cruisingAltitude = 2.5 + y;
+
         }
     }
 }
