@@ -14,7 +14,7 @@ import {MyCustomParallelogram} from './MyCustomParallelogram.js';
  * @param scene - Reference to MyScene object
  */
 export class MyHeli extends CGFobject {
-    constructor(scene, posX=0, posY=0, posZ=0, angleYY=0, speed=0, hasBucket = false) {
+    constructor(scene, posX=0, posY=0, posZ=0, angleYY=0, speed=0.1,speedFactor = 1, hasBucket = false) {
         super(scene);
         
         // Dimensions
@@ -46,6 +46,7 @@ export class MyHeli extends CGFobject {
         this.z = posZ;
         this.angleYY = angleYY;
         this.speed = speed;
+        this.speedFactor = speedFactor;
         this.velocity = [0, 0, 0];
 
         // Heli State
@@ -216,6 +217,9 @@ export class MyHeli extends CGFobject {
 
     setBucket(hasBucket) {
         this.hasBucket = hasBucket;
+    }
+    setSpeedFactor(speedFactor) {
+        this.speedFactor = speedFactor;
     }
     
     display() {
@@ -477,7 +481,7 @@ export class MyHeli extends CGFobject {
         if (this.state !== "flying" && v > 0) return;
        
         const currentSpeed = Math.sqrt(this.velocity[0] * this.velocity[0] + this.velocity[2] * this.velocity[2]);
-        const maxSpeed = 0.01;
+        const maxSpeed = this.speedFactor * this.speed;
         
         const forwardX = Math.cos(this.angleYY);
         const forwardZ = -Math.sin(this.angleYY);

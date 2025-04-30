@@ -126,6 +126,9 @@ export class MyScene extends CGFscene {
   updateHelicopterBucket() {
     this.heli.setBucket(this.showHelicopterBucket);
   }
+  updateHelicopterSpeedFactor() {
+    this.heli.setSpeedFactor(this.speedFactor);
+  }
 
   updateHeliportPosition() {
     const buildingHeight = this.building.floorHeight * (this.buildingSideFloors + 1);
