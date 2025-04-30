@@ -14,7 +14,7 @@ import {MyCustomParallelogram} from './MyCustomParallelogram.js';
  * @param scene - Reference to MyScene object
  */
 export class MyHeli extends CGFobject {
-    constructor(scene, posX=0, posY=0, posZ=0, angleYY=0, speed=0.1,speedFactor = 1, hasBucket = false) {
+    constructor(scene, posX=0, posY=0, posZ=0, angleYY=0, speed=0.01, speedFactor = 1, hasBucket = false) {
         super(scene);
         
         // Dimensions
@@ -48,6 +48,11 @@ export class MyHeli extends CGFobject {
         this.speed = speed;
         this.speedFactor = speedFactor;
         this.velocity = [0, 0, 0];
+
+        // Tilt parameters
+        this.tiltAngleX = 0;      
+        this.maxTiltAngle = 0.15; 
+        this.tiltSpeed = 0.005;   
 
         // Heli State
         this.state = "resting"; // resting,taking_off,flying,landing,filling
@@ -130,6 +135,7 @@ export class MyHeli extends CGFobject {
     }
     
     update(deltaTime) {
+        this.updateTilt(deltaTime);
         switch (this.state) {
             case "resting":
                 this.mainRotorSpeed = Math.max(0, this.mainRotorSpeed - 0.0001 * deltaTime);
@@ -214,6 +220,31 @@ export class MyHeli extends CGFobject {
         this.tailRotorAngle += deltaTime * this.tailRotorSpeed;
     }
 
+    updateTilt(deltaTime) {
+        if (this.state !== "flying") {
+            if (this.tiltAngleX > 0.01) {
+                this.tiltAngleX -= this.tiltSpeed * deltaTime;
+            } else if (this.tiltAngleX < -0.01) {
+                this.tiltAngleX += this.tiltSpeed * deltaTime;
+            } else {
+                this.tiltAngleX = 0; 
+            }
+            return;
+        }
+        
+        const forwardX = Math.cos(this.angleYY);
+        const forwardZ = -Math.sin(this.angleYY);
+        
+        const forwardVelocity = this.velocity[0] * forwardX + this.velocity[2] * forwardZ;
+        
+        const targetTilt = forwardVelocity > 0 
+            ? -this.maxTiltAngle * Math.min(Math.abs(forwardVelocity) / (this.speed * this.speedFactor), 1) 
+            : this.maxTiltAngle * Math.min(Math.abs(forwardVelocity) / (this.speed * this.speedFactor), 1);
+        
+        const tiltDiff = targetTilt - this.tiltAngleX;
+        this.tiltAngleX += tiltDiff * Math.min(this.tiltSpeed * deltaTime, 1);
+    }
+
 
     setBucket(hasBucket) {
         this.hasBucket = hasBucket;
@@ -227,6 +258,7 @@ export class MyHeli extends CGFobject {
         
         this.scene.translate(this.x, this.y, this.z);
         this.scene.rotate(this.angleYY, 0, 1, 0);
+        this.scene.rotate(this.tiltAngleX, 0, 0, 1);
 
         this.drawBody();
         this.drawMainRotor();
