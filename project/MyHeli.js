@@ -164,54 +164,59 @@ export class MyHeli extends CGFobject {
                 console.log(`Position: [${this.x.toFixed(2)}, ${this.y.toFixed(2)}, ${this.z.toFixed(2)}]`);
                 break;
                 
-                case "landing":
-                    const movingSpace = 0.2;
-                    
-                    const initialAltitude = this.cruisingAltitude;
-                    const altitudeRange = initialAltitude - this.initialHeight;
-                    const landingProgress = Math.max(0, (this.y - this.initialHeight) / altitudeRange);
-                    
-                    this.mainRotorSpeed = this.maxRotorSpeed * landingProgress;
-                    this.tailRotorSpeed = this.maxRotorSpeed * 2 * landingProgress;
-                    
-                    const xDiff = this.heliportX - this.x;
-                    const zDiff = this.heliportZ - this.z;
-                    const distanceToTarget = Math.sqrt(xDiff*xDiff + zDiff*zDiff);
-                    
-                    if (distanceToTarget > movingSpace) {
-                        const moveX = xDiff / distanceToTarget * movingSpace;
-                        const moveZ = zDiff / distanceToTarget * movingSpace;
-                    
-                        this.x += moveX;
-                        this.z += moveZ;
-                        
-                        const targetAngle = Math.atan2(-moveZ, moveX);
-                        let angleDiff = targetAngle - this.angleYY;
-                        
-                        angleDiff = angleDiff - Math.PI*2 * Math.floor((angleDiff + Math.PI) / (Math.PI*2));
-                        
-                        this.angleYY += angleDiff * 0.1;
-                        
-                        this.angleYY = this.angleYY - Math.PI*2 * Math.floor((this.angleYY + Math.PI) / (Math.PI*2));
-                    } else {
-                        this.x = this.heliportX;
-                        this.z = this.heliportZ;
-                    }
-                    
-                    if (distanceToTarget <= movingSpace*5 && this.y > this.initialHeight) {
-                        const descentFactor = 1 - distanceToTarget/(movingSpace*5);
-                        this.y -= movingSpace * descentFactor;
-                    
-                        if (this.y <= this.initialHeight) {
-                            this.y = this.initialHeight;
-                            this.state = "resting";
-                            this.velocity = [0, 0, 0];
-                            this.mainRotorSpeed = 0;
-                            this.tailRotorSpeed = 0;
-                        }
-                    }
-                    break;
+                // Fixed case "landing" in the update method
+
+            case "landing":
+                const movingSpace = 0.2;
                 
+                const initialAltitude = this.cruisingAltitude;
+                const altitudeRange = initialAltitude - this.initialHeight;
+                const landingProgress = Math.max(0, (this.y - this.initialHeight) / altitudeRange);
+                
+                this.mainRotorSpeed = this.maxRotorSpeed * landingProgress;
+                this.tailRotorSpeed = this.maxRotorSpeed * 2 * landingProgress;
+                
+                const xDiff = this.heliportX - this.x;
+                const zDiff = this.heliportZ - this.z;
+                const distanceToTarget = Math.sqrt(xDiff*xDiff + zDiff*zDiff);
+                
+                if (distanceToTarget > movingSpace) {
+                    const moveX = xDiff / distanceToTarget * movingSpace;
+                    const moveZ = zDiff / distanceToTarget * movingSpace;
+                
+                    this.velocity[0] = moveX * 0.5; 
+                    this.velocity[2] = moveZ * 0.5;
+                    
+                    this.x += moveX;
+                    this.z += moveZ;
+                    
+                    const targetAngle = Math.atan2(-moveZ, moveX);
+                    let angleDiff = targetAngle - this.angleYY;
+                    
+                    angleDiff = angleDiff - Math.PI*2 * Math.floor((angleDiff + Math.PI) / (Math.PI*2));
+                    
+                    this.angleYY += angleDiff * 0.1;
+                    this.angleYY = this.angleYY - Math.PI*2 * Math.floor((this.angleYY + Math.PI) / (Math.PI*2));
+                } else {
+                    this.x = this.heliportX;
+                    this.z = this.heliportZ;
+                    this.velocity = [0, 0, 0]; 
+                }
+                
+                if (distanceToTarget <= movingSpace*5 && this.y > this.initialHeight) {
+                    const descentFactor = 1 - distanceToTarget/(movingSpace*5);
+                    this.y -= movingSpace * descentFactor;
+                
+                    if (this.y <= this.initialHeight) {
+                        this.y = this.initialHeight;
+                        this.state = "resting";
+                        this.velocity = [0, 0, 0];
+                        this.mainRotorSpeed = 0;
+                        this.tailRotorSpeed = 0;
+                    }
+                }
+                break;
+                            
             case "filling":
                 //Isto aqui é TODO
                 break;
@@ -220,15 +225,10 @@ export class MyHeli extends CGFobject {
         this.tailRotorAngle += deltaTime * this.tailRotorSpeed;
     }
 
+
     updateTilt(deltaTime) {
-        if (this.state !== "flying") {
-            if (this.tiltAngleX > 0.01) {
-                this.tiltAngleX -= this.tiltSpeed * deltaTime;
-            } else if (this.tiltAngleX < -0.01) {
-                this.tiltAngleX += this.tiltSpeed * deltaTime;
-            } else {
-                this.tiltAngleX = 0; 
-            }
+        if (this.state !== "flying" && this.state !== "landing") {
+            this.tiltAngleX = 0;
             return;
         }
         
@@ -237,9 +237,32 @@ export class MyHeli extends CGFobject {
         
         const forwardVelocity = this.velocity[0] * forwardX + this.velocity[2] * forwardZ;
         
-        const targetTilt = forwardVelocity > 0 
-            ? -this.maxTiltAngle * Math.min(Math.abs(forwardVelocity) / (this.speed * this.speedFactor), 1) 
-            : this.maxTiltAngle * Math.min(Math.abs(forwardVelocity) / (this.speed * this.speedFactor), 1);
+        if (this.state === "landing") {
+            const xDiff = this.heliportX - this.x;
+            const zDiff = this.heliportZ - this.z;
+            const distanceToTarget = Math.sqrt(xDiff*xDiff + zDiff*zDiff);
+            
+            if (distanceToTarget > 0.1) {
+                const dirX = xDiff / distanceToTarget;
+                const dirZ = zDiff / distanceToTarget;
+                
+                const movingTowardPad = (dirX * forwardX + dirZ * forwardZ) > 0;
+                
+                if (movingTowardPad) {
+                    const targetTilt = -this.maxTiltAngle * 0.5; 
+                    const tiltDiff = targetTilt - this.tiltAngleX;
+                    this.tiltAngleX += tiltDiff * Math.min(this.tiltSpeed * deltaTime, 1);
+                    return;
+                }
+            }
+        }
+        
+        let targetTilt = 0;
+        if (Math.abs(forwardVelocity) > 0.001) {
+            targetTilt = forwardVelocity > 0 
+                ? -this.maxTiltAngle * Math.min(Math.abs(forwardVelocity) / (this.speed * this.speedFactor), 1) 
+                : this.maxTiltAngle * Math.min(Math.abs(forwardVelocity) / (this.speed * this.speedFactor), 1);
+        }
         
         const tiltDiff = targetTilt - this.tiltAngleX;
         this.tiltAngleX += tiltDiff * Math.min(this.tiltSpeed * deltaTime, 1);
