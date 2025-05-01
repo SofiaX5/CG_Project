@@ -39,10 +39,11 @@ export class MyHeli extends CGFobject {
         this.maxRotorSpeed = 0.01;
         this.ropeLength = 5;
         this.currentRopeLength = 0;
-        this.ropeSpeed = 0.005;
+        this.ropeSpeed = 0.05;
         this.hasBucket = hasBucket;
         this.bucketDeployed = false;
         this.bucketDeploymentComplete = false;
+        this.bucketRetracting = false;
         this.bucketRetracted = true;
 
         // Position and Movement
@@ -164,41 +165,47 @@ export class MyHeli extends CGFobject {
                 break;
     
             case "bucket_deploy":
-                console.log("AAAAAAAAAAAAAAAAAAAAAAAAAA");
                 this.mainRotorSpeed = this.maxRotorSpeed;
                 this.tailRotorSpeed = this.maxRotorSpeed * 2;
                 
                 if (this.hasBucket && this.currentRopeLength < this.ropeLength) {
-                    this.currentRopeLength = Math.min(this.ropeLength, this.currentRopeLength + this.ropeSpeed * deltaTime);
+                    console.log("BUCKET DEPLOYYYYYYY")
+                    this.currentRopeLength += this.ropeSpeed ;
                     if (this.currentRopeLength >= this.ropeLength) {
+                        this.currentRopeLength = this.ropeLength; 
                         this.bucketDeployed = true;
+                        this.bucketRetracted = false;
                         this.state = "flying";
                     }
                 } else {
                     this.state = "flying";
                 }
                 break;
-                
+
             case "bucket_retract":
                 this.mainRotorSpeed = this.maxRotorSpeed;
                 this.tailRotorSpeed = this.maxRotorSpeed * 2;
                 
                 if (this.hasBucket && this.currentRopeLength > 0) {
-                    this.currentRopeLength = Math.max(0, this.currentRopeLength - this.ropeSpeed * 1.5 * deltaTime);
+                    this.currentRopeLength -= this.ropeSpeed;
                     if (this.currentRopeLength <= 0) {
+                        this.currentRopeLength = 0; 
                         this.bucketDeployed = false;
+                        this.bucketRetracting = false;
+                        this.bucketRetracted = true;
                         this.state = "landing";
-                        this.landingAnimationTime = 0;
                     }
                 } else {
+                    this.bucketRetracting = false;
                     this.state = "landing";
-                    this.landingAnimationTime = 0;
                 }
                 break;
     
             case "flying":
                 this.mainRotorSpeed = this.maxRotorSpeed;
                 this.tailRotorSpeed = this.maxRotorSpeed * 2;
+
+                this.currentRopeLength = this.ropeLength;
                 
                 const timeStep = deltaTime % 100;
                 this.x += this.velocity[0] * timeStep;
@@ -244,16 +251,24 @@ export class MyHeli extends CGFobject {
                     this.velocity = [0, 0, 0]; 
                 }
                 
-                if (distanceToTarget <= movingSpace*5 && this.y > this.initialHeight) {
-                    const descentFactor = 1 - distanceToTarget/(movingSpace*5);
-                    this.y -= movingSpace * descentFactor;
-                
-                    if (this.y <= this.initialHeight) {
-                        this.y = this.initialHeight;
-                        this.state = "resting";
-                        this.velocity = [0, 0, 0];
-                        this.mainRotorSpeed = 0;
-                        this.tailRotorSpeed = 0;
+                if (distanceToTarget <= movingSpace*5) {
+                    if (this.y > this.initialHeight) {
+                        const descentFactor = 1 - distanceToTarget/(movingSpace*5);
+                        this.y -= movingSpace * descentFactor;
+                        
+                        if (this.hasBucket && this.currentRopeLength > 0 && !this.bucketRetracting) {
+                            this.state = "bucket_retract";
+                            this.bucketRetracting = true;
+                            return; 
+                        }
+                        
+                        if (this.y <= this.initialHeight) {
+                            this.y = this.initialHeight;
+                            this.state = "resting";
+                            this.velocity = [0, 0, 0];
+                            this.mainRotorSpeed = 0;
+                            this.tailRotorSpeed = 0;
+                        }
                     }
                 }
                 break;
@@ -659,7 +674,6 @@ export class MyHeli extends CGFobject {
     
     land() {
         if (this.state === "flying") {
-            // Check if over lake
             const isOverLake = false; 
             const isBucketEmpty = true; 
             
@@ -667,13 +681,9 @@ export class MyHeli extends CGFobject {
                 this.state = "filling";
                 //lagooo
             } else {
-                if (this.hasBucket && this.currentRopeLength > 0) {
-                    this.state = "bucket_retract";
-                    this.bucketRetracting = true;
-                } else {
-                    this.state = "landing";
-                    this.landingAnimationTime = 0;
-                }
+                this.state = "landing";
+                this.landingAnimationTime = 0;
+                this.bucketRetracting = false; 
             }
         }
     }
