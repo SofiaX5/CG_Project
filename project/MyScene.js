@@ -37,7 +37,7 @@ export class MyScene extends CGFscene {
     this.buildingWindowsPerFloor = 2;
     this.buildingColor = [0.9, 0.9, 0.9];
 
-    this.showHelicopterBucket = false;
+    this.showHelicopterBucket = true;
     this.speedFactor = 1.0;
     this.heliportHeight = 0;
     this.cruisingHeight = 6.0;

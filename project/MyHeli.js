@@ -14,7 +14,7 @@ import {MyCustomParallelogram} from './MyCustomParallelogram.js';
  * @param scene - Reference to MyScene object
  */
 export class MyHeli extends CGFobject {
-    constructor(scene, posX=0, posY=0, posZ=0, angleYY=0, speed=0.01, speedFactor = 1, cruisingHeight = 5, hasBucket = false) {
+    constructor(scene, posX=0, posY=0, posZ=0, angleYY=0, speed=0.01, speedFactor = 1, cruisingHeight = 5, hasBucket = true) {
         super(scene);
         
         // Dimensions
@@ -38,7 +38,12 @@ export class MyHeli extends CGFobject {
         this.tailRotorSpeed = 0;
         this.maxRotorSpeed = 0.01;
         this.ropeLength = 5;
+        this.currentRopeLength = 0;
+        this.ropeSpeed = 0.005;
         this.hasBucket = hasBucket;
+        this.bucketDeployed = false;
+        this.bucketDeploymentComplete = false;
+        this.bucketRetracted = true;
 
         // Position and Movement
         this.x = posX;
@@ -55,7 +60,7 @@ export class MyHeli extends CGFobject {
         this.tiltSpeed = 0.005;   
 
         // Heli State
-        this.state = "resting"; // resting,taking_off,flying,landing,filling
+        this.state = "resting"; // resting,taking_off,flying,landing,filling, bucket_retract, bucket_deploy
         this.cruisingHeight = cruisingHeight;
         this.cruisingAltitude = cruisingHeight + posY;
         this.initialHeight = posY;
@@ -150,10 +155,47 @@ export class MyHeli extends CGFobject {
                 this.y += 0.05;
                 if (this.y >= this.cruisingAltitude) {
                     this.y = this.cruisingAltitude;
+                    if(this.hasBucket) {
+                        this.state = "bucket_deploy";
+                    } else {
+                        this.state = "flying";
+                    }
+                }
+                break;
+    
+            case "bucket_deploy":
+                console.log("AAAAAAAAAAAAAAAAAAAAAAAAAA");
+                this.mainRotorSpeed = this.maxRotorSpeed;
+                this.tailRotorSpeed = this.maxRotorSpeed * 2;
+                
+                if (this.hasBucket && this.currentRopeLength < this.ropeLength) {
+                    this.currentRopeLength = Math.min(this.ropeLength, this.currentRopeLength + this.ropeSpeed * deltaTime);
+                    if (this.currentRopeLength >= this.ropeLength) {
+                        this.bucketDeployed = true;
+                        this.state = "flying";
+                    }
+                } else {
                     this.state = "flying";
                 }
                 break;
                 
+            case "bucket_retract":
+                this.mainRotorSpeed = this.maxRotorSpeed;
+                this.tailRotorSpeed = this.maxRotorSpeed * 2;
+                
+                if (this.hasBucket && this.currentRopeLength > 0) {
+                    this.currentRopeLength = Math.max(0, this.currentRopeLength - this.ropeSpeed * 1.5 * deltaTime);
+                    if (this.currentRopeLength <= 0) {
+                        this.bucketDeployed = false;
+                        this.state = "landing";
+                        this.landingAnimationTime = 0;
+                    }
+                } else {
+                    this.state = "landing";
+                    this.landingAnimationTime = 0;
+                }
+                break;
+    
             case "flying":
                 this.mainRotorSpeed = this.maxRotorSpeed;
                 this.tailRotorSpeed = this.maxRotorSpeed * 2;
@@ -165,7 +207,6 @@ export class MyHeli extends CGFobject {
                 console.log(`Position: [${this.x.toFixed(2)}, ${this.y.toFixed(2)}, ${this.z.toFixed(2)}]`);
                 break;
                 
-
             case "landing":
                 const movingSpace = 0.2;
                 
@@ -271,6 +312,10 @@ export class MyHeli extends CGFobject {
 
     setBucket(hasBucket) {
         this.hasBucket = hasBucket;
+        if (!hasBucket) {
+            this.currentRopeLength = 0;
+            this.bucketDeployed = false;
+        }
     }
     setSpeedFactor(speedFactor) {
         this.speedFactor = speedFactor;
@@ -486,42 +531,49 @@ export class MyHeli extends CGFobject {
     }
     
     drawBucket() {
+        if (!this.hasBucket || this.currentRopeLength <= 0) {
+            return;
+        }
+        
         // Rope
         this.scene.pushMatrix();
         this.metalAccentsMaterial.apply();
         this.scene.translate(0, -this.bodyHeight/2, 0);
         this.scene.rotate(Math.PI/2, 1, 0, 0);
-        this.scene.scale(0.05, 0.05, this.ropeLength);
+        this.scene.scale(0.05, 0.05, this.currentRopeLength);
         this.cylinder.display();
         this.scene.popMatrix();
+        
+        if (this.currentRopeLength >= this.ropeLength * 0.25) {
+            // Bucket body 
+            this.scene.pushMatrix();
+            this.metalMaterial.apply();
+            this.scene.translate(0, - this.currentRopeLength - this.bucketHeight/2, 0);
+            this.scene.rotate(Math.PI/2, 1, 0, 0);
+            this.scene.scale(this.bucketRadius, this.bucketRadius, this.bucketRadius);
+            this.bucketCylinder.display(); 
+            this.scene.popMatrix();
+            
+            // Bucket bottom
+            this.scene.pushMatrix();
+            this.metalMaterial.apply();
+            this.scene.translate(0, - this.currentRopeLength - this.bucketHeight*1.15, 0);
+            this.scene.rotate(Math.PI/2, 1, 0, 0);
+            this.scene.scale(this.bucketRadius*1.4, this.bucketRadius*1.4, this.bucketRadius*1.4);
+            this.circle.display();
+            this.scene.popMatrix();
+            
+            // Water
+            this.scene.pushMatrix();
+            this.waterMaterial.apply();
+            this.scene.translate(0,- this.currentRopeLength - this.bucketHeight*0.5, 0);
+            this.scene.scale(this.bucketRadius*0.95, this.bucketHeight*0.2, this.bucketRadius*0.95);
+            this.sphere.display();
+            this.scene.popMatrix();
 
-        
-        // Bucket body 
-        this.scene.pushMatrix();
-        this.metalMaterial.apply();
-        this.scene.translate(0, - this.ropeLength - this.bucketHeight/2, 0);
-        this.scene.rotate(Math.PI/2, 1, 0, 0);
-        this.scene.scale(this.bucketRadius, this.bucketRadius, this.bucketRadius);
-        this.bucketCylinder.display(); 
-        this.scene.popMatrix();
-        
-        // Bucket bottom
-        this.scene.pushMatrix();
-        this.metalMaterial.apply();
-        this.scene.translate(0, - this.ropeLength - this.bucketHeight*1.15, 0);
-        this.scene.rotate(Math.PI/2, 1, 0, 0);
-        this.scene.scale(this.bucketRadius*1.4, this.bucketRadius*1.4, this.bucketRadius*1.4);
-        this.circle.display();
-        this.scene.popMatrix();
-        
-        // Water
-        this.scene.pushMatrix();
-        this.waterMaterial.apply();
-        this.scene.translate(0,- this.ropeLength - this.bucketHeight*0.5, 0);
-        this.scene.scale(this.bucketRadius*0.95, this.bucketHeight*0.2, this.bucketRadius*0.95);
-        this.sphere.display();
-        this.scene.popMatrix();
+        }
     }
+    
     
     setPosition(x, y, z) {
         this.x = x;
@@ -588,6 +640,9 @@ export class MyHeli extends CGFobject {
         this.tailRotorSpeed = 0;
         this.landingAnimationTime = 0;
         this.takeoffAnimationTime = 0;
+        this.currentRopeLength = 0;
+        this.bucketDeployed = false;
+        this.bucketRetracting = false;
     }
     
     takeOff() {
@@ -604,7 +659,7 @@ export class MyHeli extends CGFobject {
     
     land() {
         if (this.state === "flying") {
-            // ver se ta em cima do lagoo!!!!
+            // Check if over lake
             const isOverLake = false; 
             const isBucketEmpty = true; 
             
@@ -612,11 +667,17 @@ export class MyHeli extends CGFobject {
                 this.state = "filling";
                 //lagooo
             } else {
-                this.state = "landing";
-                this.landingAnimationTime = 0;
+                if (this.hasBucket && this.currentRopeLength > 0) {
+                    this.state = "bucket_retract";
+                    this.bucketRetracting = true;
+                } else {
+                    this.state = "landing";
+                    this.landingAnimationTime = 0;
+                }
             }
         }
     }
+    
 
     setHeliportPosition(x, y, z) {
         this.heliportX = x;
