@@ -9,7 +9,7 @@ uniform sampler2D uWaterMap;
 uniform float timeFactor;
 
 void main() {
-	vec4 color = texture2D(uSampler, vTextureCoord+vec2(timeFactor*0.01,timeFactor*0.01));
+	vec4 color = texture2D(uSampler, vTextureCoord+vec2(timeFactor*0.007,timeFactor*0.007));
 	gl_FragColor = color;
 
 	/*
