@@ -40,6 +40,8 @@ export class MyScene extends CGFscene {
     this.showTriangle = true;
     this.showDiamond = true;
     this.showParallelogram = true;
+    this.showSmallTriangle = true;
+    this.showBigTriangle = true;
     this.scaleFactor = 1;
   }
   initLights() {
@@ -105,8 +107,8 @@ export class MyScene extends CGFscene {
     if(this.showDiamond) this.diamond.display();
     if(this.showTriangle) this.triangle.display();
     if(this.showParallelogram) this.parallelogram.display();
-    // this.triangleSmall.display();
-    // this.triangleBig.display();
+    if(this.showSmallTriangle) this.triangleSmall.display();
+    if(this.showBigTriangle) this.triangleBig.display();
 
     // ---- END Primitive drawing section
   }
