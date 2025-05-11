@@ -48,7 +48,8 @@ export class MyFire extends CGFobject {
         
         this.flameShader.setUniformsValues({
             timeFactor: 0,
-            intensityFactor: 1.0
+            intensityFactor: 1.0,
+            uSampler: 0
         });
     }
     
