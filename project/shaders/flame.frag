@@ -9,53 +9,71 @@ varying float vVertexHeight;
 uniform sampler2D uSampler;
 uniform float timeFactor;
 uniform float intensityFactor;
-uniform float particleSize;
+
+float random(vec2 st) {
+    return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
+}
+
+vec2 noise(vec2 st) {
+    vec2 i = floor(st);
+    vec2 f = fract(st);
+    
+    float a = random(i);
+    float b = random(i + vec2(1.0, 0.0));
+    float c = random(i + vec2(0.0, 1.0));
+    float d = random(i + vec2(1.0, 1.0));
+    
+    vec2 u = f * f * (3.0 - 2.0 * f);
+    
+    return vec2(mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y,
+                random(st + vec2(timeFactor * 0.1)));
+}
 
 void main() {
-    float t = timeFactor * 2.5;
+    vec2 distortedCoord = vTextureCoord;
     
-    vec2 distortedCoords = vTextureCoord;
-    distortedCoords.x += sin(t * 1.2 + vTextureCoord.y * 8.0) * 0.06;
-    distortedCoords.y += cos(t * 1.5 + vTextureCoord.x * 7.0) * 0.03;
+    float distortionStrength = 0.1 + 0.2 * vVertexHeight;
     
-    vec4 textureColor = texture2D(uSampler, distortedCoords);
+    float timeScale = timeFactor * 2.0;
     
-    vec3 baseColor = vec3(1.0, 0.5, 0.1); // Deep orange
-    vec3 tipColor = vec3(1.0, 0.9, 0.2);  // Yellow
-    vec3 rootColor = vec3(0.8, 0.2, 0.0); // Deep red
+    distortedCoord.x += sin(distortedCoord.y * 10.0 + timeScale) * 0.03 * distortionStrength;
     
-    float yPos = vTextureCoord.y;
-    vec3 colorVariation = mix(
-        rootColor,
-        tipColor,
-        pow(yPos, 0.7)
-    );
+    distortedCoord.y += sin(distortedCoord.x * 8.0 + timeScale * 0.7) * 0.02 * distortionStrength;
     
-    vec3 fireColor = mix(baseColor, colorVariation, 0.7);
+    vec2 noiseVec = noise(distortedCoord * 5.0 + timeScale * vec2(0.5, 1.0));
+    distortedCoord += noiseVec * distortionStrength * 0.1;
     
-    float flicker = sin(t * 4.0 + vTextureCoord.y * 10.0) * 0.15;
-    flicker += cos(t * 3.2 + vTextureCoord.x * 8.0) * 0.1;
-    fireColor += vec3(flicker, flicker * 0.6, flicker * 0.3);
+    vec4 textureColor = texture2D(uSampler, distortedCoord);
     
-    vec3 blendedColor = mix(fireColor, textureColor.rgb, 0.4);
+    vec3 baseColor = vec3(1.0, 0.9, 0.5);
+    vec3 midColor = vec3(1.0, 0.9, 0.5); 
+    vec3 tipColor = vec3(1.0, 0.3, 0.0); 
     
-    vec3 finalColor = blendedColor * vLightWeighting * intensityFactor;
+    vec3 colorModifier;
+    if (vVertexHeight < 0.4) {
+        float t = vVertexHeight / 0.4;
+        colorModifier = mix(baseColor, midColor, t);
+    } else {
+        float t = (vVertexHeight - 0.4) / 0.6;
+        colorModifier = mix(midColor, tipColor, t);
+    }
+        
+    float flicker = sin(timeFactor * 10.0 + vVertexHeight * 15.0) * 0.05 + 
+                    sin(timeFactor * 7.3 + vVertexHeight * 20.0) * 0.03 +
+                    sin(timeFactor * 18.7 + vVertexHeight * 25.0) * 0.02;
     
-    float noisePattern = sin(vTextureCoord.x * 70.0 + t * 1.9) * 
-                         cos(vTextureCoord.y * 60.0 + t * 1.5) * 
-                         sin((vTextureCoord.x + vTextureCoord.y) * 45.0) * 
-                         cos(vTextureCoord.x * 25.0 - vTextureCoord.y * 15.0 + t);
+    vec3 flameColor = textureColor.rgb * colorModifier;
     
-    float gapThreshold = 0.6 + 0.3 * yPos + 
-                    0.2 * sin(vTextureCoord.x * 35.0 + t) +
-                    0.15 * cos(vTextureCoord.y * 25.0 - t * 0.7);
+    float brightness = 1.2 + flicker - 0.5 * (1.0 - vVertexHeight);
+
+    flameColor = mix(flameColor, textureColor.rgb * brightness, 0.8);
     
-    float gapFactor = smoothstep(gapThreshold - 0.05 * particleSize, 
-                         gapThreshold + 0.05 * particleSize, 
-                         noisePattern);
+    flameColor *= brightness * intensityFactor * vLightWeighting;
     
-    float heightFactor = 1.0 - pow(yPos, 2.0); 
-    float alpha = textureColor.a * heightFactor * (1.0 - gapFactor * yPos);
+    float alpha = textureColor.a * (0.3 + vVertexHeight * 0.7);
+
+
+    alpha *= 0.8 + 0.3 * noiseVec.x;
     
-    gl_FragColor = vec4(finalColor, alpha);
+    gl_FragColor = vec4(flameColor, alpha);
 }

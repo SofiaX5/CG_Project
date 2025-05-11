@@ -46,6 +46,7 @@ export class MyScene extends CGFscene {
     this.fireEnabled = true;
     this.fireSize = 5;
     this.fireIntensity = 1.0;
+    this.fires = [];
   }
   
   init(application) {
@@ -103,7 +104,10 @@ export class MyScene extends CGFscene {
     );
     this.heli = new MyHeli(this);
     this.updateHeliportPosition();
-    this.fire = new MyFire(this, [15, 0, 15], this.fireSize, 15);
+    this.fires = [
+    new MyFire(this, [15, 0, 15], this.fireSize, 15),
+    new MyFire(this, [30, 0, 30], this.fireSize * 1.2, 20)
+  ];
     //this.heli.setPosition(0, this.building.floorHeight * 4 + this.heli.bodyHeight * 0.75, 0);
   }
 
@@ -242,9 +246,11 @@ export class MyScene extends CGFscene {
     if (this.heli) {
       this.heli.update(t);
     }
-    if (this.fire && this.fireEnabled) {
-        this.fire.update(t);
+    if(this.fireEnabled){
+    for(let i = 0; i < this.fires.length; i++) {
+      this.fires[i].update(t);
     }
+  }
   }
   setDefaultAppearance() {
     this.setAmbient(0.5, 0.5, 0.5, 1.0);
@@ -294,10 +300,12 @@ export class MyScene extends CGFscene {
     this.popMatrix();
     
     if (this.fireEnabled) {
-      this.pushMatrix();
-      this.fire.display();
-      this.popMatrix();
+    this.pushMatrix();
+    for(let i = 0; i < this.fires.length; i++) {
+      this.fires[i].display();
     }
+    this.popMatrix();
+  }
 
     // Esfera
     /*

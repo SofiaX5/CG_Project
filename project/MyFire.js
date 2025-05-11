@@ -1,5 +1,5 @@
 import { CGFobject, CGFappearance, CGFtexture, CGFshader } from '../lib/CGF.js';
-import { MyTriangle } from './MyTriangle.js';
+import { MyFlame } from './MyFlame.js'; 
 
 /**
  * MyFire
@@ -56,28 +56,34 @@ export class MyFire extends CGFobject {
     
 
     createFlames() {
-        for (let i = 0; i < this.flameCount; i++) {
-            const triangle = new MyTriangle(this.scene);
-            
-            const flame = {
-                triangle: triangle,
-                height: this.getRandomValue(0.6, 1.0) * this.size,
-                width: this.getRandomValue(0.3, 0.7) * this.size,
-                angle: this.getRandomValue(0, Math.PI * 2),
-                phase: this.getRandomValue(0, Math.PI * 2),
-                speed: this.getRandomValue(0.5, 2.0),
-                offsetX: this.getRandomValue(-this.size/2, this.size/2),
-                offsetZ: this.getRandomValue(-this.size/2, this.size/2),
-                offsetY: this.getRandomValue(-0.2, 0.2) * this.size,
-                colorVariation: this.getRandomValue(0.7, 1.3)
-            };
-            
-            this.flames.push(flame);
-        }
-                /*
+    for (let i = 0; i < this.flameCount; i++) {
+        const triangle = new MyFlame(this.scene);
+        
+        const flame = {
+            triangle: triangle,
+            height: this.getRandomValue(0.6, 1.0) * this.size,
+            width: this.getRandomValue(0.3, 0.7) * this.size,
+            angle: this.getRandomValue(0, Math.PI * 2),
+            phase: this.getRandomValue(0, Math.PI * 2),
+            speed: this.getRandomValue(0.5, 2.0),
+            offsetX: this.getRandomValue(-this.size/2, this.size/2),
+            offsetZ: this.getRandomValue(-this.size/2, this.size/2),
+            offsetY: this.getRandomValue(-0.2, 0.2) * this.size,
+            colorVariation: this.getRandomValue(0.7, 1.3),
+            // New properties for animation
+            swayAmplitude: this.getRandomValue(0.1, 0.3),
+            swayFrequency: this.getRandomValue(1.0, 3.0),
+            riseSpeed: this.getRandomValue(0.5, 1.5),
+            twistFactor: this.getRandomValue(0.5, 2.0)
+        };
+        
+        this.flames.push(flame);
+    }
+
+                
         const smallFlameCount = Math.floor(this.flameCount / 3);
         for (let i = 0; i < smallFlameCount; i++) {
-            const triangle = new MyTriangle(this.scene);
+            const triangle = new MyFlame(this.scene);
             
             const flame = {
                 triangle: triangle,
@@ -93,7 +99,7 @@ export class MyFire extends CGFobject {
             };
             
             this.flames.push(flame);
-        }*/
+        }
     }
 
     update(t) {
@@ -122,6 +128,13 @@ export class MyFire extends CGFobject {
         for (let i = 0; i < this.flames.length; i++) {
             const flame = this.flames[i];
             
+            this.flameShader.setUniformsValues({
+            swayAmplitude: flame.swayAmplitude,
+            swayFrequency: flame.swayFrequency,
+            riseSpeed: flame.riseSpeed,
+            twistFactor: flame.twistFactor
+        });
+
             this.scene.pushMatrix();
             this.scene.translate(flame.offsetX, 0, flame.offsetZ);
             this.scene.rotate(flame.angle, 0, 1, 0);
