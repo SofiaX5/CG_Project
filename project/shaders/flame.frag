@@ -4,63 +4,58 @@ precision highp float;
 
 varying vec2 vTextureCoord;
 varying vec3 vLightWeighting;
+varying float vVertexHeight;
 
 uniform sampler2D uSampler;
 uniform float timeFactor;
 uniform float intensityFactor;
-
 uniform float particleSize;
-uniform float randomSeed;  
 
 void main() {
-
-    float t = timeFactor * 2.0;
-
+    float t = timeFactor * 2.5;
+    
     vec2 distortedCoords = vTextureCoord;
-distortedCoords.x += sin(t * 1.0 + vTextureCoord.y * 5.0) * 0.05;
-distortedCoords.y += cos(t * 1.2 + vTextureCoord.x * 5.0) * 0.01;
-
+    distortedCoords.x += sin(t * 1.2 + vTextureCoord.y * 8.0) * 0.06;
+    distortedCoords.y += cos(t * 1.5 + vTextureCoord.x * 7.0) * 0.03;
+    
     vec4 textureColor = texture2D(uSampler, distortedCoords);
     
-    vec3 baseColor = vec3(1.0, 0.6, 0.1); // Orange
+    vec3 baseColor = vec3(1.0, 0.5, 0.1); // Deep orange
+    vec3 tipColor = vec3(1.0, 0.9, 0.2);  // Yellow
+    vec3 rootColor = vec3(0.8, 0.2, 0.0); // Deep red
     
     float yPos = vTextureCoord.y;
-    
     vec3 colorVariation = mix(
-        vec3(1.0, 0.9, 0.2),  // Yellow
-        vec3(0.9, 0.2, 0.0),  // Red
-        yPos
+        rootColor,
+        tipColor,
+        pow(yPos, 0.7)
     );
     
-    //vec3 fireColor = mix(baseColor, colorVariation, 0.7);
-    vec3 colorTint = mix(baseColor, colorVariation, 0.7);
-    vec3 blendedColor = mix(colorTint, textureColor.rgb, 0.95);
-
-    float brightness = (textureColor.r + textureColor.g + textureColor.b) / 3.0;
-    float pulse = 0.1 * sin(t * 3.0 + vTextureCoord.y * 10.0) * brightness;
-    //fireColor += vec3(pulse, pulse * 0.7, pulse * 0.3);
-    //fireColor += textureColor.rgb * vec3(0.2, 0.1, 0.0);
-    blendedColor += vec3(pulse, pulse * 0.5, pulse * 0.2);
-    //vec3 blendedColor = mix(textureColor.rgb, fireColor, 0.7);
-
-    vec3 finalColor = blendedColor * vLightWeighting * intensityFactor;
-
-    float noisePattern = sin(vTextureCoord.x * 65.0 + t * 1.7) * 
-                        cos(vTextureCoord.y * 55.0 + t * 1.3) * 
-                        sin((vTextureCoord.x + vTextureCoord.y) * 40.0 + randomSeed) *
-                        cos(vTextureCoord.x * 22.0 - vTextureCoord.y * 13.0 + t * 0.9);
-
-    float gapThreshold = 0.58 + 0.35 * yPos + 
-                    0.15 * sin(vTextureCoord.x * 40.0 + t) +
-                    0.1 * cos(vTextureCoord.y * 30.0 - randomSeed * 0.5);
-
-    float gapFactor = smoothstep(gapThreshold - 0.04 * particleSize, 
-                    gapThreshold + 0.04 * particleSize, 
-                    noisePattern);
-
-    float baseAlpha = textureColor.a;
-    float heightFactor = 1.0 - pow(yPos, 1.9); // Higher = more transparent
-float alpha = baseAlpha * heightFactor * (1.0 - gapFactor * (yPos ));    
-    gl_FragColor = vec4(finalColor, alpha);
+    vec3 fireColor = mix(baseColor, colorVariation, 0.7);
     
+    float flicker = sin(t * 4.0 + vTextureCoord.y * 10.0) * 0.15;
+    flicker += cos(t * 3.2 + vTextureCoord.x * 8.0) * 0.1;
+    fireColor += vec3(flicker, flicker * 0.6, flicker * 0.3);
+    
+    vec3 blendedColor = mix(fireColor, textureColor.rgb, 0.4);
+    
+    vec3 finalColor = blendedColor * vLightWeighting * intensityFactor;
+    
+    float noisePattern = sin(vTextureCoord.x * 70.0 + t * 1.9) * 
+                         cos(vTextureCoord.y * 60.0 + t * 1.5) * 
+                         sin((vTextureCoord.x + vTextureCoord.y) * 45.0) * 
+                         cos(vTextureCoord.x * 25.0 - vTextureCoord.y * 15.0 + t);
+    
+    float gapThreshold = 0.6 + 0.3 * yPos + 
+                    0.2 * sin(vTextureCoord.x * 35.0 + t) +
+                    0.15 * cos(vTextureCoord.y * 25.0 - t * 0.7);
+    
+    float gapFactor = smoothstep(gapThreshold - 0.05 * particleSize, 
+                         gapThreshold + 0.05 * particleSize, 
+                         noisePattern);
+    
+    float heightFactor = 1.0 - pow(yPos, 2.0); 
+    float alpha = textureColor.a * heightFactor * (1.0 - gapFactor * yPos);
+    
+    gl_FragColor = vec4(finalColor, alpha);
 }
