@@ -67,11 +67,32 @@ export class MyFire extends CGFobject {
                 speed: this.getRandomValue(0.5, 2.0),
                 offsetX: this.getRandomValue(-this.size/2, this.size/2),
                 offsetZ: this.getRandomValue(-this.size/2, this.size/2),
+                offsetY: this.getRandomValue(-0.2, 0.2) * this.size,
                 colorVariation: this.getRandomValue(0.7, 1.3)
             };
             
             this.flames.push(flame);
         }
+                /*
+        const smallFlameCount = Math.floor(this.flameCount / 3);
+        for (let i = 0; i < smallFlameCount; i++) {
+            const triangle = new MyTriangle(this.scene);
+            
+            const flame = {
+                triangle: triangle,
+                height: this.getRandomValue(0.3, 0.6) * this.size,  
+                width: this.getRandomValue(0.2, 0.4) * this.size,    
+                angle: this.getRandomValue(0, Math.PI * 2),
+                phase: this.getRandomValue(0, Math.PI * 2),
+                speed: this.getRandomValue(0.5, 1.5),
+                offsetX: this.getRandomValue(-this.size/2.5, this.size/2.5),
+                offsetZ: this.getRandomValue(-this.size/2.5, this.size/2.5),
+                offsetY: this.getRandomValue(-0.4, -0.1) * this.size, 
+                colorVariation: this.getRandomValue(1.0, 1.8)        
+            };
+            
+            this.flames.push(flame);
+        }*/
     }
 
     update(t) {
