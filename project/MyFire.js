@@ -70,7 +70,7 @@ export class MyFire extends CGFobject {
             offsetZ: this.getRandomValue(-this.size/2, this.size/2),
             offsetY: this.getRandomValue(-0.2, 0.2) * this.size,
             colorVariation: this.getRandomValue(0.7, 1.3),
-            // New properties for animation
+
             swayAmplitude: this.getRandomValue(0.1, 0.3),
             swayFrequency: this.getRandomValue(1.0, 3.0),
             riseSpeed: this.getRandomValue(0.5, 1.5),

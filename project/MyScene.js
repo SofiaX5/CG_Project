@@ -116,6 +116,10 @@ export class MyScene extends CGFscene {
     this.panorama.updateTexture(this.panoramaTexture);
   }
 
+  updateFireState() {
+    console.log("Fire state updated:", this.fireEnabled);
+  }
+
   updateBuildingAppearance() {
     this.building.setAppearance(this.buildingAppearanceType);
   }
