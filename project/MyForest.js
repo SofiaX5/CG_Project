@@ -11,7 +11,7 @@ import {getRandomFloat, getRandomInt, getRandomOrient, getRandomColorLeaf} from 
  * @param dist - Distance between the trees
  */
 export class MyForest extends CGFobject {
-    constructor(scene, numRows=5, numCols=4, dist=5) {  
+    constructor(scene, numRows=5, numCols=4, dist=6) {  
         super(scene);
         this.scene = scene;
         this.numRows = numRows;
@@ -20,7 +20,7 @@ export class MyForest extends CGFobject {
 
         this.trees = [];
         for (let i = 0; i < numRows*numCols; i++) {
-            let tree = new MyTree(scene, getRandomFloat(0, 0.4), getRandomOrient(), getRandomInt(3, 8), getRandomFloat(0.2, 0.7), getRandomColorLeaf());
+            let tree = new MyTree(scene, getRandomFloat(-0.2, 0.2), getRandomOrient(), getRandomInt(3, 8), getRandomFloat(0.2, 0.7), getRandomColorLeaf());
             this.trees.push(tree);
         }
     }

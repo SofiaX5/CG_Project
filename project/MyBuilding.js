@@ -9,7 +9,7 @@ import {MyCircle} from './MyCircle.js';
  * @param scene - Reference to MyScene object
  */
 export class MyBuilding extends CGFobject {
-    constructor(scene, totalWidth, sideFloors, windowsPerFloor, windowTexture, buildingColor) {
+    constructor(scene, totalWidth, sideFloors, windowsPerFloor, windowTexture, buildingColor, buildingAppearanceType = 'brick') {
         super(scene);
         this.scene = scene;
         
@@ -32,6 +32,7 @@ export class MyBuilding extends CGFobject {
         this.buildingColor = buildingColor || [0.9, 0.9, 0.9];
         
         this.buildingTexture = new CGFtexture(scene, "textures/building/brick.jpg");
+        this.buildingAppearanceType = buildingAppearanceType;
 
 
         this.buildingMaterials = {
@@ -40,8 +41,8 @@ export class MyBuilding extends CGFobject {
         };
         
         this.buildingMaterials.brick = new CGFappearance(scene);
-        this.buildingMaterials.brick.setAmbient(0.8, 0.8, 0.8, 1);
-        this.buildingMaterials.brick.setDiffuse(0.9, 0.9, 0.9, 1);
+        this.buildingMaterials.brick.setAmbient(this.buildingColor[0] * 0.5, this.buildingColor[1] * 0.5, this.buildingColor[2] * 0.5, 1);
+        this.buildingMaterials.brick.setDiffuse(this.buildingColor[0], this.buildingColor[1], this.buildingColor[2], 1);
         this.buildingMaterials.brick.setSpecular(0.1, 0.1, 0.1, 1);
         this.buildingMaterials.brick.setShininess(10.0);
         this.buildingMaterials.brick.setTexture(this.buildingTexture);
@@ -53,7 +54,7 @@ export class MyBuilding extends CGFobject {
         this.buildingMaterials.lightGray.setSpecular(0.1, 0.1, 0.1, 1);
         this.buildingMaterials.lightGray.setShininess(10.0);
         
-        this.buildingAppearance = this.buildingMaterials.brick;
+        this.buildingAppearance = this.buildingMaterials[buildingAppearanceType];
         
         this.window = new MyWindow(scene, windowTexture);
         
