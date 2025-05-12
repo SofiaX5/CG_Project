@@ -41,8 +41,34 @@ export class MyCircle extends CGFobject {
             this.texCoords.push(s, t);
         }
 
+        this.vertices.push(0, 0, 0);
+        this.normals.push(0, 0, -1); 
+        this.texCoords.push(0.5, 0.5);
+        
+        for (let i = 0; i <= this.slices; i++) {
+            const angle = i * angleIncrement;
+            const x = 0.5 * Math.cos(angle);
+            const y = 0.5 * Math.sin(angle);
+            
+            this.vertices.push(x, y, 0);
+            this.normals.push(0, 0, -1); 
+            
+            const s = 0.5 + 0.5 * Math.cos(angle);
+            const t = 0.5 + 0.5 * Math.sin(angle);
+            this.texCoords.push(s, t);
+        }
+        
         for (let i = 0; i < this.slices; i++) {
             this.indices.push(0, i + 1, i + 2);
+        }
+        
+        const backFaceCenterIndex = this.slices + 2;
+        for (let i = 0; i < this.slices; i++) {
+            this.indices.push(
+                backFaceCenterIndex,
+                backFaceCenterIndex + i + 2,
+                backFaceCenterIndex + i + 1
+            );
         }
 
         this.primitiveType = this.scene.gl.TRIANGLES;

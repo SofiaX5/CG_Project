@@ -32,7 +32,7 @@ export class MyPanorama  extends CGFobject {
         
 
         const cameraPos = this.scene.camera.position; //vamos posicionar a esfera na camera
-        this.scene.translate(cameraPos[0], cameraPos[1], cameraPos[2]);
+        //this.scene.translate(cameraPos[0], cameraPos[1], cameraPos[2]);
         
         this.scene.scale(this.radius, this.radius, this.radius);
                 

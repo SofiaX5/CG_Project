@@ -35,6 +35,49 @@ export class MyInterface extends CGFinterface {
             .name('Building Material')
             .onChange(() => this.scene.updateBuildingAppearance());
 
+            buildingFolder.add(this.scene, 'buildingWidth', 10, 40).step(1)
+            .name('Width')
+            .onChange(() => this.scene.updateBuilding());
+        
+        buildingFolder.add(this.scene, 'buildingSideFloors', 1, 6).step(1)
+            .name('Floors')
+            .onChange(() => this.scene.updateBuilding());
+        
+        buildingFolder.add(this.scene, 'buildingWindowsPerFloor', 1, 5).step(1)
+            .name('Windows Per Floor')
+            .onChange(() => this.scene.updateBuilding());
+        
+        // Color controllers 
+        const colorFolder = buildingFolder.addFolder('Building Color');
+        colorFolder.add(this.scene.buildingColor, '0', 0, 1).step(0.05)
+            .name('Red')
+            .onChange(() => this.scene.updateBuilding());
+        
+        colorFolder.add(this.scene.buildingColor, '1', 0, 1).step(0.05)
+            .name('Green')
+            .onChange(() => this.scene.updateBuilding());
+        
+        colorFolder.add(this.scene.buildingColor, '2', 0, 1).step(0.05)
+            .name('Blue')
+            .onChange(() => this.scene.updateBuilding());
+
+        //Helicopter
+        const helicopterFolder = this.gui.addFolder('Helicopter');
+        helicopterFolder.add(this.scene, 'showHelicopterBucket')
+            .name('Bucket')
+            .onChange(() => this.scene.updateHelicopterBucket());
+
+        //CruisingHeight
+        helicopterFolder.add(this.scene, 'cruisingHeight', 5, 15).step(0.1)
+        .name('Cruising Height')
+        .onChange(() => this.scene.updateHelicopterCruisingHeight());
+
+        //speedFactor
+        helicopterFolder.add(this.scene, 'speedFactor', 0.1, 3).step(0.1)
+            .name('Speed Factor')
+            .onChange(() => this.scene.updateHelicopterSpeedFactor());
+
+            
         this.initKeys();
 
         return true;
