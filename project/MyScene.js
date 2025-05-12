@@ -7,6 +7,7 @@ import { MyBuilding } from "./MyBuilding.js";
 import { MyTree } from "./MyTree.js";
 import { MyForest } from "./MyForest.js";
 import { MyHeli } from "./MyHeli.js";
+import { MyFire } from "./MyFire.js";
 
 
 /**
@@ -41,6 +42,11 @@ export class MyScene extends CGFscene {
     this.speedFactor = 1.0;
     this.heliportHeight = 0;
     this.cruisingHeight = 6.0;
+
+    this.fireEnabled = true;
+    this.fireSize = 5;
+    this.fireIntensity = 1.0;
+    this.fires = [];
   }
   
   init(application) {
@@ -98,12 +104,20 @@ export class MyScene extends CGFscene {
     );
     this.heli = new MyHeli(this);
     this.updateHeliportPosition();
+    this.fires = [
+    new MyFire(this, [15, 0, 15], this.fireSize, 15),
+    new MyFire(this, [30, 0, 30], this.fireSize * 1.2, 20)
+  ];
     //this.heli.setPosition(0, this.building.floorHeight * 4 + this.heli.bodyHeight * 0.75, 0);
   }
 
   updatePanorama() {
     this.panoramaTexture = this.panoramaTextures[this.selectedPanorama];
     this.panorama.updateTexture(this.panoramaTexture);
+  }
+
+  updateFireState() {
+    console.log("Fire state updated:", this.fireEnabled);
   }
 
   updateBuildingAppearance() {
@@ -236,6 +250,11 @@ export class MyScene extends CGFscene {
     if (this.heli) {
       this.heli.update(t);
     }
+    if(this.fireEnabled){
+    for(let i = 0; i < this.fires.length; i++) {
+      this.fires[i].update(t);
+    }
+  }
   }
   setDefaultAppearance() {
     this.setAmbient(0.5, 0.5, 0.5, 1.0);
@@ -284,7 +303,13 @@ export class MyScene extends CGFscene {
     this.forest.display();
     this.popMatrix();
     
-
+    if (this.fireEnabled) {
+    this.pushMatrix();
+    for(let i = 0; i < this.fires.length; i++) {
+      this.fires[i].display();
+    }
+    this.popMatrix();
+  }
 
     // Esfera
     /*

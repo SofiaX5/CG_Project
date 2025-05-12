@@ -24,10 +24,14 @@ export class MyInterface extends CGFinterface {
             .onChange(() => this.scene.updateCameraFov());
 
         //Panorama
-        const panoramaFolder = this.gui.addFolder('Environment');
-        panoramaFolder.add(this.scene, 'selectedPanorama', ['field', 'city'])
+        const environmentFolder = this.gui.addFolder('Environment');
+        environmentFolder.add(this.scene, 'selectedPanorama', ['field', 'city'])
             .name('Panorama Background')
             .onChange(() => this.scene.updatePanorama());
+
+        environmentFolder.add(this.scene, 'fireEnabled')
+            .name('Enable Fires')
+            .onChange(() => this.scene.updateFireState());
         
         //Building
         const buildingFolder = this.gui.addFolder('Building');
