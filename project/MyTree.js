@@ -1,6 +1,7 @@
 import {CGFobject, CGFappearance, CGFtexture} from '../lib/CGF.js';
 import {MyPyramid} from './MyPyramid.js';
 import {MyCone} from './MyCone.js';
+import {MyCylinder} from './MyCustomCylinder.js';
 //import {} from './Utils.js';
 
 /**
@@ -37,7 +38,8 @@ export class MyTree extends CGFobject {
         this.leafAppearance.setShininess(10.0);
         this.leafAppearance.setTexture(this.leafTexture);
 
-        this.log = new MyCone(scene, 20, height, radius);
+        //this.log = new MyCone(scene, 20, height, radius);
+        this.log = new MyCylinder(scene, 20, 1, radius*2);
         this.leaves = [];
 
         for (let i = 0; i < this.numLeaf; i++) {
@@ -58,7 +60,9 @@ export class MyTree extends CGFobject {
         
         // Log
         this.scene.pushMatrix();
+        this.scene.rotate( Math.PI/2, -1, 0, 0);
         this.logAppearance.apply();
+        this.scene.scale(0.5, 0.5, this.height*0.25);
         this.log.display();
         this.scene.popMatrix();
         
