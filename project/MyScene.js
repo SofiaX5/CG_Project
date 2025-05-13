@@ -8,6 +8,7 @@ import { MyTree } from "./MyTree.js";
 import { MyForest } from "./MyForest.js";
 import { MyHeli } from "./MyHeli.js";
 import { MyFire } from "./MyFire.js";
+import { MyLake } from "./MyLake.js";
 
 
 /**
@@ -105,9 +106,10 @@ export class MyScene extends CGFscene {
     this.heli = new MyHeli(this);
     this.updateHeliportPosition();
     this.fires = [
-    new MyFire(this, [15, 0, 15], this.fireSize, 15),
-    new MyFire(this, [30, 0, 30], this.fireSize * 1.2, 20)
-  ];
+      new MyFire(this, [15, 0, 15], this.fireSize, 15),
+      new MyFire(this, [30, 0, 30], this.fireSize * 1.2, 20)
+    ];
+    this.lake = new MyLake(this);
     //this.heli.setPosition(0, this.building.floorHeight * 4 + this.heli.bodyHeight * 0.75, 0);
   }
 
@@ -254,6 +256,7 @@ export class MyScene extends CGFscene {
     for(let i = 0; i < this.fires.length; i++) {
       this.fires[i].update(t);
     }
+    this.lake.update(t);
   }
   }
   setDefaultAppearance() {
@@ -304,12 +307,19 @@ export class MyScene extends CGFscene {
     this.popMatrix();
     
     if (this.fireEnabled) {
-    this.pushMatrix();
-    for(let i = 0; i < this.fires.length; i++) {
-      this.fires[i].display();
+      this.pushMatrix();
+      for(let i = 0; i < this.fires.length; i++) {
+        this.fires[i].display();
+      }
+      this.popMatrix();
     }
+
+    this.pushMatrix();
+    this.translate(-25, 1, 25);
+    this.scale(50, 1, 50);
+    this.rotate(-Math.PI / 2, 1, 0, 0);
+    this.lake.display();
     this.popMatrix();
-  }
 
     // Esfera
     /*
