@@ -293,13 +293,28 @@ export class MyHeli extends CGFobject {
 
                 this.currentRopeLength = this.ropeLength;
                 
-                if (this.y > 7) {
+                if (this.y > 6) {
                     this.y -= 0.3;
                 }
 
                 break;
 
-            
+
+            case "rise_after_fill":
+                console.log(`RISING`);
+                this.mainRotorSpeed = this.maxRotorSpeed;
+                this.tailRotorSpeed = this.maxRotorSpeed * 2;
+
+                this.currentRopeLength = this.ropeLength;
+                this.y += 0.3;
+                
+                if (this.y >= this.cruisingAltitude) {
+                    this.y = this.cruisingAltitude;
+                    this.velocity = [0, 0, 0];
+                    this.state = "flying";  
+                }
+
+                break;
         }
         this.mainRotorAngle += deltaTime * this.mainRotorSpeed;
         this.tailRotorAngle += deltaTime * this.tailRotorSpeed;
@@ -602,16 +617,15 @@ export class MyHeli extends CGFobject {
             this.circle.display();
             this.scene.popMatrix();
             
-            /*
-            // Water
-            this.scene.pushMatrix();
-            this.waterMaterial.apply();
-            this.scene.translate(0,- this.currentRopeLength - this.bucketHeight*0.5, 0);
-            this.scene.scale(this.bucketRadius*0.95, this.bucketHeight*0.2, this.bucketRadius*0.95);
-            this.sphere.display();
-            this.scene.popMatrix();
-            */
-
+            if (!this.isBucketEmpty) {
+                // Water
+                this.scene.pushMatrix();
+                this.waterMaterial.apply();
+                this.scene.translate(0,- this.currentRopeLength - this.bucketHeight*0.5, 0);
+                this.scene.scale(this.bucketRadius*0.95, this.bucketHeight*0.2, this.bucketRadius*0.95);
+                this.sphere.display();
+                this.scene.popMatrix();
+            }
         }
     }
     
@@ -693,8 +707,8 @@ export class MyHeli extends CGFobject {
             this.takeoffAnimationTime = 0;
         } else if (this.state === "filling") {
             console.log("Taking off from filling state");
-            this.state = "flying";
-            this.y = this.cruisingAltitude;
+            this.isBucketEmpty = false;
+            this.state = "rise_after_fill";
         }
     }
     
@@ -702,7 +716,6 @@ export class MyHeli extends CGFobject {
         if (this.state === "flying") {            
             if (this.isOverLake && this.isBucketEmpty) {
                 this.state = "filling";
-                //lagooo
             } else {
                 this.state = "landing";
                 this.landingAnimationTime = 0;
