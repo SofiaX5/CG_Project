@@ -47,7 +47,9 @@ export class MyHeli extends CGFobject {
         this.bucketRetracted = true;
 
         this.isOverLake = false; 
+        this.isOverFire = false; 
         this.isBucketEmpty = true; 
+        this.isFireOn = true;
 
         // Position and Movement
         this.x = posX;
@@ -224,6 +226,16 @@ export class MyHeli extends CGFobject {
                 } else {
                     this.isOverLake = false;
                 }
+               
+                //if ((this.x > 15 && this.x < 18 && this.z > 15 && this.z < 19) || 
+                //    (this.x > 29 && this.x < 34 && this.z > 30 && this.z < 34)){
+                if (this.x > 9 && this.x < 40 && this.z > 14 && this.z < 35) {
+                    console.log(`Above fire`);
+                    this.isOverFire = true;
+                } else {
+                    this.isOverFire = false;
+                }
+                    
                 
                 break;
                 
@@ -314,6 +326,11 @@ export class MyHeli extends CGFobject {
                     this.state = "flying";  
                 }
 
+                break;
+
+            case "put_fire":
+                this.isBucketEmpty = true;
+                this.isFireOn = false;
                 break;
         }
         this.mainRotorAngle += deltaTime * this.mainRotorSpeed;
@@ -721,6 +738,13 @@ export class MyHeli extends CGFobject {
                 this.landingAnimationTime = 0;
                 this.bucketRetracting = false; 
             }
+        }
+    }
+
+    put_fire() {
+        if (this.state === "flying" && !this.isBucketEmpty && this.isOverFire) {
+            this.state = "put_fire";
+            this.velocity = [0, 0, 0];
         }
     }
     

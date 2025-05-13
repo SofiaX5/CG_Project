@@ -237,6 +237,15 @@ export class MyScene extends CGFscene {
         this.lKeyActive = false;
     }
 
+    if (this.gui.isKeyPressed("KeyO") && !this.oKeyActive) {
+        text += " O ";
+        this.heli.put_fire();
+        this.oKeyActive = true;
+        keysPressed = true;
+    } else if (!this.gui.isKeyPressed("KeyO")) {
+        this.oKeyActive = false;
+    }
+
     if (keysPressed){
         console.log(text);
         this.lights[0].update();
@@ -306,7 +315,7 @@ export class MyScene extends CGFscene {
     this.forest.display();
     this.popMatrix();
     
-    if (this.fireEnabled) {
+    if (this.fireEnabled && this.heli.isFireOn) {
       this.pushMatrix();
       for(let i = 0; i < this.fires.length; i++) {
         this.fires[i].display();
