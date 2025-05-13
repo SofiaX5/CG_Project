@@ -46,6 +46,9 @@ export class MyHeli extends CGFobject {
         this.bucketRetracting = false;
         this.bucketRetracted = true;
 
+        this.isOverLake = false; 
+        this.isBucketEmpty = true; 
+
         // Position and Movement
         this.x = posX;
         this.y = posY;
@@ -61,7 +64,7 @@ export class MyHeli extends CGFobject {
         this.tiltSpeed = 0.005;   
 
         // Heli State
-        this.state = "resting"; // resting,taking_off,flying,landing,filling, bucket_retract, bucket_deploy
+        this.state = "resting";
         this.cruisingHeight = cruisingHeight;
         this.cruisingAltitude = cruisingHeight + posY;
         this.initialHeight = posY;
@@ -82,7 +85,7 @@ export class MyHeli extends CGFobject {
         this.plane = new MyPlane(this.scene, 1);
         this.circle = new MyCircle(this.scene, 30);
         this.cylinder = new MyCylinder(this.scene, 20, 5); 
-        this.bucketCylinder = new MyCylinder(this.scene, 20, 5,0.7); 
+        this.bucketCylinder = new MyCylinder(this.scene, 20, 5, 0.7); 
         this.pyramid = new MyPyramid(this.scene, 4, 1, 1);
         this.cube = new MyCustomCube(this.scene, 5, 3, 2);
         this.parallelogram = new MyCustomParallelogram(this.scene, 7, 3, 2, 3);
@@ -212,6 +215,16 @@ export class MyHeli extends CGFobject {
                 this.z += this.velocity[2] * timeStep;
                 console.log(`Timestep: [${timeStep},`);
                 console.log(`Position: [${this.x.toFixed(2)}, ${this.y.toFixed(2)}, ${this.z.toFixed(2)}]`);
+
+          
+                if (this.x > -30 && this.x < -15 && this.z > 15 && this.z < 38) {
+                    // && this.velocity[0] == 0 && this.velocity[2] == 0) {
+                    console.log(`Above lake`);
+                    this.isOverLake = true;
+                } else {
+                    this.isOverLake = false;
+                }
+                
                 break;
                 
             case "landing":
@@ -274,8 +287,19 @@ export class MyHeli extends CGFobject {
                 break;
                             
             case "filling":
-                //Isto aqui é TODO
+                console.log(`FILLING`);
+                this.mainRotorSpeed = this.maxRotorSpeed;
+                this.tailRotorSpeed = this.maxRotorSpeed * 2;
+
+                this.currentRopeLength = this.ropeLength;
+                
+                if (this.y > 7) {
+                    this.y -= 0.3;
+                }
+
                 break;
+
+            
         }
         this.mainRotorAngle += deltaTime * this.mainRotorSpeed;
         this.tailRotorAngle += deltaTime * this.tailRotorSpeed;
@@ -362,9 +386,9 @@ export class MyHeli extends CGFobject {
     }
     
     drawBody() {
+        // Main body 
         this.scene.pushMatrix();
         
-        // Main body 
         this.bodyMaterial.apply();
         this.scene.scale(this.bodyLength/2.5, this.bodyHeight/2, this.bodyWidth/2);
         this.sphere.display();
@@ -578,6 +602,7 @@ export class MyHeli extends CGFobject {
             this.circle.display();
             this.scene.popMatrix();
             
+            /*
             // Water
             this.scene.pushMatrix();
             this.waterMaterial.apply();
@@ -585,6 +610,7 @@ export class MyHeli extends CGFobject {
             this.scene.scale(this.bucketRadius*0.95, this.bucketHeight*0.2, this.bucketRadius*0.95);
             this.sphere.display();
             this.scene.popMatrix();
+            */
 
         }
     }
@@ -673,11 +699,8 @@ export class MyHeli extends CGFobject {
     }
     
     land() {
-        if (this.state === "flying") {
-            const isOverLake = false; 
-            const isBucketEmpty = true; 
-            
-            if (isOverLake && isBucketEmpty) {
+        if (this.state === "flying") {            
+            if (this.isOverLake && this.isBucketEmpty) {
                 this.state = "filling";
                 //lagooo
             } else {
