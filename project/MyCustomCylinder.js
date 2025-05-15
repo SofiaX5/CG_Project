@@ -5,11 +5,11 @@ import {CGFobject} from '../lib/CGF.js';
  * @param scene - Reference to MyScene object
  */
 export class MyCylinder extends CGFobject {
-    constructor(scene, slices, stacks, topToBottomRatio= 1.0) {
+    constructor(scene, slices, stacks, topToBottomRatio = 1.0) {
         super(scene);
         this.slices = slices;
         this.stacks = stacks;
-        this.topToBottomRatio = topToBottomRatio;
+        this.topToBottomRatio = Math.min(topToBottomRatio, 1.0);
 
         this.initBuffers();
     }

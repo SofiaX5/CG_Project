@@ -1,6 +1,7 @@
 import {CGFobject, CGFappearance, CGFtexture} from '../lib/CGF.js';
-import {MyPyramid} from './MyPyramid.js';
 import {MyCone} from './MyCone.js';
+import {MyCylinder} from './MyCustomCylinder.js';
+import {MyTruncatedPyramid} from './MyTruncatedPyramid.js';
 //import {} from './Utils.js';
 
 /**
@@ -37,13 +38,15 @@ export class MyTree extends CGFobject {
         this.leafAppearance.setShininess(10.0);
         this.leafAppearance.setTexture(this.leafTexture);
 
-        this.log = new MyCone(scene, 20, height, radius);
+        this.log = new MyCylinder(scene, 20, 1, radius*2);
         this.leaves = [];
 
-        for (let i = 0; i < this.numLeaf; i++) {
-            let pyramid = new MyPyramid(this.scene, 8, (height*2)/this.numLeaf, radius*2.5);
-            this.leaves.push(pyramid);
+        for (let i = 0; i < this.numLeaf-1; i++) {
+            let myTruncatedPyramid = new MyTruncatedPyramid(this.scene, 8, 1, radius * 2.5, radius * 2.5 * 0.4, (height * 0.9) / this.numLeaf);
+            this.leaves.push(myTruncatedPyramid);
         }
+        let pyramid = new MyTruncatedPyramid(this.scene, 8, 1, radius * 2.5, 0, (height * 2) / this.numLeaf );
+        this.leaves.push(pyramid);
     }
     
 
@@ -58,7 +61,9 @@ export class MyTree extends CGFobject {
         
         // Log
         this.scene.pushMatrix();
+        this.scene.rotate( Math.PI/2, -1, 0, 0);
         this.logAppearance.apply();
+        this.scene.scale(0.5, 0.5, this.height*0.25);
         this.log.display();
         this.scene.popMatrix();
         

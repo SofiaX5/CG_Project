@@ -21,6 +21,7 @@ export class MyScene extends CGFscene {
     this.panoramaTexture = null;
     this.windowTexture = null;
 		this.appearance = null;
+    this.lastTime = 0;
 
     this.fovValues = {
       narrow: 0.4,  
@@ -111,6 +112,30 @@ export class MyScene extends CGFscene {
     //this.heli.setPosition(0, this.building.floorHeight * 4 + this.heli.bodyHeight * 0.75, 0);
   }
 
+  constrainCamera() {
+    const maxDistance = this.panorama.radius * 0.95; 
+    const cameraPos = this.camera.position;
+    
+    const distance = Math.sqrt(
+        cameraPos[0] * cameraPos[0] + 
+        cameraPos[1] * cameraPos[1] + 
+        cameraPos[2] * cameraPos[2]
+    );
+    
+    if (distance > maxDistance) {
+        const scale = maxDistance / distance;
+        this.camera.position[0] = cameraPos[0] * scale;
+        this.camera.position[1] = cameraPos[1] * scale;
+        this.camera.position[2] = cameraPos[2] * scale;
+        
+        const targetOffset = vec3.create();
+        vec3.subtract(targetOffset, this.camera.target, this.camera.position);
+        vec3.add(this.camera.target, this.camera.position, targetOffset);
+        
+        this.camera.update();
+    }
+}
+
   updatePanorama() {
     this.panoramaTexture = this.panoramaTextures[this.selectedPanorama];
     this.panorama.updateTexture(this.panoramaTexture);
@@ -175,6 +200,7 @@ export class MyScene extends CGFscene {
     const moveAmount = 2.0;
     let keysPressed = false;
     var text = "Keys pressed: ";
+    this.constrainCamera();
 
     const heliTurnFactor = 0.05 * this.speedFactor;
     const heliAccelFactor = 0.02 * this.speedFactor;
@@ -245,17 +271,25 @@ export class MyScene extends CGFscene {
     this.camera.fov = this.fovValues[this.selectedFov];
   }
 
-  update(t) {
+   update(t) {
     this.checkKeys();
     if (this.heli) {
-      this.heli.update(t);
+      if (this.lastTime === 0) {
+        this.lastTime = t;
+      } else {
+        const deltaTime = t - this.lastTime;
+        this.heli.update(deltaTime);
+        this.lastTime = t;
+      }
     }
-    if(this.fireEnabled){
-    for(let i = 0; i < this.fires.length; i++) {
-      this.fires[i].update(t);
+    if (this.fireEnabled) {
+      for (let i = 0; i < this.fires.length; i++) {
+        this.fires[i].update(t);
+      }
     }
+    this.constrainCamera();
   }
-  }
+
   setDefaultAppearance() {
     this.setAmbient(0.5, 0.5, 0.5, 1.0);
     this.setDiffuse(0.5, 0.5, 0.5, 1.0);
