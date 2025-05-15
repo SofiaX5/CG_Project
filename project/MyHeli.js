@@ -3,7 +3,6 @@ import {MySphere} from './MySphere.js';
 import {MyCone} from './MyCone.js';
 import {MyPlane} from './MyPlane.js';
 import {MyCircle} from './MyCircle.js';
-import {MyPyramid} from './MyPyramid.js';
 import {MyCylinder} from './MyCustomCylinder.js';
 import {MyCustomCube} from './MyCustomCube.js';
 import {MyCustomParallelogram} from './MyCustomParallelogram.js';
@@ -83,7 +82,6 @@ export class MyHeli extends CGFobject {
         this.circle = new MyCircle(this.scene, 30);
         this.cylinder = new MyCylinder(this.scene, 20, 5); 
         this.bucketCylinder = new MyCylinder(this.scene, 20, 5,0.7); 
-        this.pyramid = new MyPyramid(this.scene, 4, 1, 1);
         this.cube = new MyCustomCube(this.scene, 5, 3, 2);
         this.parallelogram = new MyCustomParallelogram(this.scene, 7, 3, 2, 3);
 
