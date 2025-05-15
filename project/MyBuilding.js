@@ -110,7 +110,7 @@ export class MyBuilding extends CGFobject {
         
         this.scene.translate(-this.sideWidth / 2 - this.centerWidth / 2, 0, 0);
         
-        this.drawModuleStructure(this.sideWidth, this.sideFloors, this.sideDepth);
+        this.drawModuleStructure(this.sideWidth, this.sideFloors, this.sideDepth, "LEFT");
         
         // windows
         for (let floor = 0; floor < this.sideFloors; floor++) {
@@ -124,7 +124,7 @@ export class MyBuilding extends CGFobject {
     drawCenterModule() {
         this.scene.pushMatrix();
         
-        this.drawModuleStructure(this.centerWidth, this.centerFloors, this.centerDepth);
+        this.drawModuleStructure(this.centerWidth, this.centerFloors, this.centerDepth, "CENTER");
         
         for (let floor = 1; floor < this.centerFloors; floor++) {
             this.drawFloorWindows(this.centerWidth, floor, this.windowsPerFloor,this.centerDepth, true);
@@ -143,7 +143,7 @@ export class MyBuilding extends CGFobject {
         
         this.scene.translate(this.sideWidth / 2 + this.centerWidth / 2, 0, 0);
         
-        this.drawModuleStructure(this.sideWidth, this.sideFloors, this.sideDepth);
+        this.drawModuleStructure(this.sideWidth, this.sideFloors, this.sideDepth, "RIGHT");
         
         for (let floor = 0; floor < this.sideFloors; floor++) {
             this.drawFloorWindows(this.sideWidth, floor, this.windowsPerFloor,this.sideDepth, true);
@@ -153,7 +153,7 @@ export class MyBuilding extends CGFobject {
     }
     
 
-    drawModuleStructure(width, floors, depth) {
+    drawModuleStructure(width, floors, depth, module = "CENTER") {
         const height = this.floorHeight * floors;
         
         this.buildingAppearance.apply();
@@ -173,6 +173,7 @@ export class MyBuilding extends CGFobject {
         this.plane.display();
         this.scene.popMatrix();
         
+        if(module !== "RIGHT") {
         // Left 
         this.scene.pushMatrix();
         this.scene.translate(-width / 2, height/2, 0);
@@ -180,7 +181,9 @@ export class MyBuilding extends CGFobject {
         this.scene.scale(-depth, height, 1);
         this.plane.display();
         this.scene.popMatrix();
+        }
         
+        if(module !== "LEFT") {
         // Right 
         this.scene.pushMatrix();
         this.scene.translate(width / 2, height/2, 0);
@@ -188,6 +191,7 @@ export class MyBuilding extends CGFobject {
         this.scene.scale(-depth, height, 1);
         this.plane.display();
         this.scene.popMatrix();
+        }
         
         // Roof
         this.scene.pushMatrix();
@@ -197,13 +201,6 @@ export class MyBuilding extends CGFobject {
         this.plane.display();
         this.scene.popMatrix();
         
-        // Floor
-        this.scene.pushMatrix();
-        this.scene.translate(0, 0, 0);
-        this.scene.rotate(Math.PI / 2, 1, 0, 0);
-        this.scene.scale(width, depth, 1);
-        this.plane.display();
-        this.scene.popMatrix();
     }
     
 
