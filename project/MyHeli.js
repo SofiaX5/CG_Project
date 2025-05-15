@@ -205,7 +205,7 @@ export class MyHeli extends CGFobject {
 
                 this.currentRopeLength = this.ropeLength;
                 
-                const timeStep = deltaTime % 100;
+                const timeStep = deltaTime %1000;
                 this.x += this.velocity[0] * timeStep;
                 this.z += this.velocity[2] * timeStep;
                 console.log(`Timestep: [${timeStep},`);

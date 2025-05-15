@@ -21,6 +21,7 @@ export class MyScene extends CGFscene {
     this.panoramaTexture = null;
     this.windowTexture = null;
 		this.appearance = null;
+    this.lastTime = 0;
 
     this.fovValues = {
       narrow: 0.4,  
@@ -270,18 +271,25 @@ export class MyScene extends CGFscene {
     this.camera.fov = this.fovValues[this.selectedFov];
   }
 
-  update(t) {
+   update(t) {
     this.checkKeys();
     if (this.heli) {
-      this.heli.update(t);
+      if (this.lastTime === 0) {
+        this.lastTime = t;
+      } else {
+        const deltaTime = t - this.lastTime;
+        this.heli.update(deltaTime);
+        this.lastTime = t;
+      }
     }
-    if(this.fireEnabled){
-      for(let i = 0; i < this.fires.length; i++) {
+    if (this.fireEnabled) {
+      for (let i = 0; i < this.fires.length; i++) {
         this.fires[i].update(t);
       }
     }
     this.constrainCamera();
   }
+
   setDefaultAppearance() {
     this.setAmbient(0.5, 0.5, 0.5, 1.0);
     this.setDiffuse(0.5, 0.5, 0.5, 1.0);
