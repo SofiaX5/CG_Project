@@ -411,7 +411,10 @@ export class MyHeli extends CGFobject {
         this.drawLandingGear();
         
         if (this.hasBucket) {
+            this.scene.pushMatrix();
+            //this.scene.scale(1.3, 1.3, 1.3);
             this.drawBucket();
+            this.scene.popMatrix();
         }
         
         this.scene.popMatrix();
@@ -621,7 +624,7 @@ export class MyHeli extends CGFobject {
             this.metalMaterial.apply();
             this.scene.translate(0, - this.currentRopeLength - this.bucketHeight/2, 0);
             this.scene.rotate(Math.PI/2, 1, 0, 0);
-            this.scene.scale(this.bucketRadius, this.bucketRadius, this.bucketRadius);
+            this.scene.scale(this.bucketRadius, this.bucketRadius, this.bucketRadius*1.3);
             this.bucketCylinder.display(); 
             this.scene.popMatrix();
             
@@ -633,17 +636,101 @@ export class MyHeli extends CGFobject {
             this.scene.scale(this.bucketRadius*1.4, this.bucketRadius*1.4, this.bucketRadius*1.4);
             this.circle.display();
             this.scene.popMatrix();
+
+            // Rim top bucket
+            const rimThickness = this.bucketHeight * 0.08;
+            const rimRadius = this.bucketRadius * 1.08;
+            this.scene.pushMatrix();
+            this.metalMaterial.apply();
+            this.scene.translate(0, -this.currentRopeLength - this.bucketHeight/2, 0);
+            this.scene.rotate(Math.PI/2, 1, 0, 0);
+            this.scene.scale(rimRadius, rimRadius, rimThickness);
+            this.bucketCylinder.display();
+            this.scene.popMatrix();
+
+           // Handle bucket
+           this.scene.pushMatrix();
+           this.scene.translate(0, -this.currentRopeLength - this.bucketHeight/2 -0.2, 0);
+           this.scene.scale(1.6, 1.6, 1.6);
+           this.drawHandleBucket();
+           this.scene.popMatrix();
+
             
             if (!this.isBucketEmpty) {
                 // Water
                 this.scene.pushMatrix();
                 this.waterMaterial.apply();
-                this.scene.translate(0,- this.currentRopeLength - this.bucketHeight*0.5, 0);
-                this.scene.scale(this.bucketRadius*0.95, this.bucketHeight*0.2, this.bucketRadius*0.95);
+                this.scene.translate(0,- this.currentRopeLength - this.bucketHeight*0.5 - 0.25, 0);
+                this.scene.scale(this.bucketRadius*0.85, this.bucketHeight*0.2, this.bucketRadius*0.85);
                 this.sphere.display();
                 this.scene.popMatrix();
             }
         }
+    }
+
+    drawHandleBucket() {
+        this.scene.pushMatrix();
+        this.metalMaterial.apply();
+        
+        const handleRadius = this.bucketRadius * 0.8;
+        const tubeRadius = this.bucketRadius * 0.06;   // Thickness of the handle
+        const arcAngle = Math.PI;
+        const arcSegments = 16;
+        
+        // Arc drawing
+        for (let i = 0; i < arcSegments-1; i++) {
+            const angle1 = Math.PI - (i / arcSegments) * arcAngle;
+            const angle2 = Math.PI - ((i + 1) / arcSegments) * arcAngle;
+            
+            const x1 = handleRadius * Math.cos(angle1);
+            const y1 = handleRadius * Math.sin(angle1);
+            const x2 = handleRadius * Math.cos(angle2);
+            const y2 = handleRadius * Math.sin(angle2);
+            
+            const midX = (x1 + x2) / 2;
+            const midY = (y1 + y2) / 2;
+            const segmentAngle = Math.atan2(y2 - y1, x2 - x1);
+            const segmentLength = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+            
+            this.scene.pushMatrix();
+                this.scene.translate(midX, midY, 0);
+                this.scene.rotate(segmentAngle + Math.PI/2, 0, 0, 1);
+                this.scene.rotate(Math.PI/2, 1, 0, 0);
+                this.scene.scale(tubeRadius, tubeRadius, segmentLength);
+                this.cylinder.display();
+            this.scene.popMatrix();
+        }
+        
+        // Spheres connections
+        this.scene.pushMatrix();    // Left
+            this.scene.translate(handleRadius, 0, 0);
+            this.scene.scale(tubeRadius * 1.2, tubeRadius * 1.2, tubeRadius * 1.2);
+            this.sphere.display();
+        this.scene.popMatrix();
+        
+        this.scene.pushMatrix();    // Right
+            this.scene.translate(-handleRadius, 0, 0);
+            this.scene.scale(tubeRadius * 1.2, tubeRadius * 1.2, tubeRadius * 1.2);
+            this.sphere.display();
+        this.scene.popMatrix();
+        
+        
+        // Side connections
+        this.scene.pushMatrix();    // Left
+            this.scene.translate(handleRadius - tubeRadius * 4, 0, 0);
+            this.scene.rotate(Math.PI/2, 0, 1, 0);
+            this.scene.scale(tubeRadius/2, tubeRadius, this.bucketHeight * 0.2);
+            this.cylinder.display();
+        this.scene.popMatrix();
+        
+        this.scene.pushMatrix();    // Right
+            this.scene.translate(-handleRadius + tubeRadius * 4, 0, 0);
+            this.scene.rotate(-Math.PI/2, 0, 1, 0);
+            this.scene.scale(tubeRadius/2, tubeRadius, this.bucketHeight * 0.2);
+            this.cylinder.display();
+        this.scene.popMatrix();
+        
+        this.scene.popMatrix();
     }
     
     

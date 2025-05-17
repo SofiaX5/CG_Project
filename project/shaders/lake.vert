@@ -13,9 +13,9 @@ uniform float timeFactor;
 
 void main() {
     vTextureCoord = aTextureCoord;
-    gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+    //gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
 
-    /*
+    
     float frequency = 10.0;
     float amplitude = 0.2;
     float speed = 0.2;
@@ -26,5 +26,5 @@ void main() {
     vec3 wavePosition = aVertexPosition + vec3(0.0, 0.0, wave * amplitude);
 
     gl_Position = uPMatrix * uMVMatrix * vec4(wavePosition, 1.0);
-    */
+    
 }
