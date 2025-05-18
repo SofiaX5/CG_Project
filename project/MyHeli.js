@@ -7,6 +7,7 @@ import {MyPyramid} from './MyPyramid.js';
 import {MyCylinder} from './MyCustomCylinder.js';
 import {MyCustomCube} from './MyCustomCube.js';
 import {MyCustomParallelogram} from './MyCustomParallelogram.js';
+import {MyHalfCircle} from './MyHalfCircle.js';
 
 /**
  * MyHeli - Helicopter model for firefighting
@@ -40,6 +41,7 @@ export class MyHeli extends CGFobject {
         this.ropeLength = 5;
         this.currentRopeLength = 0;
         this.ropeSpeed = 0.05;
+        this.waterLevel = 0;
         this.hasBucket = hasBucket;
         this.bucketDeployed = false;
         this.bucketDeploymentComplete = false;
@@ -48,7 +50,7 @@ export class MyHeli extends CGFobject {
 
         this.isOverLake = false; 
         this.isOverFire = false; 
-        this.isBucketEmpty = true; 
+        this.isBucketEmpty = false;  //ALTERAR
         this.isFireOn = true;
 
         // Position and Movement
@@ -76,6 +78,8 @@ export class MyHeli extends CGFobject {
         this.takeoffAnimationTime = 0;
         this.animationDuration = 3000; // 3 secs for takeoff/landing
         this.takeoffProgress = 0;
+
+        this.bottomOpen = 0; // 0 = close, 1 = open
         
         this.initObjects();
         this.initMaterials();
@@ -91,7 +95,7 @@ export class MyHeli extends CGFobject {
         this.pyramid = new MyPyramid(this.scene, 4, 1, 1);
         this.cube = new MyCustomCube(this.scene, 5, 3, 2);
         this.parallelogram = new MyCustomParallelogram(this.scene, 7, 3, 2, 3);
-
+        this.halfCircle = new MyHalfCircle(this.scene);
     }
     
     initMaterials() {
@@ -138,10 +142,10 @@ export class MyHeli extends CGFobject {
         
         // Water
         this.waterMaterial = new CGFappearance(this.scene);
-        this.waterMaterial.setAmbient(0.1, 0.1, 0.5, 0.8);
-        this.waterMaterial.setDiffuse(0.2, 0.2, 0.8, 0.5);
-        this.waterMaterial.setSpecular(0.5, 0.5, 0.8, 1);
-        this.waterMaterial.setShininess(80);
+        this.waterMaterial.setAmbient(0.0, 0.1, 0.3, 0.8);
+        this.waterMaterial.setDiffuse(0.0, 0.4, 0.8, 0.8);
+        this.waterMaterial.setSpecular(0.2, 0.8, 1.0, 0.8);
+        this.waterMaterial.setShininess(120);
         this.waterTexture = new CGFtexture(this.scene, "textures/helicopter/water.jpg");
         this.waterMaterial.setTexture(this.waterTexture);
     }
@@ -329,8 +333,11 @@ export class MyHeli extends CGFobject {
                 break;
 
             case "put_fire":
-                this.isBucketEmpty = true;
-                this.isFireOn = false;
+                if (this.bottomOpen < 1) {
+                    this.bottomOpen += 0.01;
+                    if (this.bottomOpen > 1) this.bottomOpen = 1;
+                }
+
                 break;
         }
         this.mainRotorAngle += deltaTime * this.mainRotorSpeed;
@@ -614,7 +621,7 @@ export class MyHeli extends CGFobject {
         this.metalAccentsMaterial.apply();
         this.scene.translate(0, -this.bodyHeight/2, 0);
         this.scene.rotate(Math.PI/2, 1, 0, 0);
-        this.scene.scale(0.05, 0.05, this.currentRopeLength);
+        this.scene.scale(0.05, 0.05, this.currentRopeLength-this.bucketHeight-0.2);
         this.cylinder.display();
         this.scene.popMatrix();
         
@@ -626,15 +633,6 @@ export class MyHeli extends CGFobject {
             this.scene.rotate(Math.PI/2, 1, 0, 0);
             this.scene.scale(this.bucketRadius, this.bucketRadius, this.bucketRadius*1.3);
             this.bucketCylinder.display(); 
-            this.scene.popMatrix();
-            
-            // Bucket bottom
-            this.scene.pushMatrix();
-            this.metalMaterial.apply();
-            this.scene.translate(0, - this.currentRopeLength - this.bucketHeight*1.15, 0);
-            this.scene.rotate(Math.PI/2, 1, 0, 0);
-            this.scene.scale(this.bucketRadius*1.4, this.bucketRadius*1.4, this.bucketRadius*1.4);
-            this.circle.display();
             this.scene.popMatrix();
 
             // Rim top bucket
@@ -651,6 +649,7 @@ export class MyHeli extends CGFobject {
            // Handle bucket
            this.scene.pushMatrix();
            this.scene.translate(0, -this.currentRopeLength - this.bucketHeight/2 -0.2, 0);
+           this.scene.rotate(Math.PI/2, 0, 1, 0);
            this.scene.scale(1.6, 1.6, 1.6);
            this.drawHandleBucket();
            this.scene.popMatrix();
@@ -660,17 +659,68 @@ export class MyHeli extends CGFobject {
                 // Water
                 this.scene.pushMatrix();
                 this.waterMaterial.apply();
-                this.scene.translate(0,- this.currentRopeLength - this.bucketHeight*0.5 - 0.25, 0);
+                this.scene.translate(0, this.waterLevel, 0); // this.waterLevel-0.4 ir descendo
                 this.scene.scale(this.bucketRadius*0.85, this.bucketHeight*0.2, this.bucketRadius*0.85);
                 this.sphere.display();
                 this.scene.popMatrix();
             }
+            
+           
+            if (this.state == "put_fire" && this.bottomOpen > 0) {
+                this.drawOpeningBottom();
+
+            } else {
+                this.drawOpeningBottom();
+                // Bucket bottom
+                /*
+                this.scene.pushMatrix();
+                this.metalMaterial.apply();
+                this.scene.translate(0, - this.currentRopeLength - this.bucketHeight*1.15, 0);
+                this.scene.rotate(Math.PI/2, 1, 0, 0);
+                this.scene.scale(this.bucketRadius*1.4, this.bucketRadius*1.4, this.bucketRadius*1.4);
+                this.circle.display();
+                this.scene.popMatrix();
+                */
+            }
         }
+    }
+
+
+    drawOpeningBottom() {
+        //this.bottomOpen = 0.7;
+        const openingAngle = this.bottomOpen * Math.PI * 0.5;
+        
+        // Left circle
+        this.scene.pushMatrix();
+        this.scene.translate(0, -Math.sin(openingAngle)*this.bucketRadius*0.7, (Math.cos(openingAngle)-(1-openingAngle))*this.bucketRadius*0.7);
+            this.scene.pushMatrix();
+            this.metalMaterial.apply();
+            this.scene.translate(0, - this.currentRopeLength - this.bucketHeight*1.35, 0);
+            this.scene.rotate(-openingAngle, 1, 0, 0);
+            this.scene.rotate(-Math.PI/2, 1, 0, 0);
+            this.scene.scale(1, -1, 1);     // Invert side - texture
+            this.scene.scale(this.bucketRadius*0.7, this.bucketRadius*0.7, this.bucketRadius*0.7);
+            this.halfCircle.display();
+            this.scene.popMatrix();
+        this.scene.popMatrix();
+        
+        // Right circle
+        this.scene.pushMatrix();
+        this.scene.translate(0, -Math.sin(openingAngle)*this.bucketRadius*0.7, -(Math.cos(openingAngle)-(1-openingAngle))*this.bucketRadius*0.7);   
+            this.scene.pushMatrix();
+            this.metalMaterial.apply();
+            this.scene.translate(0, - this.currentRopeLength - this.bucketHeight*1.35, 0);
+            this.scene.rotate(openingAngle, 1, 0, 0);
+            this.scene.rotate(-Math.PI/2, 1, 0, 0);
+            this.scene.scale(this.bucketRadius*0.7, this.bucketRadius*0.7, this.bucketRadius*0.7);
+            this.halfCircle.display();
+            this.scene.popMatrix();
+        this.scene.popMatrix();
     }
 
     drawHandleBucket() {
         this.scene.pushMatrix();
-        this.metalMaterial.apply();
+        this.metalAccentsMaterial.apply();
         
         const handleRadius = this.bucketRadius * 0.8;
         const tubeRadius = this.bucketRadius * 0.06;   // Thickness of the handle
@@ -812,6 +862,7 @@ export class MyHeli extends CGFobject {
         } else if (this.state === "filling") {
             console.log("Taking off from filling state");
             this.isBucketEmpty = false;
+            this.waterLevel = - this.currentRopeLength - this.bucketHeight*0.5 - 0.25;
             this.state = "rise_after_fill";
         }
     }
