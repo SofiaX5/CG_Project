@@ -3,7 +3,6 @@ import {MySphere} from './MySphere.js';
 import {MyCone} from './MyCone.js';
 import {MyPlane} from './MyPlane.js';
 import {MyCircle} from './MyCircle.js';
-import {MyPyramid} from './MyPyramid.js';
 import {MyCylinder} from './MyCustomCylinder.js';
 import {MyCustomCube} from './MyCustomCube.js';
 import {MyCustomParallelogram} from './MyCustomParallelogram.js';
@@ -219,7 +218,7 @@ export class MyHeli extends CGFobject {
 
                 this.currentRopeLength = this.ropeLength;
                 
-                const timeStep = deltaTime % 100;
+                const timeStep = deltaTime %1000;
                 this.x += this.velocity[0] * timeStep;
                 this.z += this.velocity[2] * timeStep;
                 console.log(`Timestep: [${timeStep},`);
