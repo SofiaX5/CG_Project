@@ -8,6 +8,7 @@ import { MyTree } from "./MyTree.js";
 import { MyForest } from "./MyForest.js";
 import { MyHeli } from "./MyHeli.js";
 import { MyFire } from "./MyFire.js";
+import { MyLake } from "./MyLake.js";
 
 
 /**
@@ -32,6 +33,8 @@ export class MyScene extends CGFscene {
     this.selectedFov = 'medium';
 
     this.selectedPanorama = 'field';
+
+    this.displayAxis = true;
 
     this.buildingAppearanceType = 'brick';
     this.buildingWidth = 20;
@@ -106,9 +109,10 @@ export class MyScene extends CGFscene {
     this.heli = new MyHeli(this);
     this.updateHeliportPosition();
     this.fires = [
-    new MyFire(this, [15, 0, 15], this.fireSize, 15),
-    new MyFire(this, [30, 0, 30], this.fireSize * 1.2, 20)
-  ];
+      new MyFire(this, [15, 0, 15], this.fireSize, 15),
+      new MyFire(this, [30, 0, 30], this.fireSize * 1.2, 20)
+    ];
+    this.lake = new MyLake(this);
     //this.heli.setPosition(0, this.building.floorHeight * 4 + this.heli.bodyHeight * 0.75, 0);
   }
 
@@ -261,6 +265,15 @@ export class MyScene extends CGFscene {
         this.lKeyActive = false;
     }
 
+    if (this.gui.isKeyPressed("KeyO") && !this.oKeyActive) {
+        text += " O ";
+        this.heli.put_fire();
+        this.oKeyActive = true;
+        keysPressed = true;
+    } else if (!this.gui.isKeyPressed("KeyO")) {
+        this.oKeyActive = false;
+    }
+
     if (keysPressed){
         console.log(text);
         this.lights[0].update();
@@ -287,6 +300,8 @@ export class MyScene extends CGFscene {
         this.fires[i].update(t);
       }
     }
+
+    this.lake.update(t);
     this.constrainCamera();
   }
 
@@ -309,8 +324,7 @@ export class MyScene extends CGFscene {
     // Apply transformations corresponding to the camera position relative to the origin
     this.applyViewMatrix();
 
-    // Draw axis
-    this.axis.display();
+    if (this.displayAxis) this.axis.display();
 
     this.setDefaultAppearance();
     
@@ -337,13 +351,20 @@ export class MyScene extends CGFscene {
     this.forest.display();
     this.popMatrix();
     
-    if (this.fireEnabled) {
-    this.pushMatrix();
-    for(let i = 0; i < this.fires.length; i++) {
-      this.fires[i].display();
+    if (this.fireEnabled && this.heli.isFireOn) {
+      this.pushMatrix();
+      for(let i = 0; i < this.fires.length; i++) {
+        this.fires[i].display();
+      }
+      this.popMatrix();
     }
+
+    this.pushMatrix();
+    this.translate(-25, 1, 25);
+    this.scale(50, 1, 50);
+    this.rotate(-Math.PI / 2, 1, 0, 0);
+    this.lake.display();
     this.popMatrix();
-  }
 
     // Esfera
     /*

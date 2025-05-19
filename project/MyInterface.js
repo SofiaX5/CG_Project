@@ -25,6 +25,7 @@ export class MyInterface extends CGFinterface {
 
         //Panorama
         const environmentFolder = this.gui.addFolder('Environment');
+        environmentFolder.add(this.scene, 'displayAxis').name('Display Axis');
         environmentFolder.add(this.scene, 'selectedPanorama', ['field', 'city'])
             .name('Panorama Background')
             .onChange(() => this.scene.updatePanorama());

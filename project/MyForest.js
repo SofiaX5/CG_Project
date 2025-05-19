@@ -23,6 +23,12 @@ export class MyForest extends CGFobject {
             let tree = new MyTree(scene, getRandomFloat(-0.2, 0.2), getRandomOrient(), getRandomInt(3, 8), getRandomFloat(0.2, 0.7), getRandomColorLeaf());
             this.trees.push(tree);
         }
+        this.offsets = [];
+        for (let i = 0; i < numRows*numCols; i++) {
+            var offset_x = getRandomFloat(-(this.dist/2-1), this.dist/2-1);
+            var offset_z = getRandomFloat(-(this.dist/2-1), this.dist/2-1);
+            this.offsets.push([offset_x, offset_z]);
+        }
     }
     
 
@@ -31,7 +37,7 @@ export class MyForest extends CGFobject {
         for (let row = 0; row < this.numRows; row++) {
             for (let col = 0; col < this.numCols; col++) {
                 this.scene.pushMatrix();
-                this.scene.translate(this.dist*row, 0, this.dist*col);
+                this.scene.translate(this.dist*row + this.offsets[i][0], 0, this.dist*col + this.offsets[i][1]);
                 this.trees[i].display();
                 this.scene.popMatrix();
                 i++;
