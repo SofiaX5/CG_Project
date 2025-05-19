@@ -27,7 +27,9 @@ export class MyBuilding extends CGFobject {
         
         this.centerDepth = this.centerWidth * 0.8;
         this.sideDepth = this.centerWidth * 0.6;
-        //this.depth = this.centerWidth * 0.8;      
+        //this.depth = this.centerWidth * 0.8;    
+        
+        this.globalTime = 0;
         
 
         this.buildingColor = buildingColor || [0.9, 0.9, 0.9];
@@ -91,7 +93,7 @@ export class MyBuilding extends CGFobject {
         this.maneuverLightsAppearence.setAmbient(0.9, 0.9, 0.9, 1);
         this.maneuverLightsAppearence.setDiffuse(0.9, 0.9, 0.9, 1);
         this.maneuverLightsAppearence.setSpecular(0.1, 0.1, 0.1, 1);
-        this.maneuverLightsAppearence.setEmission(0.0, 0.0, 0.0, 1.0);
+        this.maneuverLightsAppearence.setEmission(0.0, 0.0, 0.0, 1.0); 
         this.maneuverLightsAppearence.setShininess(120);  
 
         this.plane = new MyPlane(scene, 20);
@@ -114,6 +116,10 @@ export class MyBuilding extends CGFobject {
         this.drawRightModule();
         
         this.scene.popMatrix();
+    }
+
+    update(t) {
+        this.globalTime = t;
     }
     
     setHelipadTexture(textureType) {
@@ -300,53 +306,47 @@ export class MyBuilding extends CGFobject {
         this.circle.display();
         this.scene.popMatrix();
 
-        //Maneuver lights
-        //light 1
-        this.scene.pushMatrix();
-        this.maneuverLightsAppearence.apply();
-        this.scene.translate(helipadSize/2, roofY + 0.05,helipadSize/2);
-        this.scene.rotate(-Math.PI / 2, 1, 0, 0);
-        this.scene.scale(0.2, 0.2, 0.5);
-        this.cylinder.display();
-        this.scene.translate(0, 0, 1);
-        this.scene.scale(1.4, 1.4, 1);
-        this.circle.display();
-        this.scene.popMatrix();
+        const time = this.scene.globalTime || 0;
+        const pulseIntensity = 0.5 + 0.5 * Math.sin(time * 0.005); // Pulsing effect
+        
+        // Only apply pulsing if in maneuver state (add this condition)
+        const isManeuvering = this.scene.heli && 
+                            (this.scene.heli.state === "taking_off" || 
+                            this.scene.heli.state === "landing" || 
+                            this.scene.heli.state === "bucket_deploy" || 
+                            this.scene.heli.state === "bucket_retract");
+        
+        // Update material properties based on state
+        if (isManeuvering) {
+            this.maneuverLightsAppearence.setEmission(pulseIntensity, pulseIntensity, 0, 1.0); // Yellow pulsing
+        } else {
+            this.maneuverLightsAppearence.setEmission(0.0, 0.0, 0.0, 1.0); // No emission
+        }
 
-        //light 2
-        this.scene.pushMatrix();
-        this.maneuverLightsAppearence.apply();
-        this.scene.translate(-helipadSize/2, roofY + 0.05,helipadSize/2);
-        this.scene.rotate(-Math.PI / 2, 1, 0, 0);
-        this.scene.scale(0.2, 0.2, 0.5);
-        this.cylinder.display();
-        this.scene.translate(0, 0, 1);
-        this.scene.scale(1.4, 1.4, 1);
-        this.circle.display();
-        this.scene.popMatrix();
+        // Light positions
+        const lightPositions = [
+            { x:  helipadSize/2, z:  helipadSize/2 }, // NE
+            { x: -helipadSize/2, z:  helipadSize/2 }, // NW
+            { x:  helipadSize/2, z: -helipadSize/2 }, // SE
+            { x: -helipadSize/2, z: -helipadSize/2 }  // SW
+        ];
 
-        //light 3
-        this.scene.pushMatrix();
-        this.maneuverLightsAppearence.apply();
-        this.scene.translate(helipadSize/2, roofY + 0.05,-helipadSize/2);
-        this.scene.rotate(-Math.PI / 2, 1, 0, 0);
-        this.scene.scale(0.2, 0.2, 0.5);
-        this.cylinder.display();
-        this.scene.translate(0, 0, 1);
-        this.scene.scale(1.4, 1.4, 1);
-        this.circle.display();
-        this.scene.popMatrix();
-
-        //light 4
-        this.scene.pushMatrix();
-        this.maneuverLightsAppearence.apply();
-        this.scene.translate(-helipadSize/2, roofY + 0.05,-helipadSize/2);
-        this.scene.rotate(-Math.PI / 2, 1, 0, 0);
-        this.scene.scale(0.2, 0.2, 0.5);
-        this.cylinder.display();
-        this.scene.translate(0, 0, 1);
-        this.scene.scale(1.4, 1.4, 1);
-        this.circle.display();
-        this.scene.popMatrix();
+        // Draw all four lights
+        lightPositions.forEach(pos => {
+            this.scene.pushMatrix();
+            this.maneuverLightsAppearence.apply();
+            this.scene.translate(pos.x, roofY + 0.05, pos.z);
+            
+            // Cylinder base
+            this.scene.rotate(-Math.PI / 2, 1, 0, 0);
+            this.scene.scale(0.2, 0.2, 0.5);
+            this.cylinder.display();
+            
+            // Light emitter (circle on top)
+            this.scene.translate(0, 0, 1);
+            this.scene.scale(1.4, 1.4, 1);
+            this.circle.display();
+            this.scene.popMatrix();
+        });
     }
 }

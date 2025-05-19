@@ -285,6 +285,7 @@ export class MyScene extends CGFscene {
   }
 
    update(t) {
+    this.building.update(t);
     this.checkKeys();
     if (this.heli) {
       if (this.lastTime === 0) {
