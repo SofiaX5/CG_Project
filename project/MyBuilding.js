@@ -2,6 +2,7 @@ import {CGFobject, CGFappearance, CGFtexture} from '../lib/CGF.js';
 import {MyWindow} from './MyWindow.js';
 import {MyPlane} from './MyPlane.js';
 import {MyCircle} from './MyCircle.js';
+import {MyCylinder} from './MyCustomCylinder.js';
 
 /**
  * MyBuilding
@@ -61,6 +62,9 @@ export class MyBuilding extends CGFobject {
         this.doorTexture = new CGFtexture(scene, "textures/building/door.jpg");
         this.signTexture = new CGFtexture(scene, "textures/building/bombeiros_sign.jpg");
         this.helipadTexture = new CGFtexture(scene, "textures/building/helipad.jpg");
+        this.helipadUpTexture = new CGFtexture(scene, "textures/building/helipad_up.jpg");
+        this.helipadDownTexture = new CGFtexture(scene, "textures/building/helipad_down.jpg");
+
         
         this.doorAppearance = new CGFappearance(scene);
         this.doorAppearance.setAmbient(0.9, 0.9, 0.9, 1);
@@ -82,9 +86,17 @@ export class MyBuilding extends CGFobject {
         this.helipadAppearance.setSpecular(0.1, 0.1, 0.1, 1);
         this.helipadAppearance.setShininess(10.0);
         this.helipadAppearance.setTexture(this.helipadTexture);
-        
+
+        this.maneuverLightsAppearence = new CGFappearance(scene);
+        this.maneuverLightsAppearence.setAmbient(0.9, 0.9, 0.9, 1);
+        this.maneuverLightsAppearence.setDiffuse(0.9, 0.9, 0.9, 1);
+        this.maneuverLightsAppearence.setSpecular(0.1, 0.1, 0.1, 1);
+        this.maneuverLightsAppearence.setEmission(0.0, 0.0, 0.0, 1.0);
+        this.maneuverLightsAppearence.setShininess(120);  
+
         this.plane = new MyPlane(scene, 20);
         this.circle = new MyCircle(scene, 30);
+        this.cylinder = new MyCylinder(scene, 30, 1, 0.7);
     }
     
     setAppearance(appearanceType) {
@@ -104,6 +116,18 @@ export class MyBuilding extends CGFobject {
         this.scene.popMatrix();
     }
     
+    setHelipadTexture(textureType) {
+        switch(textureType) {
+            case 'up':
+                this.helipadAppearance.setTexture(this.helipadUpTexture);
+                break;
+            case 'down':
+                this.helipadAppearance.setTexture(this.helipadDownTexture);
+                break;
+            default:
+                this.helipadAppearance.setTexture(this.helipadTexture);
+        }
+    }
 
     drawLeftModule() {
         this.scene.pushMatrix();
@@ -273,6 +297,55 @@ export class MyBuilding extends CGFobject {
         this.scene.rotate(-Math.PI / 2, 1, 0, 0);
         this.scene.scale(helipadSize, helipadSize, 1);
         this.helipadAppearance.apply();
+        this.circle.display();
+        this.scene.popMatrix();
+
+        //Maneuver lights
+        //light 1
+        this.scene.pushMatrix();
+        this.maneuverLightsAppearence.apply();
+        this.scene.translate(helipadSize/2, roofY + 0.05,helipadSize/2);
+        this.scene.rotate(-Math.PI / 2, 1, 0, 0);
+        this.scene.scale(0.2, 0.2, 0.5);
+        this.cylinder.display();
+        this.scene.translate(0, 0, 1);
+        this.scene.scale(1.4, 1.4, 1);
+        this.circle.display();
+        this.scene.popMatrix();
+
+        //light 2
+        this.scene.pushMatrix();
+        this.maneuverLightsAppearence.apply();
+        this.scene.translate(-helipadSize/2, roofY + 0.05,helipadSize/2);
+        this.scene.rotate(-Math.PI / 2, 1, 0, 0);
+        this.scene.scale(0.2, 0.2, 0.5);
+        this.cylinder.display();
+        this.scene.translate(0, 0, 1);
+        this.scene.scale(1.4, 1.4, 1);
+        this.circle.display();
+        this.scene.popMatrix();
+
+        //light 3
+        this.scene.pushMatrix();
+        this.maneuverLightsAppearence.apply();
+        this.scene.translate(helipadSize/2, roofY + 0.05,-helipadSize/2);
+        this.scene.rotate(-Math.PI / 2, 1, 0, 0);
+        this.scene.scale(0.2, 0.2, 0.5);
+        this.cylinder.display();
+        this.scene.translate(0, 0, 1);
+        this.scene.scale(1.4, 1.4, 1);
+        this.circle.display();
+        this.scene.popMatrix();
+
+        //light 4
+        this.scene.pushMatrix();
+        this.maneuverLightsAppearence.apply();
+        this.scene.translate(-helipadSize/2, roofY + 0.05,-helipadSize/2);
+        this.scene.rotate(-Math.PI / 2, 1, 0, 0);
+        this.scene.scale(0.2, 0.2, 0.5);
+        this.cylinder.display();
+        this.scene.translate(0, 0, 1);
+        this.scene.scale(1.4, 1.4, 1);
         this.circle.display();
         this.scene.popMatrix();
     }
