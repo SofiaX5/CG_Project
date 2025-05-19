@@ -33,6 +33,8 @@ export class MyScene extends CGFscene {
 
     this.selectedPanorama = 'field';
 
+    this.displayAxis = true;
+
     this.buildingAppearanceType = 'brick';
     this.buildingWidth = 20;
     this.buildingSideFloors = 3;
@@ -287,8 +289,7 @@ export class MyScene extends CGFscene {
     // Apply transformations corresponding to the camera position relative to the origin
     this.applyViewMatrix();
 
-    // Draw axis
-    this.axis.display();
+    if (this.displayAxis) this.axis.display();
 
     this.setDefaultAppearance();
     

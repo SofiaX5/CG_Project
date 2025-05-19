@@ -9,6 +9,7 @@ import {MyCustomCube} from './MyCustomCube.js';
 import {MyCustomParallelogram} from './MyCustomParallelogram.js';
 import {MyHalfCircle} from './MyHalfCircle.js';
 
+
 /**
  * MyHeli - Helicopter model for firefighting
  * @constructor
@@ -50,8 +51,9 @@ export class MyHeli extends CGFobject {
 
         this.isOverLake = false; 
         this.isOverFire = false; 
-        this.isBucketEmpty = false;  //ALTERAR
+        this.isBucketEmpty = true;
         this.isFireOn = true;
+        this.waterFallProgress = 0; 
 
         // Position and Movement
         this.x = posX;
@@ -96,6 +98,7 @@ export class MyHeli extends CGFobject {
         this.cube = new MyCustomCube(this.scene, 5, 3, 2);
         this.parallelogram = new MyCustomParallelogram(this.scene, 7, 3, 2, 3);
         this.halfCircle = new MyHalfCircle(this.scene);
+        //this.waterSystem = new WaterPart(this.scene);
     }
     
     initMaterials() {
@@ -333,11 +336,14 @@ export class MyHeli extends CGFobject {
                 break;
 
             case "put_fire":
+                
                 if (this.bottomOpen < 1) {
-                    this.bottomOpen += 0.01;
+                    this.bottomOpen += 0.09;
                     if (this.bottomOpen > 1) this.bottomOpen = 1;
                 }
 
+                //this.isBucketEmpty = true;
+                //this.isFireOn = false;
                 break;
         }
         this.mainRotorAngle += deltaTime * this.mainRotorSpeed;
@@ -423,6 +429,10 @@ export class MyHeli extends CGFobject {
             this.drawBucket();
             this.scene.popMatrix();
         }
+
+        if (this.state === "put_fire") this.drawWaterFall();
+        // this.waterSystem.display();
+        
         
         this.scene.popMatrix();
     }
@@ -687,12 +697,11 @@ export class MyHeli extends CGFobject {
 
 
     drawOpeningBottom() {
-        //this.bottomOpen = 0.7;
         const openingAngle = this.bottomOpen * Math.PI * 0.5;
         
         // Left circle
         this.scene.pushMatrix();
-        this.scene.translate(0, -Math.sin(openingAngle)*this.bucketRadius*0.7, (Math.cos(openingAngle)-(1-openingAngle))*this.bucketRadius*0.7);
+        this.scene.translate(0, -Math.sin(openingAngle)*this.bucketRadius*0.7, (Math.cos(openingAngle)-(1-openingAngle))*this.bucketRadius*0.7+this.bottomOpen*0.2);
             this.scene.pushMatrix();
             this.metalMaterial.apply();
             this.scene.translate(0, - this.currentRopeLength - this.bucketHeight*1.35, 0);
@@ -706,7 +715,7 @@ export class MyHeli extends CGFobject {
         
         // Right circle
         this.scene.pushMatrix();
-        this.scene.translate(0, -Math.sin(openingAngle)*this.bucketRadius*0.7, -(Math.cos(openingAngle)-(1-openingAngle))*this.bucketRadius*0.7);   
+        this.scene.translate(0, -Math.sin(openingAngle)*this.bucketRadius*0.7, -(Math.cos(openingAngle)-(1-openingAngle))*this.bucketRadius*0.7-this.bottomOpen*0.2);   
             this.scene.pushMatrix();
             this.metalMaterial.apply();
             this.scene.translate(0, - this.currentRopeLength - this.bucketHeight*1.35, 0);
@@ -782,6 +791,94 @@ export class MyHeli extends CGFobject {
         
         this.scene.popMatrix();
     }
+
+    // Implementação completa do método para desenhar a queda d'água
+drawWaterFall() {
+    const bottomY = -this.currentRopeLength - this.bucketHeight*1.15;
+    const waterStartY = bottomY;
+    const waterEndY = bottomY - 4 * this.waterFallProgress; // Distância que a água cai
+    const startRadius = this.bucketRadius * 0.8;
+    const endRadius = this.bucketRadius * 1.5 * this.waterFallProgress; // Cone se alarga à medida que cai
+    
+    // Aplicação do material da água
+    this.waterMaterial.apply();
+    
+    // Partículas de água caindo (representadas por pequenas esferas)
+    // Isso cria um efeito mais realista de água caindo
+    const numParticles = 15;
+    const particleSize = this.bucketRadius * 0.1;
+    
+    for (let i = 0; i < numParticles; i++) {
+        // Calcular posição baseada no progresso
+        const progress = i / numParticles;
+        const particleY = waterStartY - (waterStartY - waterEndY) * progress * this.waterFallProgress;
+        
+        // Raio na altura atual (cone)
+        const radius = startRadius + (endRadius - startRadius) * progress * this.waterFallProgress;
+        
+        // Posição aleatória dentro do raio do cone
+        const angle = Math.random() * Math.PI * 2;
+        const distance = Math.random() * radius;
+        const particleX = Math.cos(angle) * distance;
+        const particleZ = Math.sin(angle) * distance;
+        
+        // Desenhar a partícula
+        this.scene.pushMatrix();
+        this.scene.translate(particleX, particleY, particleZ);
+        this.scene.scale(particleSize, particleSize, particleSize);
+        this.sphere.display();
+        this.scene.popMatrix();
+    }
+    
+    // Fluxo principal de água (cone)
+    this.scene.pushMatrix();
+    
+    // Posicionar e escalar o cone
+    this.scene.translate(0, waterStartY, 0);
+    this.scene.rotate(Math.PI, 1, 0, 0); // Inverter o cone para apontar para baixo
+    
+    // Escalar para criar um cone truncado
+    // O cone tem altura 1 por padrão, então escalamos para a altura desejada
+    const coneHeight = (waterStartY - waterEndY);
+    this.scene.scale(endRadius, coneHeight, endRadius);
+    
+    // Desenhar o cone
+    this.cone.display();
+    
+    this.scene.popMatrix();
+    
+    // Splash na base quando a água atinge o solo
+    if (this.waterFallProgress > 0.7) {
+        const splashProgress = (this.waterFallProgress - 0.7) / 0.3; // 0 a 1
+        const splashRadius = endRadius * 1.8 * splashProgress;
+        
+        // Círculo plano para representar o splash
+        this.scene.pushMatrix();
+        this.scene.translate(0, waterEndY + 0.05, 0); // Ligeiramente acima do solo
+        this.scene.rotate(Math.PI/2, 1, 0, 0); // Rotacionar para ficar horizontal
+        this.scene.scale(splashRadius, splashRadius, 1);
+        this.circle.display();
+        this.scene.popMatrix();
+        
+        // Pequenas gotas ao redor do splash
+        const numSplashDrops = 12;
+        const dropSize = particleSize * 0.8;
+        
+        for (let i = 0; i < numSplashDrops; i++) {
+            const splashAngle = (i / numSplashDrops) * Math.PI * 2;
+            const distanceFromCenter = splashRadius * 0.8;
+            const dropX = Math.cos(splashAngle) * distanceFromCenter;
+            const dropZ = Math.sin(splashAngle) * distanceFromCenter;
+            const dropY = waterEndY + 0.1 + Math.random() * 0.2; // Altura aleatória
+            
+            this.scene.pushMatrix();
+            this.scene.translate(dropX, dropY, dropZ);
+            this.scene.scale(dropSize, dropSize, dropSize);
+            this.sphere.display();
+            this.scene.popMatrix();
+        }
+    }
+}
     
     
     setPosition(x, y, z) {
