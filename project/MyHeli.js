@@ -339,7 +339,7 @@ export class MyHeli extends CGFobject {
 
                 console.log(`WATER: ${this.waterFallProgress}`);
                 if (this.waterFallProgress < 1) {
-                    this.waterFallProgress += 0.01;
+                    this.waterFallProgress += 0.02;
                     this.waterLevel -= 0.01;
                 } else {
                     this.isBucketEmpty = true;
@@ -830,7 +830,6 @@ export class MyHeli extends CGFobject {
             this.scene.popMatrix();
         }
         
-     
         this.scene.pushMatrix();
         const coneHeight = (waterStartY - waterEndY);
         this.scene.translate(0, waterEndY , 0);
@@ -844,9 +843,9 @@ export class MyHeli extends CGFobject {
             
             // SPLASH GROUND
             this.scene.pushMatrix();
-            this.scene.translate(0, waterEndY - 0.3, 0); // Ligeiramente acima do solo
-            this.scene.rotate(Math.PI/2, 1, 0, 0); // Rotacionar para ficar horizontal
-            this.scene.scale(splashRadius*(1+this.waterSplayed), splashRadius*(1+this.waterSplayed), 1);
+            this.scene.translate(0, waterEndY - 0.3, 0);
+            this.scene.rotate(Math.PI/2, 1, 0, 0);
+            this.scene.scale(splashRadius*(1+4*this.waterSplayed), splashRadius*(1+4*this.waterSplayed), 1);
             this.circle.display();
             this.scene.popMatrix();
             
