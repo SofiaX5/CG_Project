@@ -179,7 +179,7 @@ export class MyScene extends CGFscene {
     this.translate(5, -4, -0.5);
     this.scale(10, 8, 1);
     this.setDiffuse(1, 1, 1, 1.0);
-    this.unitCube.display();
+    this.unitCubeQuad.display();
     this.popMatrix();
 
     // 4. Unit Cube Quad
