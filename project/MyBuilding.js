@@ -90,10 +90,8 @@ export class MyBuilding extends CGFobject {
         this.helipadAppearance.setTexture(this.helipadTexture);
 
         this.maneuverLightsAppearence = new CGFappearance(scene);
-        this.maneuverLightsAppearence.setAmbient(0.9, 0.9, 0.9, 1);
-        this.maneuverLightsAppearence.setDiffuse(0.9, 0.9, 0.9, 1);
-        this.maneuverLightsAppearence.setSpecular(0.1, 0.1, 0.1, 1);
-        this.maneuverLightsAppearence.setEmission(0.0, 0.0, 0.0, 1.0); 
+        this.maneuverLightsAppearence.setAmbient(1.0, 1.0,0.0, 1);
+        this.maneuverLightsAppearence.setDiffuse(1.0, 1.0,0.0, 1);
         
         this.maneuverLightShader = new CGFshader(scene.gl, 
         "shaders/maneuverLight.vert", 
@@ -347,11 +345,10 @@ export class MyBuilding extends CGFobject {
                     uTime: this.scene.globalTime, 
                     uBaseColor: [0.3, 0.3, 0.0],  
                     uPulseSpeed: 1.0,           
-                    uMinIntensity: 1.0,          
-                    uMaxIntensity: 2.0          
+                    uMinIntensity: 1.5,          
+                    uMaxIntensity: 5.0          
                 });
             } else {
-                this.maneuverLightsAppearence.setEmission(0.3, 0.3, 0.0, 1.0);  
                 this.maneuverLightsAppearence.apply();
             }
             
