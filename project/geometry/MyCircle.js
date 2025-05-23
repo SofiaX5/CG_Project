@@ -11,6 +11,7 @@ import {CGFobject} from '../../lib/CGF.js';
  * @param {number} [maxT] - Maximum T texture coordinate (0 to 1) (default: 1)
  * @param {boolean} [halfCircle=false] - Whether to create a half circle (true) or full circle (false) (default: false)
  */
+
 export class MyCircle extends CGFobject {
     constructor(scene, slices = 30, minS = 0, maxS = 1, minT = 0, maxT = 1, halfCircle = false) {
         super(scene);
