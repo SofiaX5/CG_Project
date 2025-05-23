@@ -4,8 +4,8 @@ import {MyPlane} from '../geometry/MyPlane.js';
 /**
  * MyWindow
  * @constructor
- * @param scene - Reference to MyScene object
- * @param texture - Window texture
+ * @param {CGFscene} scene - Reference to MyScene object
+ * @param {string|CGFtexture} texture - Path to texture image or preloaded CGFtexture object
  */
 export class MyWindow extends CGFobject {
     constructor(scene, texture) {
@@ -20,6 +20,7 @@ export class MyWindow extends CGFobject {
         this.appearance.setSpecular(0.1, 0.1, 0.1, 1);
         this.appearance.setShininess(10.0);
         
+        // Handle both string paths and preloaded textures
         if (typeof texture === 'string') {
             this.texture = new CGFtexture(scene, texture);
         } else {
