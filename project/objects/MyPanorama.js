@@ -15,7 +15,7 @@ export class MyPanorama  extends CGFobject {
         this.appearance.setAmbient(0, 0, 0, 1);
         this.appearance.setDiffuse(0, 0, 0, 1);
         this.appearance.setSpecular(0, 0, 0, 1);
-        this.appearance.setEmission(1, 1, 1, 1); // só emissãoo
+        this.appearance.setEmission(1, 1, 1, 1); 
         this.appearance.setTexture(this.texture);
 
         this.radius = 200;
@@ -31,8 +31,7 @@ export class MyPanorama  extends CGFobject {
         this.scene.pushMatrix();
         
 
-        const cameraPos = this.scene.camera.position; //vamos posicionar a esfera na camera
-        //this.scene.translate(cameraPos[0], cameraPos[1], cameraPos[2]);
+        const cameraPos = this.scene.camera.position; 
         
         this.scene.scale(this.radius, this.radius, this.radius);
                 
