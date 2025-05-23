@@ -8,12 +8,12 @@ import {MyCylinder} from '../geometry/MyCylinder.js';
  * MyBuilding
  * @constructor
 * @param {CGFscene} scene - Reference to MyScene object
- * @param {number} [totalWidth] - Total width of the building (default: 30)
- * @param {number} [sideFloors] - Number of floors in side modules (default: 3)
- * @param {number} [windowsPerFloor] - Windows per floor in each module (default: 3)
+ * @param {number} [totalWidth=30] - Total width of the building 
+ * @param {number} [sideFloors=3] - Number of floors in side modules 
+ * @param {number} [windowsPerFloor=3] - Windows per floor in each module 
  * @param {CGFtexture} [windowTexture] - Texture for windows
- * @param {Array} [buildingColor] - RGB color array for building [r,g,b] (default: [0.9, 0.9, 0.9])
- * @param {string} [buildingAppearanceType] - Material type: 'brick' or 'lightGray' (default: 'brick')
+ * @param {Array} [buildingColor=[0.9, 0.9, 0.9]] - RGB color array for building [r,g,b] 
+ * @param {string} [buildingAppearanceType='brick'] - Material type: 'brick' or 'lightGray'
  */
 export class MyBuilding extends CGFobject {
     constructor(scene, totalWidth, sideFloors, windowsPerFloor, windowTexture, buildingColor, buildingAppearanceType = 'brick') {
