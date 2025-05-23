@@ -7,6 +7,8 @@ import { MyBuilding } from "./MyBuilding.js";
 import { MyTree } from "./MyTree.js";
 import { MyForest } from "./MyForest.js";
 import { MyHeli } from "./MyHeli.js";
+import { MyFire } from "./MyFire.js";
+import { MyLake } from "./MyLake.js";
 
 
 /**
@@ -20,6 +22,7 @@ export class MyScene extends CGFscene {
     this.panoramaTexture = null;
     this.windowTexture = null;
 		this.appearance = null;
+    this.lastTime = 0;
 
     this.fovValues = {
       narrow: 0.4,  
@@ -31,15 +34,23 @@ export class MyScene extends CGFscene {
 
     this.selectedPanorama = 'field';
 
+    this.displayAxis = true;
+
     this.buildingAppearanceType = 'brick';
     this.buildingWidth = 20;
     this.buildingSideFloors = 3;
     this.buildingWindowsPerFloor = 2;
     this.buildingColor = [0.9, 0.9, 0.9];
 
-    this.showHelicopterBucket = false;
+    this.showHelicopterBucket = true;
     this.speedFactor = 1.0;
     this.heliportHeight = 0;
+    this.cruisingHeight = 6.0;
+
+    this.fireEnabled = true;
+    this.fireSize = 5;
+    this.fireIntensity = 1.0;
+    this.fires = [];
   }
   
   init(application) {
@@ -97,12 +108,45 @@ export class MyScene extends CGFscene {
     );
     this.heli = new MyHeli(this);
     this.updateHeliportPosition();
+    this.fires = [
+      new MyFire(this, [15, 0, 15], this.fireSize, 15),
+      new MyFire(this, [30, 0, 30], this.fireSize * 1.2, 20)
+    ];
+    this.lake = new MyLake(this);
     //this.heli.setPosition(0, this.building.floorHeight * 4 + this.heli.bodyHeight * 0.75, 0);
   }
+
+  constrainCamera() {
+    const maxDistance = this.panorama.radius * 0.95; 
+    const cameraPos = this.camera.position;
+    
+    const distance = Math.sqrt(
+        cameraPos[0] * cameraPos[0] + 
+        cameraPos[1] * cameraPos[1] + 
+        cameraPos[2] * cameraPos[2]
+    );
+    
+    if (distance > maxDistance) {
+        const scale = maxDistance / distance;
+        this.camera.position[0] = cameraPos[0] * scale;
+        this.camera.position[1] = cameraPos[1] * scale;
+        this.camera.position[2] = cameraPos[2] * scale;
+        
+        const targetOffset = vec3.create();
+        vec3.subtract(targetOffset, this.camera.target, this.camera.position);
+        vec3.add(this.camera.target, this.camera.position, targetOffset);
+        
+        this.camera.update();
+    }
+}
 
   updatePanorama() {
     this.panoramaTexture = this.panoramaTextures[this.selectedPanorama];
     this.panorama.updateTexture(this.panoramaTexture);
+  }
+
+  updateFireState() {
+    console.log("Fire state updated:", this.fireEnabled);
   }
 
   updateBuildingAppearance() {
@@ -125,6 +169,12 @@ export class MyScene extends CGFscene {
 
   updateHelicopterBucket() {
     this.heli.setBucket(this.showHelicopterBucket);
+  }
+  updateHelicopterSpeedFactor() {
+    this.heli.setSpeedFactor(this.speedFactor);
+  }
+  updateHelicopterCruisingHeight() {
+    this.heli.setCruisingHeight(this.cruisingHeight);
   }
 
   updateHeliportPosition() {
@@ -154,6 +204,7 @@ export class MyScene extends CGFscene {
     const moveAmount = 2.0;
     let keysPressed = false;
     var text = "Keys pressed: ";
+    this.constrainCamera();
 
     const heliTurnFactor = 0.05 * this.speedFactor;
     const heliAccelFactor = 0.02 * this.speedFactor;
@@ -214,6 +265,15 @@ export class MyScene extends CGFscene {
         this.lKeyActive = false;
     }
 
+    if (this.gui.isKeyPressed("KeyO") && !this.oKeyActive) {
+        text += " O ";
+        this.heli.put_fire();
+        this.oKeyActive = true;
+        keysPressed = true;
+    } else if (!this.gui.isKeyPressed("KeyO")) {
+        this.oKeyActive = false;
+    }
+
     if (keysPressed){
         console.log(text);
         this.lights[0].update();
@@ -224,12 +284,28 @@ export class MyScene extends CGFscene {
     this.camera.fov = this.fovValues[this.selectedFov];
   }
 
-  update(t) {
+   update(t) {
+    this.building.update(t);
     this.checkKeys();
     if (this.heli) {
-      this.heli.update(t);
+      if (this.lastTime === 0) {
+        this.lastTime = t;
+      } else {
+        const deltaTime = t - this.lastTime;
+        this.heli.update(deltaTime);
+        this.lastTime = t;
+      }
     }
+    if (this.fireEnabled) {
+      for (let i = 0; i < this.fires.length; i++) {
+        this.fires[i].update(t);
+      }
+    }
+
+    this.lake.update(t);
+    this.constrainCamera();
   }
+
   setDefaultAppearance() {
     this.setAmbient(0.5, 0.5, 0.5, 1.0);
     this.setDiffuse(0.5, 0.5, 0.5, 1.0);
@@ -249,8 +325,7 @@ export class MyScene extends CGFscene {
     // Apply transformations corresponding to the camera position relative to the origin
     this.applyViewMatrix();
 
-    // Draw axis
-    this.axis.display();
+    if (this.displayAxis) this.axis.display();
 
     this.setDefaultAppearance();
     
@@ -277,7 +352,20 @@ export class MyScene extends CGFscene {
     this.forest.display();
     this.popMatrix();
     
+    if (this.fireEnabled && this.heli.isFireOn) {
+      this.pushMatrix();
+      for(let i = 0; i < this.fires.length; i++) {
+        this.fires[i].display();
+      }
+      this.popMatrix();
+    }
 
+    this.pushMatrix();
+    this.translate(-25, 1, 25);
+    this.scale(50, 1, 50);
+    this.rotate(-Math.PI / 2, 1, 0, 0);
+    this.lake.display();
+    this.popMatrix();
 
     // Esfera
     /*

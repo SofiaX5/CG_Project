@@ -24,10 +24,15 @@ export class MyInterface extends CGFinterface {
             .onChange(() => this.scene.updateCameraFov());
 
         //Panorama
-        const panoramaFolder = this.gui.addFolder('Environment');
-        panoramaFolder.add(this.scene, 'selectedPanorama', ['field', 'city'])
+        const environmentFolder = this.gui.addFolder('Environment');
+        environmentFolder.add(this.scene, 'displayAxis').name('Display Axis');
+        environmentFolder.add(this.scene, 'selectedPanorama', ['field', 'city'])
             .name('Panorama Background')
             .onChange(() => this.scene.updatePanorama());
+
+        environmentFolder.add(this.scene, 'fireEnabled')
+            .name('Enable Fires')
+            .onChange(() => this.scene.updateFireState());
         
         //Building
         const buildingFolder = this.gui.addFolder('Building');
@@ -66,9 +71,17 @@ export class MyInterface extends CGFinterface {
         helicopterFolder.add(this.scene, 'showHelicopterBucket')
             .name('Bucket')
             .onChange(() => this.scene.updateHelicopterBucket());
+
+        //CruisingHeight
+        helicopterFolder.add(this.scene, 'cruisingHeight', 5, 15).step(0.1)
+        .name('Cruising Height')
+        .onChange(() => this.scene.updateHelicopterCruisingHeight());
+
         //speedFactor
         helicopterFolder.add(this.scene, 'speedFactor', 0.1, 3).step(0.1)
-            .name('Speed Factor');
+            .name('Speed Factor')
+            .onChange(() => this.scene.updateHelicopterSpeedFactor());
+
             
         this.initKeys();
 
