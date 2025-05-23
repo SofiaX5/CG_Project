@@ -1,4 +1,4 @@
-import {CGFobject, CGFappearance, CGFtexture} from '../lib/CGF.js';
+import {CGFobject, CGFappearance, CGFtexture, CGFshader} from '../lib/CGF.js';
 import {MyWindow} from './MyWindow.js';
 import {MyPlane} from './MyPlane.js';
 import {MyCircle} from './MyCircle.js';
@@ -29,7 +29,7 @@ export class MyBuilding extends CGFobject {
         this.sideDepth = this.centerWidth * 0.6;
         //this.depth = this.centerWidth * 0.8;    
         
-        this.globalTime = 0;
+        this.lastTime = 0;
         
 
         this.buildingColor = buildingColor || [0.9, 0.9, 0.9];
@@ -94,7 +94,16 @@ export class MyBuilding extends CGFobject {
         this.maneuverLightsAppearence.setDiffuse(0.9, 0.9, 0.9, 1);
         this.maneuverLightsAppearence.setSpecular(0.1, 0.1, 0.1, 1);
         this.maneuverLightsAppearence.setEmission(0.0, 0.0, 0.0, 1.0); 
-        this.maneuverLightsAppearence.setShininess(120);  
+        
+        this.maneuverLightShader = new CGFshader(scene.gl, 
+        "shaders/maneuverLight.vert", 
+        "shaders/maneuverLight.frag");
+        this.maneuverLightShader.setUniformsValues({
+            uBaseColor: [1.0, 1.0, 0.0], 
+            uPulseSpeed: 10.0,        
+            uMinIntensity: 0.3,          
+            uMaxIntensity: 3           
+        });
 
         this.plane = new MyPlane(scene, 20);
         this.circle = new MyCircle(scene, 30);
@@ -119,7 +128,16 @@ export class MyBuilding extends CGFobject {
     }
 
     update(t) {
-        this.globalTime = t;
+        if (this.lastTime === 0) {
+            this.lastTime = t;
+            return;
+        }
+        
+        const elapsed = (t - this.lastTime) / 1000.0; 
+        this.lastTime = t;
+
+        const timeFactor = t / 1000.0 % 1000;
+        this.maneuverLightShader.setUniformsValues({ uTime: timeFactor });
     }
     
     setHelipadTexture(textureType) {
@@ -295,9 +313,10 @@ export class MyBuilding extends CGFobject {
     
 
     drawHelipad() {
-        const helipadSize = Math.min(this.centerWidth, this.centerDepth ) * 0.8;
+        const helipadSize = Math.min(this.centerWidth, this.centerDepth) * 0.8;
         const roofY = this.floorHeight * this.centerFloors;
         
+        // Draw helipad base
         this.scene.pushMatrix();
         this.scene.translate(0, roofY + 0.05, 0);
         this.scene.rotate(-Math.PI / 2, 1, 0, 0);
@@ -306,35 +325,36 @@ export class MyBuilding extends CGFobject {
         this.circle.display();
         this.scene.popMatrix();
 
-        const time = this.scene.globalTime || 0;
-        const pulseIntensity = 0.5 + 0.5 * Math.sin(time * 0.005); // Pulsing effect
-        
-        // Only apply pulsing if in maneuver state (add this condition)
         const isManeuvering = this.scene.heli && 
                             (this.scene.heli.state === "taking_off" || 
                             this.scene.heli.state === "landing" || 
                             this.scene.heli.state === "bucket_deploy" || 
                             this.scene.heli.state === "bucket_retract");
         
-        // Update material properties based on state
-        if (isManeuvering) {
-            this.maneuverLightsAppearence.setEmission(pulseIntensity, pulseIntensity, 0, 1.0); // Yellow pulsing
-        } else {
-            this.maneuverLightsAppearence.setEmission(0.0, 0.0, 0.0, 1.0); // No emission
-        }
-
-        // Light positions
         const lightPositions = [
-            { x:  helipadSize/2, z:  helipadSize/2 }, // NE
-            { x: -helipadSize/2, z:  helipadSize/2 }, // NW
-            { x:  helipadSize/2, z: -helipadSize/2 }, // SE
-            { x: -helipadSize/2, z: -helipadSize/2 }  // SW
+            { x:  helipadSize/2, z:  helipadSize/2 }, 
+            { x: -helipadSize/2, z:  helipadSize/2 }, 
+            { x:  helipadSize/2, z: -helipadSize/2 }, 
+            { x: -helipadSize/2, z: -helipadSize/2 }  
         ];
 
-        // Draw all four lights
         lightPositions.forEach(pos => {
             this.scene.pushMatrix();
-            this.maneuverLightsAppearence.apply();
+            
+            if (isManeuvering) {
+                this.scene.setActiveShader(this.maneuverLightShader);
+                this.maneuverLightShader.setUniformsValues({
+                    uTime: this.scene.globalTime, 
+                    uBaseColor: [0.3, 0.3, 0.0],  
+                    uPulseSpeed: 1.0,           
+                    uMinIntensity: 1.0,          
+                    uMaxIntensity: 2.0          
+                });
+            } else {
+                this.maneuverLightsAppearence.setEmission(0.3, 0.3, 0.0, 1.0);  
+                this.maneuverLightsAppearence.apply();
+            }
+            
             this.scene.translate(pos.x, roofY + 0.05, pos.z);
             
             // Cylinder base
@@ -342,11 +362,13 @@ export class MyBuilding extends CGFobject {
             this.scene.scale(0.2, 0.2, 0.5);
             this.cylinder.display();
             
-            // Light emitter (circle on top)
             this.scene.translate(0, 0, 1);
             this.scene.scale(1.4, 1.4, 1);
             this.circle.display();
+            
             this.scene.popMatrix();
+            
+            this.scene.setActiveShader(this.scene.defaultShader);
         });
     }
 }
