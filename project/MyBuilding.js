@@ -2,32 +2,60 @@ import {CGFobject, CGFappearance, CGFtexture, CGFshader} from '../lib/CGF.js';
 import {MyWindow} from './MyWindow.js';
 import {MyPlane} from './MyPlane.js';
 import {MyCircle} from './MyCircle.js';
-import {MyCylinder} from './MyCustomCylinder.js';
+import {MyCylinder} from './MyCylinder.js';
 
 /**
  * MyBuilding
  * @constructor
- * @param scene - Reference to MyScene object
+* @param {Object} scene - Reference to MyScene object
+ * @param {number} [totalWidth] - Total width of the building (default: 30)
+ * @param {number} [sideFloors] - Number of floors in side modules (default: 3)
+ * @param {number} [windowsPerFloor] - Windows per floor in each module (default: 3)
+ * @param {CGFtexture} [windowTexture] - Texture for windows
+ * @param {Array} [buildingColor] - RGB color array for building [r,g,b] (default: [0.9, 0.9, 0.9])
+ * @param {string} [buildingAppearanceType] - Material type: 'brick' or 'lightGray' (default: 'brick')
  */
 export class MyBuilding extends CGFobject {
     constructor(scene, totalWidth, sideFloors, windowsPerFloor, windowTexture, buildingColor, buildingAppearanceType = 'brick') {
         super(scene);
         this.scene = scene;
-        
 
-        this.totalWidth = totalWidth || 30;
-        this.sideFloors = sideFloors || 3;
+        // Building constants
+        this.BUILDING = {
+            TOTAL_WIDTH: 30,
+            SIDE_FLOORS: 3,
+            WINDOWS_PER_FLOOR: 3,
+            FLOOR_HEIGHT: 3,
+            CENTER_WIDTH_RATIO: 0.4,
+            SIDE_WIDTH_RATIO: 0.3,
+            CENTER_DEPTH_RATIO: 0.8,
+            SIDE_DEPTH_RATIO: 0.6,
+            DOOR_WIDTH_RATIO: 0.2,
+            DOOR_HEIGHT_RATIO: 0.8,
+            SIGN_WIDTH_RATIO: 0.3,
+            SIGN_HEIGHT_RATIO: 0.25,
+            HELIPAD_SIZE_RATIO: 0.8
+        };
+
+        // Window constants
+        this.WINDOW = {
+            HEIGHT_RATIO: 0.6,
+            SPACING_FROM_WALL: 0.05
+        };
+
+
+        // Calculate derived dimensions from input parameters
+        this.totalWidth = totalWidth || this.BUILDING.TOTAL_WIDTH;
+        this.sideFloors = sideFloors || this.BUILDING.SIDE_FLOORS;
         this.centerFloors = this.sideFloors + 1;
-        this.windowsPerFloor = windowsPerFloor || 3;
-        this.floorHeight = 3;
+        this.windowsPerFloor = windowsPerFloor || this.BUILDING.WINDOWS_PER_FLOOR;
+        this.floorHeight = this.BUILDING.FLOOR_HEIGHT;
         
 
-        this.centerWidth = this.totalWidth * 0.4;
-        this.sideWidth = this.totalWidth * 0.3; 
-        
-        this.centerDepth = this.centerWidth * 0.8;
-        this.sideDepth = this.centerWidth * 0.6;
-        //this.depth = this.centerWidth * 0.8;    
+        this.centerWidth = this.totalWidth * this.BUILDING.CENTER_WIDTH_RATIO;
+        this.sideWidth = this.totalWidth * this.BUILDING.SIDE_WIDTH_RATIO; 
+        this.centerDepth = this.centerWidth * this.BUILDING.CENTER_DEPTH_RATIO;
+        this.sideDepth = this.centerWidth * this.BUILDING.SIDE_DEPTH_RATIO;
         
         this.lastTime = 0;
         
@@ -38,6 +66,7 @@ export class MyBuilding extends CGFobject {
         this.buildingAppearanceType = buildingAppearanceType;
 
 
+        // Create building materials (brick and light gray)
         this.buildingMaterials = {
             'brick': null,
             'lightGray': null
@@ -56,17 +85,14 @@ export class MyBuilding extends CGFobject {
         this.buildingMaterials.lightGray.setDiffuse(this.buildingColor[0], this.buildingColor[1], this.buildingColor[2], 1);
         this.buildingMaterials.lightGray.setSpecular(0.1, 0.1, 0.1, 1);
         this.buildingMaterials.lightGray.setShininess(10.0);
-        
-        this.buildingAppearance = this.buildingMaterials[buildingAppearanceType];
-        
-        this.window = new MyWindow(scene, windowTexture);
-        
+                        
         this.doorTexture = new CGFtexture(scene, "textures/building/door.jpg");
         this.signTexture = new CGFtexture(scene, "textures/building/bombeiros_sign.jpg");
         this.helipadTexture = new CGFtexture(scene, "textures/building/helipad.jpg");
         this.helipadUpTexture = new CGFtexture(scene, "textures/building/helipad_up.jpg");
         this.helipadDownTexture = new CGFtexture(scene, "textures/building/helipad_down.jpg");
 
+        this.buildingAppearance = this.buildingMaterials[buildingAppearanceType];
         
         this.doorAppearance = new CGFappearance(scene);
         this.doorAppearance.setAmbient(0.9, 0.9, 0.9, 1);
@@ -93,6 +119,7 @@ export class MyBuilding extends CGFobject {
         this.maneuverLightsAppearence.setAmbient(1.0, 1.0,0.0, 1);
         this.maneuverLightsAppearence.setDiffuse(1.0, 1.0,0.0, 1);
         
+        // Create animated shader for helipad maneuvering lights
         this.maneuverLightShader = new CGFshader(scene.gl, 
         "shaders/maneuverLight.vert", 
         "shaders/maneuverLight.frag");
@@ -105,6 +132,7 @@ export class MyBuilding extends CGFobject {
 
         this.plane = new MyPlane(scene, 20);
         this.circle = new MyCircle(scene, 30);
+        this.window = new MyWindow(scene, windowTexture);
         this.cylinder = new MyCylinder(scene, 30, 1, 0.7);
     }
     
@@ -114,7 +142,6 @@ export class MyBuilding extends CGFobject {
 
     display() {
         this.scene.pushMatrix();
-        
 
         this.scene.translate(0, 0, 0);        
 
@@ -125,13 +152,12 @@ export class MyBuilding extends CGFobject {
         this.scene.popMatrix();
     }
 
+    // Update time for helipad maneuver lights
     update(t) {
         if (this.lastTime === 0) {
             this.lastTime = t;
             return;
         }
-        
-        const elapsed = (t - this.lastTime) / 1000.0; 
         this.lastTime = t;
 
         const timeFactor = t / 1000.0 % 1000;
@@ -151,6 +177,7 @@ export class MyBuilding extends CGFobject {
         }
     }
 
+    // Draw left side module with windows
     drawLeftModule() {
         this.scene.pushMatrix();
         
@@ -158,7 +185,6 @@ export class MyBuilding extends CGFobject {
         
         this.drawModuleStructure(this.sideWidth, this.sideFloors, this.sideDepth, "LEFT");
         
-        // windows
         for (let floor = 0; floor < this.sideFloors; floor++) {
             this.drawFloorWindows(this.sideWidth, floor, this.windowsPerFloor,this.sideDepth, true);
         }
@@ -167,6 +193,7 @@ export class MyBuilding extends CGFobject {
     }
     
 
+    // Draw center module with door, sign, helipad and windows  
     drawCenterModule() {
         this.scene.pushMatrix();
         
@@ -184,6 +211,7 @@ export class MyBuilding extends CGFobject {
     }
     
 
+    // Draw right side module with windows
     drawRightModule() {
         this.scene.pushMatrix();
         
@@ -204,14 +232,14 @@ export class MyBuilding extends CGFobject {
         
         this.buildingAppearance.apply();
         
-        // Front 
+        // Front wall
         this.scene.pushMatrix();
         this.scene.translate(0, height/2, depth / 2);
         this.scene.scale(width, height, 1);
         this.plane.display();
         this.scene.popMatrix();
         
-        // Back 
+        // Back wall
         this.scene.pushMatrix();
         this.scene.translate(0, height/2, -depth / 2);
         this.scene.rotate(Math.PI, 0, 1, 0);
@@ -220,7 +248,7 @@ export class MyBuilding extends CGFobject {
         this.scene.popMatrix();
         
         if(module !== "RIGHT") {
-        // Left 
+        // Left wall
         this.scene.pushMatrix();
         this.scene.translate(-width / 2, height/2, 0);
         this.scene.rotate(Math.PI / 2, 0, 1, 0);
@@ -230,7 +258,7 @@ export class MyBuilding extends CGFobject {
         }
         
         if(module !== "LEFT") {
-        // Right 
+        // Right wall
         this.scene.pushMatrix();
         this.scene.translate(width / 2, height/2, 0);
         this.scene.rotate(-Math.PI / 2, 0, 1, 0);
@@ -250,44 +278,32 @@ export class MyBuilding extends CGFobject {
     }
     
 
-    drawFloorWindows(moduleWidth, floor, windowCount, moduleDepth, frontOnly = false) {
+    drawFloorWindows(moduleWidth, floor, windowCount, moduleDepth) {
+        // Calculate window dimensions and spacing
         const windowWidth = moduleWidth / (windowCount * 2);
-        const windowHeight = this.floorHeight * 0.6;
+        const windowHeight = this.floorHeight * this.WINDOW.HEIGHT_RATIO;
         const windowSpacing = moduleWidth / windowCount;
         const floorY = floor * this.floorHeight + this.floorHeight / 2;        
-        // Front 
+
+        // Draw windows on front face
         for (let i = 0; i < windowCount; i++) {
             const windowX = -moduleWidth / 2 + windowSpacing / 2 + i * windowSpacing;
             
             this.scene.pushMatrix();
-            this.scene.translate(windowX, floorY, moduleDepth   / 2 + 0.05);
+            this.scene.translate(windowX, floorY, moduleDepth   / 2 + this.WINDOW.SPACING_FROM_WALL);
             this.scene.scale(windowWidth, windowHeight, 1);
             this.window.display();
             this.scene.popMatrix();
         }
-        
-        // Back 
-        if (!frontOnly) {
-            for (let i = 0; i < windowCount; i++) {
-                const windowX = -moduleWidth / 2 + windowSpacing / 2 + i * windowSpacing;
-                
-                this.scene.pushMatrix();
-                this.scene.translate(windowX, floorY, -moduleDepth   / 2 - 0.05);
-                this.scene.rotate(Math.PI, 0, 1, 0);
-                this.scene.scale(windowWidth, windowHeight, 1);
-                this.window.display();
-                this.scene.popMatrix();
-            }
-        }
     }
 
     drawDoor() {
-        const doorWidth = this.centerWidth * 0.2;
-        const doorHeight = this.floorHeight * 0.8;
+        const doorWidth = this.centerWidth * this.BUILDING.DOOR_WIDTH_RATIO;
+        const doorHeight = this.floorHeight * this.BUILDING.DOOR_HEIGHT_RATIO;
         const doorY = this.floorHeight / 2 - doorHeight * 0.1;
         
         this.scene.pushMatrix();
-        this.scene.translate(0, doorY, this.centerDepth  / 2 + 0.05);
+        this.scene.translate(0, doorY, this.centerDepth  / 2 + this.WINDOW.SPACING_FROM_WALL);
         this.scene.scale(doorWidth, doorHeight, 1);
         this.doorAppearance.apply();
         this.plane.display();
@@ -296,9 +312,8 @@ export class MyBuilding extends CGFobject {
     
 
     drawSign() {
-        const signWidth = this.centerWidth * 0.3;
-        const signHeight = this.floorHeight * 0.25;
-        const doorHeight = this.floorHeight * 0.8;
+        const signWidth = this.centerWidth * this.BUILDING.SIGN_WIDTH_RATIO;
+        const signHeight = this.floorHeight * this.BUILDING.SIGN_HEIGHT_RATIO;
         const signY = this.floorHeight;
         
         this.scene.pushMatrix();
@@ -311,7 +326,7 @@ export class MyBuilding extends CGFobject {
     
 
     drawHelipad() {
-        const helipadSize = Math.min(this.centerWidth, this.centerDepth) * 0.8;
+        const helipadSize = Math.min(this.centerWidth, this.centerDepth) * this.BUILDING.HELIPAD_SIZE_RATIO;
         const roofY = this.floorHeight * this.centerFloors;
         
         // Draw helipad base
@@ -323,12 +338,14 @@ export class MyBuilding extends CGFobject {
         this.circle.display();
         this.scene.popMatrix();
 
+        // Check if helicopter is maneuvering 
         const isManeuvering = this.scene.heli && 
                             (this.scene.heli.state === "taking_off" || 
                             this.scene.heli.state === "landing" || 
                             this.scene.heli.state === "bucket_deploy" || 
                             this.scene.heli.state === "bucket_retract");
         
+        // Define positions for maneuver lights
         const lightPositions = [
             { x:  helipadSize/2, z:  helipadSize/2 }, 
             { x: -helipadSize/2, z:  helipadSize/2 }, 
@@ -339,6 +356,7 @@ export class MyBuilding extends CGFobject {
         lightPositions.forEach(pos => {
             this.scene.pushMatrix();
             
+            // Apply pulsing shader to maneuver lights if helicopter is maneuvering
             if (isManeuvering) {
                 this.scene.setActiveShader(this.maneuverLightShader);
                 this.maneuverLightShader.setUniformsValues({
@@ -349,12 +367,13 @@ export class MyBuilding extends CGFobject {
                     uMaxIntensity: 5.0          
                 });
             } else {
+                // Static yellow lights when not maneuvering
                 this.maneuverLightsAppearence.apply();
             }
             
+            // Draw lights
             this.scene.translate(pos.x, roofY + 0.05, pos.z);
             
-            // Cylinder base
             this.scene.rotate(-Math.PI / 2, 1, 0, 0);
             this.scene.scale(0.2, 0.2, 0.5);
             this.cylinder.display();

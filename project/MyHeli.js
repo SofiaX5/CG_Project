@@ -3,7 +3,7 @@ import {MySphere} from './MySphere.js';
 import {MyCone} from './MyCone.js';
 import {MyPlane} from './MyPlane.js';
 import {MyCircle} from './MyCircle.js';
-import {MyCylinder} from './MyCustomCylinder.js';
+import {MyCylinder} from './MyCylinder.js';
 import {MyCustomCube} from './MyCustomCube.js';
 import {MyCustomParallelogram} from './MyCustomParallelogram.js';
 import {MyHalfCircle} from './MyHalfCircle.js';
