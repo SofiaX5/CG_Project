@@ -4,11 +4,11 @@ import { CGFobject } from '../../lib/CGF.js';
  * My Truncated Pyramid
  * @constructor
  * @param {CGFscene} scene - Reference to MyScene object
-* @param {number} slices - number of divisions around the Y axis
-* @param {number} stacks - number of vertical divisions
-* @param {number} baseRadius - radius of the bottom base
-* @param {number} topRadius - radius of the top (cut) face
-* @param {number} height - vertical height of the truncated pyramid
+ * @param {number} slices - number of divisions around the Y axis
+ * @param {number} stacks - number of vertical divisions
+ * @param {number} baseRadius - radius of the bottom base
+ * @param {number} topRadius - radius of the top (cut) face
+ * @param {number} height - vertical height of the truncated pyramid
  */
 export class MyTruncatedPyramid extends CGFobject {
     constructor(scene, slices, stacks, baseRadius, topRadius, height) {

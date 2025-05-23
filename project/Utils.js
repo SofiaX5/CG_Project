@@ -35,3 +35,9 @@ export function getRandomColorLeaf() {
     const b = getRandomFloat(0.1, 0.2);
     return [r, g, b];
 }
+
+// Fire functions
+export function getRandomValue(min, max) {
+    return Math.random() * (max - min) + min;
+}
+

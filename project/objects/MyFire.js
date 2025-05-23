@@ -1,5 +1,7 @@
 import { CGFobject, CGFappearance, CGFtexture, CGFshader } from '../../lib/CGF.js';
 import { MyTaperedTriangle } from '../geometry/MyTaperedTriangle.js'; 
+import {getRandomValue} from '../Utils.js';
+
 
 /**
  * MyFire
@@ -12,6 +14,35 @@ import { MyTaperedTriangle } from '../geometry/MyTaperedTriangle.js';
 export class MyFire extends CGFobject {
     constructor(scene, position = [0, 0, 0], size = 5, flameCount = 15) {
         super(scene);
+
+        // Fire constants
+        this.FIRE= {
+            FLAME_HEIGHT_MIN: 0.6,
+            FLAME_HEIGHT_MAX: 1.0,
+            FLAME_WIDTH_MIN: 0.3,
+            FLAME_WIDTH_MAX: 0.7,
+            SPEED_MIN: 0.5,
+            SPEED_MAX: 2.0,
+            SWAY_AMPLITUDE_MIN: 0.1,
+            SWAY_AMPLITUDE_MAX: 0.3,
+            SWAY_FREQUENCY_MIN: 1.0,
+            SWAY_FREQUENCY_MAX: 3.0,
+            COLOR_VARIATION_MIN: 0.7,
+            COLOR_VARIATION_MAX: 1.3,
+            SMALL_FLAME_RATIO: 1/3,
+            SMALL_FLAME_HEIGHT_RATIO: 0.5,
+            SMALL_FLAME_WIDTH_RATIO: 0.6,
+            RISE_SPEED_MIN: 0.5,
+            RISE_SPEED_MAX: 1.5,
+            TWIST_FACTOR_MIN: 0.5,
+            TWIST_FACTOR_MAX: 2.0,
+            SMALL_HEIGHT_MIN: 0.3,
+            SMALL_HEIGHT_MAX: 0.6,
+            SMALL_WIDTH_MIN: 0.2,
+            SMALL_WIDTH_MAX: 0.4,
+            SMALL_COLOR_VAR_MIN: 1.0,
+            SMALL_COLOR_VAR_MAX: 1.8  
+        };
         
         this.position = position;
         this.size = size;
@@ -61,41 +92,41 @@ export class MyFire extends CGFobject {
         
         const flame = {
             triangle: triangle,
-            height: this.getRandomValue(0.6, 1.0) * this.size,
-            width: this.getRandomValue(0.3, 0.7) * this.size,
-            angle: this.getRandomValue(0, Math.PI * 2),
-            phase: this.getRandomValue(0, Math.PI * 2),
-            speed: this.getRandomValue(0.5, 2.0),
-            offsetX: this.getRandomValue(-this.size/2, this.size/2),
-            offsetZ: this.getRandomValue(-this.size/2, this.size/2),
-            offsetY: this.getRandomValue(-0.2, 0.2) * this.size,
-            colorVariation: this.getRandomValue(0.7, 1.3),
+            height: getRandomValue(this.FIRE.FLAME_HEIGHT_MIN, this.FIRE.FLAME_HEIGHT_MAX) * this.size,
+            width: getRandomValue(this.FIRE.FLAME_WIDTH_MIN, this.FIRE.FLAME_WIDTH_MAX) * this.size,
+            angle: getRandomValue(0, Math.PI * 2),
+            phase: getRandomValue(0, Math.PI * 2),
+            speed: getRandomValue(this.FIRE.SPEED_MIN, this.FIRE.SPEED_MAX),
+            offsetX: getRandomValue(-this.size/2, this.size/2),
+            offsetZ: getRandomValue(-this.size/2, this.size/2),
+            offsetY: getRandomValue(-0.2, 0.2) * this.size,
+            colorVariation: getRandomValue(this.FIRE.COLOR_VARIATION_MIN, this.FIRE.COLOR_VARIATION_MAX),
 
-            swayAmplitude: this.getRandomValue(0.1, 0.3),
-            swayFrequency: this.getRandomValue(1.0, 3.0),
-            riseSpeed: this.getRandomValue(0.5, 1.5),
-            twistFactor: this.getRandomValue(0.5, 2.0)
+            swayAmplitude: getRandomValue(this.FIRE.SWAY_AMPLITUDE_MIN,this.FIRE.SWAY_AMPLITUDE_MAX),
+            swayFrequency: getRandomValue(this.FIRE.SWAY_FREQUENCY_MIN, this.FIRE.SWAY_FREQUENCY_MAX),
+            riseSpeed: getRandomValue(this.FIRE.RISE_SPEED_MIN, this.FIRE.RISE_SPEED_MAX),
+            twistFactor: getRandomValue(this.FIRE.TWIST_FACTOR_MIN, this.FIRE.TWIST_FACTOR_MAX)
         };
         
         this.flames.push(flame);
     }
 
                 
-        const smallFlameCount = Math.floor(this.flameCount / 3);
+        const smallFlameCount = Math.floor(this.flameCount * this.FIRE.SMALL_FLAME_RATIO);
         for (let i = 0; i < smallFlameCount; i++) {
             const triangle = new MyTaperedTriangle(this.scene);
             
             const flame = {
                 triangle: triangle,
-                height: this.getRandomValue(0.3, 0.6) * this.size,  
-                width: this.getRandomValue(0.2, 0.4) * this.size,    
-                angle: this.getRandomValue(0, Math.PI * 2),
-                phase: this.getRandomValue(0, Math.PI * 2),
-                speed: this.getRandomValue(0.5, 1.5),
-                offsetX: this.getRandomValue(-this.size/2.5, this.size/2.5),
-                offsetZ: this.getRandomValue(-this.size/2.5, this.size/2.5),
-                offsetY: this.getRandomValue(-0.4, -0.1) * this.size, 
-                colorVariation: this.getRandomValue(1.0, 1.8)        
+                height: getRandomValue(this.FIRE.SMALL_HEIGHT_MIN, this.FIRE.SMALL_HEIGHT_MAX) * this.size,  
+                width: getRandomValue(this.FIRE.SMALL_WIDTH_MIN, this.FIRE.SMALL_WIDTH_MAX) * this.size,   
+                angle: getRandomValue(0, Math.PI * 2),
+                phase: getRandomValue(0, Math.PI * 2),
+                speed: getRandomValue(0.5, 1.5),
+                offsetX: getRandomValue(-this.size/2.5, this.size/2.5),
+                offsetZ: getRandomValue(-this.size/2.5, this.size/2.5),
+                offsetY: getRandomValue(-0.4, -0.1) * this.size, 
+                colorVariation: getRandomValue(this.FIRE.SMALL_COLOR_VAR_MIN, this.FIRE.SMALL_COLOR_VAR_MAX)      
             };
             
             this.flames.push(flame);
@@ -149,7 +180,4 @@ export class MyFire extends CGFobject {
     }
     
 
-    getRandomValue(min, max) {
-        return Math.random() * (max - min) + min;
-    }
 }

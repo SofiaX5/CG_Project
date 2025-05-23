@@ -7,7 +7,7 @@ import {MyCylinder} from '../geometry/MyCylinder.js';
 /**
  * MyBuilding
  * @constructor
-* @param {Object} scene - Reference to MyScene object
+* @param {CGFscene} scene - Reference to MyScene object
  * @param {number} [totalWidth] - Total width of the building (default: 30)
  * @param {number} [sideFloors] - Number of floors in side modules (default: 3)
  * @param {number} [windowsPerFloor] - Windows per floor in each module (default: 3)
