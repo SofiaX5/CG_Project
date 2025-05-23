@@ -1,12 +1,12 @@
-import {CGFobject, CGFappearance, CGFtexture} from '../lib/CGF.js';
-import {MySphere} from './MySphere.js';
-import {MyCone} from './MyCone.js';
-import {MyPlane} from './MyPlane.js';
-import {MyCircle} from './MyCircle.js';
-import {MyCylinder} from './MyCylinder.js';
-import {MyCustomCube} from './MyCustomCube.js';
-import {MyCustomParallelogram} from './MyCustomParallelogram.js';
-import {MyHalfCircle} from './MyHalfCircle.js';
+import {CGFobject, CGFappearance, CGFtexture} from '../../lib/CGF.js';
+import {MySphere} from '../geometry/MySphere.js';
+import {MyCone} from '../geometry/MyCone.js';
+import {MyPlane} from '../geometry/MyPlane.js';
+import {MyCircle} from '../geometry/MyCircle.js';
+import {MyCylinder} from '../geometry/MyCylinder.js';
+import {MyCustomCube} from '../geometry/MyCustomCube.js';
+import {MyCustomParallelogram} from '../geometry/MyCustomParallelogram.js';
+import {MyHalfCircle} from '../geometry/MyHalfCircle.js';
 
 
 /**

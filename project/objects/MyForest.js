@@ -1,6 +1,6 @@
-import {CGFobject, CGFappearance, CGFtexture} from '../lib/CGF.js';
+import {CGFobject, CGFappearance, CGFtexture} from '../../lib/CGF.js';
 import {MyTree} from './MyTree.js';
-import {getRandomFloat, getRandomInt, getRandomOrient, getRandomColorLeaf} from './Utils.js';
+import {getRandomFloat, getRandomInt, getRandomOrient, getRandomColorLeaf} from '../Utils.js';
 
 /**
  * MyTForest

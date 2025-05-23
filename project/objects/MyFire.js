@@ -1,5 +1,5 @@
-import { CGFobject, CGFappearance, CGFtexture, CGFshader } from '../lib/CGF.js';
-import { MyFlame } from './MyFlame.js'; 
+import { CGFobject, CGFappearance, CGFtexture, CGFshader } from '../../lib/CGF.js';
+import { MyFlame } from '../geometry/MyFlame.js'; 
 
 /**
  * MyFire

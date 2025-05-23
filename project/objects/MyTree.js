@@ -1,7 +1,7 @@
-import {CGFobject, CGFappearance, CGFtexture} from '../lib/CGF.js';
-import {MyCone} from './MyCone.js';
-import {MyCylinder} from './MyCylinder.js';
-import {MyTruncatedPyramid} from './MyTruncatedPyramid.js';
+import {CGFobject, CGFappearance, CGFtexture} from '../../lib/CGF.js';
+import {MyCone} from '../geometry/MyCone.js';
+import {MyCylinder} from '../geometry/MyCylinder.js';
+import {MyTruncatedPyramid} from '../geometry/MyTruncatedPyramid.js';
 //import {} from './Utils.js';
 
 /**

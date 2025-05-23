@@ -1,8 +1,8 @@
-import {CGFobject, CGFappearance, CGFtexture, CGFshader} from '../lib/CGF.js';
+import {CGFobject, CGFappearance, CGFtexture, CGFshader} from '../../lib/CGF.js';
 import {MyWindow} from './MyWindow.js';
-import {MyPlane} from './MyPlane.js';
-import {MyCircle} from './MyCircle.js';
-import {MyCylinder} from './MyCylinder.js';
+import {MyPlane} from '../geometry/MyPlane.js';
+import {MyCircle} from '../geometry/MyCircle.js';
+import {MyCylinder} from '../geometry/MyCylinder.js';
 
 /**
  * MyBuilding

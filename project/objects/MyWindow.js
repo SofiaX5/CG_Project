@@ -1,5 +1,5 @@
-import {CGFobject, CGFappearance, CGFtexture} from '../lib/CGF.js';
-import {MyPlane} from './MyPlane.js';
+import {CGFobject, CGFappearance, CGFtexture} from '../../lib/CGF.js';
+import {MyPlane} from '../geometry/MyPlane.js';
 
 /**
  * MyWindow
