@@ -4,8 +4,8 @@ import {MyCone} from '../geometry/MyCone.js';
 import {MyPlane} from '../geometry/MyPlane.js';
 import {MyCircle} from '../geometry/MyCircle.js';
 import {MyCylinder} from '../geometry/MyCylinder.js';
-import {MyCustomCube} from '../geometry/MyCustomCube.js';
-import {MyCustomParallelogram} from '../geometry/MyCustomParallelogram.js';
+import {MyCustomCube} from '../geometry/MyCube.js';
+import {MyCustomParallelogram} from '../geometry/MyParallelogram.js';
 
 
 /**

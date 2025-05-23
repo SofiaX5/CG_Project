@@ -1,6 +1,6 @@
 import {CGFobject} from '../../lib/CGF.js';
 
-export class MyFlame extends CGFobject {
+export class MyTaperedTriangle extends CGFobject {
 	constructor(scene) {
 		super(scene);
 		this.initBuffers();

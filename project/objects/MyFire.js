@@ -1,5 +1,5 @@
 import { CGFobject, CGFappearance, CGFtexture, CGFshader } from '../../lib/CGF.js';
-import { MyFlame } from '../geometry/MyFlame.js'; 
+import { MyTaperedTriangle } from '../geometry/MyTaperedTriangle.js'; 
 
 /**
  * MyFire
@@ -57,7 +57,7 @@ export class MyFire extends CGFobject {
 
     createFlames() {
     for (let i = 0; i < this.flameCount; i++) {
-        const triangle = new MyFlame(this.scene);
+        const triangle = new MyTaperedTriangle(this.scene);
         
         const flame = {
             triangle: triangle,
@@ -83,7 +83,7 @@ export class MyFire extends CGFobject {
                 
         const smallFlameCount = Math.floor(this.flameCount / 3);
         for (let i = 0; i < smallFlameCount; i++) {
-            const triangle = new MyFlame(this.scene);
+            const triangle = new MyTaperedTriangle(this.scene);
             
             const flame = {
                 triangle: triangle,
