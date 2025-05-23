@@ -3,12 +3,15 @@ import {MySphere} from '../geometry/MySphere.js'
 /**
  * MyPanorama
  * @constructor
- * @param scene - Reference to MyScene object
+ * @param {CGFscene} scene - Reference to MyScene object
+ * @param {CGFtexture} texture - Texture to be applied to the panorama
  */
 export class MyPanorama  extends CGFobject {
     constructor(scene, texture) {
         super(scene);
         this.texture = texture;
+
+        // Create sphere geometry (inverted normals for inside view)
         this.sphere = new MySphere(scene, 60, 60, true);
 
         this.appearance = new CGFappearance(this.scene);
@@ -31,8 +34,6 @@ export class MyPanorama  extends CGFobject {
         this.scene.pushMatrix();
         
 
-        const cameraPos = this.scene.camera.position; 
-        
         this.scene.scale(this.radius, this.radius, this.radius);
                 
         this.sphere.display();
