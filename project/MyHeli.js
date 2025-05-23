@@ -69,6 +69,7 @@ export class MyHeli extends CGFobject {
         this.tiltSpeed = 0.005;   
 
         // Heli State
+        this.previousState = "resting";
         this.state = "resting";
         this.cruisingHeight = cruisingHeight;
         this.cruisingAltitude = cruisingHeight + posY;
@@ -152,6 +153,10 @@ export class MyHeli extends CGFobject {
     }
     
     update(deltaTime) {
+        if (this.state !== this.previousState) {
+            this.handleStateChange(this.previousState, this.state);
+            this.previousState = this.state;
+        }
         this.updateTilt(deltaTime);
         switch (this.state) {
             case "resting":
@@ -346,6 +351,22 @@ export class MyHeli extends CGFobject {
         }
         this.mainRotorAngle += deltaTime * this.mainRotorSpeed;
         this.tailRotorAngle += deltaTime * this.tailRotorSpeed;
+    }
+    handleStateChange(oldState, newState) {
+        if (!this.scene.building) return;
+        
+        if (newState === "taking_off" || newState === "bucket_deploy") {
+            this.scene.building.setHelipadTexture('up');
+        } 
+        else if (newState === "landing" || newState === "bucket_retract") {
+            this.scene.building.setHelipadTexture('down');
+        }
+        else if (newState === "resting") {
+            this.scene.building.setHelipadTexture('normal');
+        }
+        else if (newState === "flying") {
+            this.scene.building.setHelipadTexture('normal');
+        }
     }
 
 
@@ -947,6 +968,9 @@ drawWaterFall() {
         this.currentRopeLength = 0;
         this.bucketDeployed = false;
         this.bucketRetracting = false;
+        if (this.scene.building) {
+            this.scene.building.setHelipadTexture('normal');
+        }
     }
     
     takeOff() {
