@@ -1,20 +1,24 @@
-import {CGFobject} from '../lib/CGF.js';
+import {CGFobject} from '../../lib/CGF.js';
+
 /**
 * MyPlane
 * @constructor
- * @param scene - Reference to MyScene object
- * @param nDivs - number of divisions in both directions of the surface
- * @param minS - minimum texture coordinate in S
- * @param maxS - maximum texture coordinate in S
- * @param minT - minimum texture coordinate in T
- * @param maxT - maximum texture coordinate in T
+ * @param {CGFscene} scene - Reference to MyScene object
+ * @param {number} nDivs - number of divisions in both directions of the surface
+ * @param {number} minS - minimum texture coordinate in S
+ * @param {number} maxS - maximum texture coordinate in S
+ * @param {number} minT - minimum texture coordinate in T
+ * @param {number} maxT - maximum texture coordinate in T
 */
+
 export class MyPlane extends CGFobject {
 	constructor(scene, nrDivs, minS, maxS, minT, maxT) {
 		super(scene);
 		// nrDivs = 1 if not provided
 		nrDivs = typeof nrDivs !== 'undefined' ? nrDivs : 1;
 		this.nrDivs = nrDivs;
+
+		// Calculate patch size and texture coordinate increments
 		this.patchLength = 1.0 / nrDivs;
 		this.minS = minS || 0;
 		this.maxS = maxS || 1;
@@ -30,6 +34,8 @@ export class MyPlane extends CGFobject {
 		this.normals = [];
 		this.texCoords = [];
 		var yCoord = 0.5;
+
+		// Generate vertices in a grid pattern from top-left to bottom-right
 		for (var j = 0; j <= this.nrDivs; j++) {
 			var xCoord = -0.5;
 			for (var i = 0; i <= this.nrDivs; i++) {

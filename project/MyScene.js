@@ -1,14 +1,12 @@
 import { CGFscene, CGFcamera, CGFaxis, CGFappearance, CGFtexture, CGFshader } from "../lib/CGF.js";
-import { MyPlane } from "./MyPlane.js";
-import { MySphere } from "./MySphere.js";
-import { MyPanorama } from "./MyPanorama.js";
-import { MyWindow } from "./MyWindow.js";
-import { MyBuilding } from "./MyBuilding.js";
-import { MyTree } from "./MyTree.js";
-import { MyForest } from "./MyForest.js";
-import { MyHeli } from "./MyHeli.js";
-import { MyFire } from "./MyFire.js";
-import { MyLake } from "./MyLake.js";
+import { MyPlane } from "./geometry/MyPlane.js";
+import { MySphere } from "./geometry/MySphere.js";
+import { MyPanorama } from "./objects/MyPanorama.js";
+import { MyBuilding } from "./objects/MyBuilding.js";
+import { MyForest } from "./objects/MyForest.js";
+import { MyHeli } from "./objects/MyHeli.js";
+import { MyFire } from "./objects/MyFire.js";
+import { MyLake } from "./objects/MyLake.js";
 
 
 /**

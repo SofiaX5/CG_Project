@@ -1,12 +1,11 @@
-import {CGFobject, CGFappearance, CGFtexture} from '../lib/CGF.js';
-import {MySphere} from './MySphere.js';
-import {MyCone} from './MyCone.js';
-import {MyPlane} from './MyPlane.js';
-import {MyCircle} from './MyCircle.js';
-import {MyCylinder} from './MyCustomCylinder.js';
-import {MyCustomCube} from './MyCustomCube.js';
-import {MyCustomParallelogram} from './MyCustomParallelogram.js';
-import {MyHalfCircle} from './MyHalfCircle.js';
+import {CGFobject, CGFappearance, CGFtexture} from '../../lib/CGF.js';
+import {MySphere} from '../geometry/MySphere.js';
+import {MyCone} from '../geometry/MyCone.js';
+import {MyPlane} from '../geometry/MyPlane.js';
+import {MyCircle} from '../geometry/MyCircle.js';
+import {MyCylinder} from '../geometry/MyCylinder.js';
+import {MyCustomCube} from '../geometry/MyCube.js';
+import {MyCustomParallelogram} from '../geometry/MyParallelogram.js';
 
 
 /**
@@ -97,7 +96,8 @@ export class MyHeli extends CGFobject {
         this.bucketCylinder = new MyCylinder(this.scene, 20, 5, 0.7); 
         this.cube = new MyCustomCube(this.scene, 5, 3, 2);
         this.parallelogram = new MyCustomParallelogram(this.scene, 7, 3, 2, 3);
-        this.halfCircle = new MyHalfCircle(this.scene);
+        this.halfCircle = new MyCircle(this.scene, 30,undefined, undefined, undefined, undefined, true);
+        //this.waterSystem = new WaterPart(this.scene);
     }
     
     initMaterials() {
@@ -731,10 +731,10 @@ export class MyHeli extends CGFobject {
             this.scene.pushMatrix();
             this.metalMaterial.apply();
             this.scene.translate(0, - this.currentRopeLength - this.bucketHeight*1.35, 0);
-            this.scene.rotate(-openingAngle, 1, 0, 0);
+            this.scene.rotate(openingAngle, 1, 0, 0);
             this.scene.rotate(-Math.PI/2, 1, 0, 0);
             this.scene.scale(1, -1, 1);     // Invert side - texture
-            this.scene.scale(this.bucketRadius*0.7, this.bucketRadius*0.7, this.bucketRadius*0.7);
+            this.scene.scale(this.bucketRadius*1.4, this.bucketRadius*1.4, this.bucketRadius*1.4);
             this.halfCircle.display();
             this.scene.popMatrix();
         this.scene.popMatrix();
@@ -745,9 +745,9 @@ export class MyHeli extends CGFobject {
             this.scene.pushMatrix();
             this.metalMaterial.apply();
             this.scene.translate(0, - this.currentRopeLength - this.bucketHeight*1.35, 0);
-            this.scene.rotate(openingAngle, 1, 0, 0);
+            this.scene.rotate(-openingAngle, 1, 0, 0);
             this.scene.rotate(-Math.PI/2, 1, 0, 0);
-            this.scene.scale(this.bucketRadius*0.7, this.bucketRadius*0.7, this.bucketRadius*0.7);
+            this.scene.scale(this.bucketRadius*1.4, this.bucketRadius*1.4, this.bucketRadius*1.4);
             this.halfCircle.display();
             this.scene.popMatrix();
         this.scene.popMatrix();

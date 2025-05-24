@@ -1,9 +1,14 @@
-import {CGFobject} from '../lib/CGF.js';
+import {CGFobject} from '../../lib/CGF.js';
+
 /**
  * MyCustomCube
  * @constructor
- * @param scene - Reference to MyScene object
+ * @param {CGFscene} scene - Reference to MyScene object
+ * @param {number} [width=1] - Width of the cube
+ * @param {number} [height=1] - Height of the cube
+ * @param {number} [depth=1] - Depth of the cube
  */
+
 export class MyCustomCube extends CGFobject {
     constructor(scene, width = 1, height = 1, depth = 1) {
         super(scene);
@@ -18,6 +23,7 @@ export class MyCustomCube extends CGFobject {
         const halfHeight = this.height / 2;
         const halfDepth = this.depth / 2;
         
+        // Define 8 vertices of the cube (4 bottom + 4 top)
         this.vertices = [
             // Bot
             halfWidth, -halfHeight, halfDepth,     
@@ -31,6 +37,7 @@ export class MyCustomCube extends CGFobject {
             -halfWidth, halfHeight, -halfDepth     
         ];
         
+        // Define triangles for each face (2 triangles per face, 6 faces total)
         this.indices = [
             // Top
             4, 7, 5,
@@ -52,6 +59,7 @@ export class MyCustomCube extends CGFobject {
             6, 3, 7
         ];
 
+        // Normal vectors 
         this.normals = [
             // Bot
             0, -1, 0,
@@ -65,6 +73,7 @@ export class MyCustomCube extends CGFobject {
             0, 1, 0
         ];
 
+        // Texture coordinates 
         this.texCoords = [
             // Bot
             1, 1,

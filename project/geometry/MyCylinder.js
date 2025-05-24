@@ -1,9 +1,14 @@
-import {CGFobject} from '../lib/CGF.js';
+import {CGFobject} from '../../lib/CGF.js';
+
 /**
  * MyCylinder
  * @constructor
- * @param scene - Reference to MyScene object
+ * @param {CGFscene} scene - Reference to MyScene object
+ * @param {number} slices - number of divisions around the circumference
+ * @param {number} stacks - number of divisions along the height
+ * @param {number} [topToBottomRatio=1.0] - ratio of top radius to bottom radius (creates cone-like shape if < 1.0)
  */
+
 export class MyCylinder extends CGFobject {
     constructor(scene, slices, stacks, topToBottomRatio = 1.0) {
         super(scene);
@@ -24,10 +29,12 @@ export class MyCylinder extends CGFobject {
         let i = 0; 
         let diff_stack = 1 / this.stacks;
     
+        // Generate vertices, normals, and texture coordinates for each stack level
         for (let i_stack = 0; i_stack <= this.stacks; i_stack++) {
             let stack = i_stack * diff_stack;
             let radiusRatio = 1.0 + stack * (this.topToBottomRatio - 1.0);
    
+            // Create vertices around the circumference at this stack level
             for (let i_vert = 0; i_vert <= this.slices; i_vert++) {
                 let angle_vert = angle * i_vert;
                 let x = Math.cos(angle_vert) * radiusRatio;
@@ -37,6 +44,7 @@ export class MyCylinder extends CGFobject {
                 let ny = y;
                 let nz = 0;
                 
+                // Adjust normal for tapered cylinders (cones)
                 if (this.topToBottomRatio !== 1.0) {
                     let slope = (this.topToBottomRatio - 1.0) / this.stacks;
                     let length = Math.sqrt(x*x + y*y);
@@ -54,6 +62,7 @@ export class MyCylinder extends CGFobject {
                 
                 this.texCoords.push(i_vert/this.slices, i_stack/this.stacks);
    
+                // Create triangles connecting current stack to next stack
                 if (i_stack < this.stacks && i_vert < this.slices) {
                     let current = i;
                     let next = i + this.slices + 1;
@@ -78,7 +87,5 @@ export class MyCylinder extends CGFobject {
     }
     
 
-    updateBuffers(complexity){
-    }
 }
 
