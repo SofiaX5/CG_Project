@@ -229,7 +229,7 @@ export class MyHeli extends CGFobject {
                 console.log(`Position: [${this.x.toFixed(2)}, ${this.y.toFixed(2)}, ${this.z.toFixed(2)}]`);
 
           
-                if (this.x > -30 && this.x < -15 && this.z > 15 && this.z < 38) {
+                if (this.x > -56 && this.x < -28 && this.z > 14 && this.z < 48) {
                     console.log(`Above lake`);
                     this.isOverLake = true;
                 } else {
@@ -312,7 +312,7 @@ export class MyHeli extends CGFobject {
 
                 this.currentRopeLength = this.ropeLength;
                 
-                if (this.y > 6) {
+                if (this.y > 5) {
                     this.y -= 0.3;
                 }
 
