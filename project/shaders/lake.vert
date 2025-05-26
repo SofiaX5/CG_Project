@@ -13,11 +13,10 @@ uniform float timeFactor;
 
 void main() {
     vTextureCoord = aTextureCoord;
-    //gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-
+    vec4 filter = texture2D(uLakeMap, vTextureCoord);
     
     float frequency = 10.0;
-    float amplitude = 0.2;
+    float amplitude = 0.5;
     float speed = 0.2;
 
     float wave = sin((aTextureCoord.x + timeFactor * speed) * frequency)
@@ -26,5 +25,10 @@ void main() {
     vec3 wavePosition = aVertexPosition + vec3(0.0, 0.0, wave * amplitude);
 
     gl_Position = uPMatrix * uMVMatrix * vec4(wavePosition, 1.0);
-    
+
+    if (filter.r < 0.1 && filter.g < 0.1 && filter.b < 0.1) {
+        gl_Position = uPMatrix * uMVMatrix * vec4(wavePosition, 1.0);
+    } else {
+        gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+    }
 }

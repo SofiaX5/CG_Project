@@ -81,7 +81,6 @@ export class MyScene extends CGFscene {
       'city': new CGFtexture(this, "textures/panoramas/city.jpg")
     };
 
-    this.grassTexture = new CGFtexture(this, "textures/general/grass.jpg");
     this.panoramaTexture = this.panoramaTextures[this.selectedPanorama];
     this.windowTexture = new CGFtexture(this, "textures/building/window.jpg");
 
@@ -92,7 +91,6 @@ export class MyScene extends CGFscene {
 
     //Initialize scene objects
     this.axis = new CGFaxis(this, 20, 1);
-    this.plane = new MyPlane(this, 64);
     this.sphere = new MySphere(this, 20, 20, false);
     this.panorama = new MyPanorama(this, this.panoramaTexture);
     this.forest = new MyForest(this);
@@ -339,9 +337,7 @@ export class MyScene extends CGFscene {
     this.pushMatrix();
     this.scale(400, 1, 400);
     this.rotate(-Math.PI / 2, 1, 0, 0);
-    this.appearance.setTexture(this.grassTexture);
-    this.appearance.apply();
-    this.plane.display();
+    this.lake.display();
     this.popMatrix();
 
     
@@ -357,13 +353,6 @@ export class MyScene extends CGFscene {
       }
       this.popMatrix();
     }
-
-    this.pushMatrix();
-    this.translate(-25, 1, 25);
-    this.scale(50, 1, 50);
-    this.rotate(-Math.PI / 2, 1, 0, 0);
-    this.lake.display();
-    this.popMatrix();
 
     // Esfera
     /*
