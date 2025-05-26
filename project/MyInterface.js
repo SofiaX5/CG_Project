@@ -82,7 +82,12 @@ export class MyInterface extends CGFinterface {
             .name('Speed Factor')
             .onChange(() => this.scene.updateHelicopterSpeedFactor());
 
-            
+        //SpecialMode
+         const specialFolder = this.gui.addFolder('Special Mode');
+        specialFolder.add(this.scene, 'showSpecialMode')
+            .name('special mode')
+            .onChange(() => this.scene.updateSpecialMode());
+
         this.initKeys();
 
         return true;
