@@ -108,7 +108,7 @@ export class MyScene extends CGFscene {
       new MyFire(this, [15, 0, 15], this.fireSize, 15),
       new MyFire(this, [30, 0, 30], this.fireSize * 1.2, 20)
     ];
-    this.lake = new MyLake(this);
+    this.planeLake = new MyLake(this);
     //this.heli.setPosition(0, this.building.floorHeight * 4 + this.heli.bodyHeight * 0.75, 0);
   }
 
@@ -132,7 +132,10 @@ export class MyScene extends CGFscene {
         vec3.subtract(targetOffset, this.camera.target, this.camera.position);
         vec3.add(this.camera.target, this.camera.position, targetOffset);
         
-        this.camera.update();
+    }
+
+    if (this.camera.position[1] < 0) {
+        this.camera.position[1] = minY;
     }
 }
 
@@ -298,7 +301,7 @@ export class MyScene extends CGFscene {
       }
     }
 
-    this.lake.update(t);
+    this.planeLake.update(t);
     this.constrainCamera();
   }
 
@@ -337,7 +340,7 @@ export class MyScene extends CGFscene {
     this.pushMatrix();
     this.scale(400, 1, 400);
     this.rotate(-Math.PI / 2, 1, 0, 0);
-    this.lake.display();
+    this.planeLake.display();
     this.popMatrix();
 
     
