@@ -134,8 +134,8 @@ export class MyScene extends CGFscene {
         
     }
 
-    if (this.camera.position[1] < 0) {
-        this.camera.position[1] = minY;
+    if (this.camera.position[1] < 0.2) {
+        this.camera.position[1] = 0.2;
     }
 }
 
