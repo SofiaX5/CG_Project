@@ -144,10 +144,11 @@ export class MyHeli extends CGFobject {
         
         // Water
         this.waterMaterial = new CGFappearance(this.scene);
-        this.waterMaterial.setAmbient(0.0, 0.1, 0.3, 0.8);
-        this.waterMaterial.setDiffuse(0.0, 0.4, 0.8, 0.8);
-        this.waterMaterial.setSpecular(0.2, 0.8, 1.0, 0.8);
-        this.waterMaterial.setShininess(120);
+        this.waterMaterial = new CGFappearance(this.scene);
+        this.waterMaterial.setAmbient(0.4, 0.4, 0.4, 1);
+        this.waterMaterial.setDiffuse(0.5, 0.5, 0.5, 1);
+        this.waterMaterial.setSpecular(0.9, 0.9, 0.9, 1);
+        this.waterMaterial.setShininess(140);
         this.waterTexture = new CGFtexture(this.scene, "textures/helicopter/water.jpg");
         this.waterMaterial.setTexture(this.waterTexture);
     }
@@ -344,9 +345,10 @@ export class MyHeli extends CGFobject {
 
                 console.log(`WATER: ${this.waterFallProgress}`);
                 if (this.waterFallProgress < 1) {
-                    this.waterFallProgress += 0.02;
-                    this.waterLevel -= 0.01;
+                    this.waterFallProgress += 0.03;
+                    this.waterLevel -= 0.015;
                 } else {
+                    this.waterFallProgress = 1
                     this.isBucketEmpty = true;
                     if (this.waterSplayed < 1) {
                         this.waterSplayed += 0.01;
@@ -866,7 +868,7 @@ export class MyHeli extends CGFobject {
             this.scene.pushMatrix();
             this.scene.translate(0, waterEndY - 0.3, 0);
             this.scene.rotate(Math.PI/2, 1, 0, 0);
-            this.scene.scale(splashRadius*(1+4*this.waterSplayed), splashRadius*(1+4*this.waterSplayed), 1);
+            this.scene.scale(splashRadius*(1+6*this.waterSplayed), splashRadius*(1+6*this.waterSplayed), 1);
             this.circle.display();
             this.scene.popMatrix();
             
