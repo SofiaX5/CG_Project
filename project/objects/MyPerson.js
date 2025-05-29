@@ -18,6 +18,22 @@ export class MyPerson extends CGFobject {
         this.texturePath = texturePath;
         this.armsUp = armsUp;
 
+        this.celebrating = false;
+        this.celebrationStartTime = 0;
+        this.celebrationDuration = 5000; // 5 seconds
+        this.particles = [];
+        this.maxParticles = 50;
+        this.particleColors = [
+            [1.0, 0.0, 0.0], // Red
+            [0.0, 1.0, 0.0], // Green
+            [0.0, 0.0, 1.0], // Blue
+            [1.0, 1.0, 0.0], // Yellow
+            [1.0, 0.0, 1.0], // Magenta
+            [0.0, 1.0, 1.0], // Cyan
+            [1.0, 0.5, 0.0], // Orange
+            [0.5, 0.0, 1.0]  // Purple
+        ];
+
         // Person constants
         this.PERSON = {
             HEAD_SIZE: 0.15,
@@ -56,7 +72,7 @@ export class MyPerson extends CGFobject {
         this.bodyAppearance.setTexture(this.bodyTexture);
         this.bodyAppearance.setTextureWrap('REPEAT', 'REPEAT');
 
-
+        this.initParticles();
     
         
 
@@ -64,11 +80,25 @@ export class MyPerson extends CGFobject {
 
     display() {
         this.scene.pushMatrix();
-        this.scene.translate(0, 0, 0);        
+        
+        // Add jumping animation only before and during celebration (not after)
+        if (this.armsUp || this.celebrating) {
+            const jumpHeight = 0.1; // Maximum jump height
+            const jumpSpeed = 3.0;   // Jump frequency
+            const currentTime = Date.now() / 1000.0; // Convert to seconds
+            const jumpOffset = Math.abs(Math.sin(currentTime * jumpSpeed)) * jumpHeight;
+            
+            this.scene.translate(0, jumpOffset, 0);
+        }
+        
         this.drawHead();
         this.drawBody();
         this.drawArms();
         this.drawLegs();
+        
+        // Render particles on top
+        this.renderParticles();
+        
         this.scene.popMatrix();
     }
 
@@ -77,8 +107,27 @@ export class MyPerson extends CGFobject {
             this.lastTime = t;
             return;
         }
+        
+        const deltaTime = t - this.lastTime;
         this.lastTime = t;
-
+        
+        // Update celebration system
+        if (this.celebrating) {
+            const currentTime = Date.now();
+            if (currentTime - this.celebrationStartTime >= this.celebrationDuration) {
+                // End celebration
+                this.celebrating = false;
+                this.armsUp = false; // Put arms down
+                
+                // Deactivate all particles
+                for (let particle of this.particles) {
+                    particle.active = false;
+                }
+            } else {
+                this.updateParticles(deltaTime);
+            }
+        }
+        
         const timeFactor = t / 1000.0 % 1000;
     }
 
@@ -151,6 +200,121 @@ export class MyPerson extends CGFobject {
     setLastTime(t) {
         this.lastTime = t;
     }
+
+    initParticles() {
+        for (let i = 0; i < this.maxParticles; i++) {
+            this.particles.push({
+                position: [0, 0, 0],
+                velocity: [0, 0, 0],
+                life: 0,
+                maxLife: Math.random() * 2000 + 1000, // 1-3 seconds
+                color: this.particleColors[Math.floor(Math.random() * this.particleColors.length)],
+                size: Math.random() * 0.05 + 0.02, // 0.02-0.07
+                active: false
+            });
+        }
+    }
+
+    startCelebration() {
+        if (!this.celebrating) {
+            this.celebrating = true;
+            this.celebrationStartTime = Date.now();
+            this.armsUp = true; // Keep arms up during celebration
+            
+            // Activate particles
+            for (let i = 0; i < this.maxParticles; i++) {
+                this.resetParticle(i);
+            }
+        }
+    }
+
+    resetParticle(index) {
+        const particle = this.particles[index];
+        particle.position = [
+            (Math.random() - 0.5) * 0.2, // Random around person
+            this.PERSON.TORSO_HEIGHT * 0.8, // Start from chest level
+            (Math.random() - 0.5) * 0.2
+        ];
+        particle.velocity = [
+            (Math.random() - 0.5) * 0.003, // X velocity
+            Math.random() * 0.005 + 0.003, // Upward Y velocity
+            (Math.random() - 0.5) * 0.003  // Z velocity
+        ];
+        particle.life = 0;
+        particle.maxLife = Math.random() * 2000 + 1000;
+        particle.color = this.particleColors[Math.floor(Math.random() * this.particleColors.length)];
+        particle.size = Math.random() * 0.05 + 0.02;
+        particle.active = true;
+    }
+
+    updateParticles(deltaTime) {
+        if (!this.celebrating) return;
+        
+        for (let i = 0; i < this.maxParticles; i++) {
+            const particle = this.particles[i];
+            if (!particle.active) continue;
+            
+            // Update particle life
+            particle.life += deltaTime;
+            
+            // Update position
+            particle.position[0] += particle.velocity[0] * deltaTime;
+            particle.position[1] += particle.velocity[1] * deltaTime;
+            particle.position[2] += particle.velocity[2] * deltaTime;
+            
+            // Apply gravity
+            particle.velocity[1] -= 0.000005 * deltaTime;
+            
+            // Check if particle should be reset or deactivated
+            if (particle.life >= particle.maxLife) {
+                const currentTime = Date.now();
+                if (currentTime - this.celebrationStartTime < this.celebrationDuration) {
+                    // Reset particle if still celebrating
+                    this.resetParticle(i);
+                } else {
+                    // Deactivate particle if celebration is over
+                    particle.active = false;
+                }
+            }
+        }
+    }
+
+    // NEW: Render particles
+    renderParticles() {
+        if (!this.celebrating) return;
+        
+        // Disable depth writing for particles to avoid sorting issues
+        this.scene.gl.depthMask(false);
+        this.scene.gl.enable(this.scene.gl.BLEND);
+        this.scene.gl.blendFunc(this.scene.gl.SRC_ALPHA, this.scene.gl.ONE);
+        
+        for (let i = 0; i < this.maxParticles; i++) {
+            const particle = this.particles[i];
+            if (!particle.active) continue;
+            
+            // Calculate alpha based on life
+            const alpha = 1.0 - (particle.life / particle.maxLife);
+            
+            this.scene.pushMatrix();
+            this.scene.translate(...particle.position);
+            this.scene.scale(particle.size, particle.size, particle.size);
+            
+            // Set particle color
+            this.scene.setAmbient(...particle.color, alpha);
+            this.scene.setDiffuse(...particle.color, alpha);
+            this.scene.setSpecular(1.0, 1.0, 1.0, alpha);
+            this.scene.setEmission(...particle.color, alpha * 0.3);
+            
+            // Use sphere for particle (efficient single geometry)
+            this.sphere.display();
+            this.scene.popMatrix();
+        }
+        
+        // Re-enable depth writing
+        this.scene.gl.depthMask(true);
+        this.scene.gl.disable(this.scene.gl.BLEND);
+    }
+
 
 
 }

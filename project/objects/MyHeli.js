@@ -127,6 +127,7 @@ export class MyHeli extends CGFobject {
         this.takeoffAnimationTime = 0;
         this.animationDuration = this.HELI.ANIMATION_DURATION;
         this.takeoffProgress = 0;
+        this.celebrationTriggered = false;
     }
     
     initSpecialMode(specialMode) {
@@ -238,6 +239,11 @@ export class MyHeli extends CGFobject {
         if (this.state !== this.previousState) {
             this.handleStateChange(this.previousState, this.state);
             this.previousState = this.state;
+        }
+        if (!this.isFireOn && !this.celebrationTriggered){
+            this.scene.diana.startCelebration();
+            this.scene.sofia.startCelebration();
+            this.celebrationTriggered = true;
         }
         
         this.updateTilt(deltaTime);
