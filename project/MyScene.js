@@ -89,7 +89,7 @@ export class MyScene extends CGFscene {
 
     // People positions
     this.dianaPosition = [12, 1, 15];
-    this.sofiaPosition = [-40, 0, 20];
+    this.sofiaPosition = [-40, -0.5, 20];
   }
   
   init(application) {
@@ -465,6 +465,10 @@ export class MyScene extends CGFscene {
 
     // Update lake animation
     this.planeLake.update(t);
+
+    // Update people animations
+    this.diana.update(t);
+    this.sofia.update(t);
     
     // Constrain camera
     this.constrainCamera();

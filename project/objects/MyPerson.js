@@ -17,6 +17,7 @@ export class MyPerson extends CGFobject {
         this.scene = scene;
         this.texturePath = texturePath;
         this.armsUp = armsUp;
+        this.jumpOffset = 0;
 
         // Person constants
         this.PERSON = {
@@ -64,8 +65,7 @@ export class MyPerson extends CGFobject {
 
     display() {
         this.scene.pushMatrix();
-        this.scene.translate(0, 0, 0);        
-        this.drawHead();
+        this.scene.translate(0, this.jumpOffset, 0);        this.drawHead();
         this.drawBody();
         this.drawArms();
         this.drawLegs();
@@ -79,7 +79,9 @@ export class MyPerson extends CGFobject {
         }
         this.lastTime = t;
 
-        const timeFactor = t / 1000.0 % 1000;
+        const timeFactor = t / 500.0 % 1000; 
+        this.jumpOffset = Math.abs(Math.sin(timeFactor * 2)) * 0.2;
+
     }
 
     drawHead() {
