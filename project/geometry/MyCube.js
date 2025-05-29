@@ -1,7 +1,7 @@
 import {CGFobject} from '../../lib/CGF.js';
 
 /**
- * MyCustomCube
+ * MyCube
  * @constructor
  * @param {CGFscene} scene - Reference to MyScene object
  * @param {number} [width=1] - Width of the cube
@@ -9,7 +9,7 @@ import {CGFobject} from '../../lib/CGF.js';
  * @param {number} [depth=1] - Depth of the cube
  */
 
-export class MyCustomCube extends CGFobject {
+export class MyCube extends CGFobject {
     constructor(scene, width = 1, height = 1, depth = 1) {
         super(scene);
         this.width = width;
