@@ -14,7 +14,7 @@ import {MyTruncatedPyramid} from '../geometry/MyTruncatedPyramid.js';
  */
 
 export class MyTree extends CGFobject {
-    constructor(scene, rotatAngle=0, rotatAxis="x", height=5, radius=0.5, leafColor=[0.1, 0.3, 0.1]) {
+    constructor(scene, rotatAngle=0, rotatAxis="x", height=5, radius=0.5, leafColor=[0.1, 0.3, 0.1], leafText="leaf.jpg") {
         super(scene);
 
         this.TREE = {
@@ -33,11 +33,12 @@ export class MyTree extends CGFobject {
         this.height = height;
         this.radius = radius;
         this.leafColor = leafColor;
+        this.leafText = leafText;
         
         this.logColor = [0.3, 0.2, 0.2];
         
         this.logTexture = new CGFtexture(scene, "textures/tree/log.jpg");
-        this.leafTexture = new CGFtexture(scene, "textures/tree/leaf.jpg");
+        this.leafTexture = new CGFtexture(scene, "textures/tree/"+leafText);
         
         this.logAppearance = new CGFappearance(scene);
         this.logAppearance.setAmbient(this.logColor[0] * 0.5, this.logColor[1] * 0.5, this.logColor[2] * 0.5, 1);
@@ -74,7 +75,7 @@ export class MyTree extends CGFobject {
         this.leafAppearance.setTexture(this.leafTexture);
     }
     
-    update(rotatAngle, rotatAxis, height, radius, leafColor) {
+    update(rotatAngle, rotatAxis, height, radius, leafColor, leafText) {
         // Just update parameters
         this.rotatAngle = rotatAngle;
         this.rotatAxis = rotatAxis;
@@ -86,6 +87,11 @@ export class MyTree extends CGFobject {
             this.leafColor[1] !== leafColor[1] || 
             this.leafColor[2] !== leafColor[2]) {
             this.leafColor = leafColor;
+            this.updateLeafAppearance();
+        } 
+        if (this.leafText !== leafText) {
+            this.leafText = leafText;
+            this.leafTexture = new CGFtexture(this.scene, "textures/tree/"+leafText);
             this.updateLeafAppearance();
         }
     }
