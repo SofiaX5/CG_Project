@@ -77,6 +77,9 @@ export class MyInterface extends CGFinterface {
         forestFolder.add(this.scene, 'forestDist', 4, 8).step(1)
             .name('Distance Between Trees')
             .onChange(() => this.scene.updateForest());
+        forestFolder.add(this.scene, 'forestText', ['Texture 1', 'Texture 2'])
+            .name('Leaf Texture')
+            .onChange(() => this.scene.updateForest());
 
         //Helicopter
         const helicopterFolder = this.gui.addFolder('Helicopter');

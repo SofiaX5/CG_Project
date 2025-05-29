@@ -78,6 +78,7 @@ export class MyScene extends CGFscene {
     this.forestRow = 5;
     this.forestCol = 4;
     this.forestDist = 6;
+    this.forestText = 'Texture 1';
 
     // Fire configuration
     this.fireEnabled = true;
@@ -391,7 +392,10 @@ export class MyScene extends CGFscene {
    * Update forest configuration
    */
   updateForest() {
-    this.forest.update(this.forestRow, this.forestCol, this.forestDist);
+    let leafTexture;
+    if (this.forestText == 'Texture 1') {leafTexture = "leaf.jpg"}
+    else {leafTexture = "leaf2.jpg"}
+    this.forest.update(this.forestRow, this.forestCol, this.forestDist, leafTexture);
   }
 
   /**
