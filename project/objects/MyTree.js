@@ -9,14 +9,14 @@ import {MyTruncatedPyramid} from '../geometry/MyTruncatedPyramid.js';
  * @param {number} [rotatAngle=0] - Rotation angle in radians
  * @param {string} [rotatAxis="x"] - Axis of rotation ('x' or 'z')
  * @param {number} [height=5] - Total height of the tree
- * @param {number} [radius=0.5] - Base radius of the tree log
- * @param {number[]} [leafColor=[0.1, 0.3, 0.1]] - RGB color of leaves
+ * @param {number} [radius=0.5] - Base radius of the tree trunk
+ * @param {Array} [leafColor=[0.1, 0.3, 0.1]] - RGB color array for leaves [r,g,b]
  */
+
 export class MyTree extends CGFobject {
     constructor(scene, rotatAngle=0, rotatAxis="x", height=5, radius=0.5, leafColor=[0.1, 0.3, 0.1]) {
         super(scene);
 
-        // Tree constants
         this.TREE = {
             TRUNK_HEIGHT_RATIO: 0.25,     
             LEAF_START_HEIGHT: 0.2,       
@@ -26,22 +26,19 @@ export class MyTree extends CGFobject {
         };
 
         this.scene = scene;
+        
+        // Current rendering parameters 
         this.rotatAngle = rotatAngle;
         this.rotatAxis = rotatAxis;
         this.height = height;
-        
-        // Colors
-        this.logColor = [0.3, 0.2, 0.2];
+        this.radius = radius;
         this.leafColor = leafColor;
-
-        // Calculate number of leaf sections
-        this.numLeaf = (height-(this.height*0.2));
-
-        // Load textures
+        
+        this.logColor = [0.3, 0.2, 0.2];
+        
         this.logTexture = new CGFtexture(scene, "textures/tree/log.jpg");
         this.leafTexture = new CGFtexture(scene, "textures/tree/leaf.jpg");
         
-        // log (trunk) appearance
         this.logAppearance = new CGFappearance(scene);
         this.logAppearance.setAmbient(this.logColor[0] * 0.5, this.logColor[1] * 0.5, this.logColor[2] * 0.5, 1);
         this.logAppearance.setDiffuse(this.logColor[0], this.logColor[1], this.logColor[2], 1);
@@ -49,80 +46,96 @@ export class MyTree extends CGFobject {
         this.logAppearance.setShininess(10.0);
         this.logAppearance.setTexture(this.logTexture);
 
-        // leaf appearance
-        this.leafAppearance = new CGFappearance(scene);
-        this.leafAppearance.setAmbient(this.leafColor[0] * 0.5, this.leafColor[1] * 0.5, this.leafColor[2] * 0.5, 1);
-        this.leafAppearance.setDiffuse(this.leafColor[0], this.leafColor[1], this.leafColor[2], 1);
-        this.leafAppearance.setSpecular(0.1, 0.1, 0.1, 1);
-        this.leafAppearance.setShininess(10.0);
-        this.leafAppearance.setTexture(this.leafTexture);
-
-        // log geometry
-        this.log = new MyCylinder(scene, 20, 1, radius*2);
-        this.leaves = [];
-
-        // leaf sections
-        for (let i = 0; i < this.numLeaf-1; i++) {
-            let myTruncatedPyramid = new MyTruncatedPyramid(this.scene, 8, 1, radius * this.TREE.LEAF_BASE_SCALE, radius * this.TREE.LEAF_BASE_SCALE * this.TREE.LEAF_TOP_SCALE, (height * 0.9) / this.numLeaf);
-            this.leaves.push(myTruncatedPyramid);
-        }
-
-        // Create top leaf (pyramid)
-        let pyramid = new MyTruncatedPyramid(this.scene, 8, 1, radius * this.TREE.LEAF_BASE_SCALE, 0, (height * this.TREE.TOP_LEAF_HEIGHT_RATIO) / this.numLeaf );
-        this.leaves.push(pyramid);
+        this.updateLeafAppearance();
+        
+        this.createStaticGeometry();
     }
     
+    createStaticGeometry() {
+        this.log = new MyCylinder(this.scene, 20, 1, 1.0);
+        
+        this.maxLeafSections = 10; 
+        this.allLeaves = [];
+        
+        for (let i = 0; i < this.maxLeafSections; i++) {
+            let truncatedPyramid = new MyTruncatedPyramid(this.scene, 8, 1, 1.0, 0.4, 1.0);
+            this.allLeaves.push(truncatedPyramid);
+        }
+        
+        this.topLeaf = new MyTruncatedPyramid(this.scene, 8, 1, 1.0, 0, 1.0);
+    }
     
-    update(rotatAngle, rotatAxis, height, radius, leafColor) {
-        this.rotatAngle = rotatAngle;
-        this.rotatAxis = rotatAxis;
-        this.height = height;
-
-        this.leafColor = leafColor;
+    updateLeafAppearance() {
         this.leafAppearance = new CGFappearance(this.scene);
         this.leafAppearance.setAmbient(this.leafColor[0] * 0.5, this.leafColor[1] * 0.5, this.leafColor[2] * 0.5, 1);
         this.leafAppearance.setDiffuse(this.leafColor[0], this.leafColor[1], this.leafColor[2], 1);
         this.leafAppearance.setSpecular(0.1, 0.1, 0.1, 1);
         this.leafAppearance.setShininess(10.0);
         this.leafAppearance.setTexture(this.leafTexture);
-
-        this.numLeaf = (height-(this.height*0.2));
-        this.log = new MyCylinder(this.scene, 20, 1, radius*2);
-        this.leaves = [];
-
-        for (let i = 0; i < this.numLeaf-1; i++) {
-            let myTruncatedPyramid = new MyTruncatedPyramid(this.scene, 8, 1, radius * this.TREE.LEAF_BASE_SCALE, radius * this.TREE.LEAF_BASE_SCALE * this.TREE.LEAF_TOP_SCALE, (height * 0.9) / this.numLeaf);
-            this.leaves.push(myTruncatedPyramid);
-        }
-        let pyramid = new MyTruncatedPyramid(this.scene, 8, 1, radius * this.TREE.LEAF_BASE_SCALE, 0, (height * this.TREE.TOP_LEAF_HEIGHT_RATIO) / this.numLeaf );
-        this.leaves.push(pyramid);
     }
     
-
+    update(rotatAngle, rotatAxis, height, radius, leafColor) {
+        // Just update parameters
+        this.rotatAngle = rotatAngle;
+        this.rotatAxis = rotatAxis;
+        this.height = height;
+        this.radius = radius;
+        
+        // Only update leaf appearance if color changed
+        if (this.leafColor[0] !== leafColor[0] || 
+            this.leafColor[1] !== leafColor[1] || 
+            this.leafColor[2] !== leafColor[2]) {
+            this.leafColor = leafColor;
+            this.updateLeafAppearance();
+        }
+    }
+    
     display() {
         this.scene.pushMatrix();
         
-        // Apply initial rotation
-        if (this.rotatAxis == "x") {
+        // Apply rotation
+        if (this.rotatAxis === "x") {
             this.scene.rotate(this.rotatAngle, 1, 0, 0);
-        } else if (this.rotatAxis == "z") {
+        } else if (this.rotatAxis === "z") {
             this.scene.rotate(this.rotatAngle, 0, 0, 1);
         }
         
-        // Log
+        // Display trunk with scaling
         this.scene.pushMatrix();
-        this.scene.rotate( Math.PI/2, -1, 0, 0);
+        this.scene.rotate(Math.PI/2, -1, 0, 0);
         this.logAppearance.apply();
-        this.scene.scale(0.5, 0.5, this.height*0.25);
+        this.scene.scale(this.radius, this.radius, this.height * this.TREE.TRUNK_HEIGHT_RATIO);
         this.log.display();
         this.scene.popMatrix();
         
-        // Leaves
-        for (let i = 0; i < this.numLeaf; i++) {
+        // Calculate how many leaf sections to show
+        const numLeafSections = Math.min(Math.floor(this.height - (this.height * 0.2)), this.maxLeafSections);
+        
+        // Display leaf sections
+        this.leafAppearance.apply();
+        for (let i = 0; i < numLeafSections - 1; i++) {
             this.scene.pushMatrix();
-            this.scene.translate(0, (this.height*0.2)+i, 0);
-            this.leafAppearance.apply();
-            this.leaves[i].display();
+            this.scene.translate(0, (this.height * 0.2) + i, 0);
+            
+            // Calculate scale for this section
+            const baseScale = this.radius * this.TREE.LEAF_BASE_SCALE;
+            const heightScale = (this.height * 0.9) / numLeafSections;
+            this.scene.scale(baseScale, heightScale, baseScale);
+            
+            this.allLeaves[i].display();
+            this.scene.popMatrix();
+        }
+        
+        // Display top leaf (pyramid)
+        if (numLeafSections > 0) {
+            this.scene.pushMatrix();
+            this.scene.translate(0, (this.height * 0.2) + numLeafSections - 1, 0);
+            
+            const topScale = this.radius * this.TREE.LEAF_BASE_SCALE;
+            const topHeight = (this.height * this.TREE.TOP_LEAF_HEIGHT_RATIO) / numLeafSections;
+            this.scene.scale(topScale, topHeight, topScale);
+            
+            this.topLeaf.display();
             this.scene.popMatrix();
         }
 
