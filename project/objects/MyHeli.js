@@ -905,10 +905,13 @@ export class MyHeli extends CGFobject {
             if (this.isOverLake && this.isBucketEmpty) {
                 this.state = "filling";
             } else {
-                this.state = "landing";
-                this.landingAnimationTime = 0;
-                this.bucketRetracting = false; 
+                if(this.bucket.isEmpty){
+                    this.state = "landing";
+                    this.landingAnimationTime = 0;
+                    this.bucketRetracting = false; 
+                }
             }
+        
         }
     }
     
