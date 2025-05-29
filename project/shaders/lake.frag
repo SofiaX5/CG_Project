@@ -26,5 +26,5 @@ void main() {
     if (filter.r < 0.9 && filter.g < 0.9 && filter.b < 0.9 && filter.r > 0.7 && filter.g > 0.7 && filter.b > 0.7) {
         finalColor = rockGrass;
     }
-    gl_FragColor = finalColor;
+    gl_FragColor = colorGrass;
 }

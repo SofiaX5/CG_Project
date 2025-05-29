@@ -199,7 +199,7 @@ export class MyScene extends CGFscene {
       this.fovValues[this.selectedFov], 
       0.1,                            
       1000,                            
-      vec3.fromValues(-17, 22, 25),   //    (0, 15, 50)
+      vec3.fromValues(40, 22, 80),   //    (0, 15, 50)
       vec3.fromValues(1, 10, 0)        
     );
   }
@@ -502,12 +502,12 @@ export class MyScene extends CGFscene {
     
     // Render main scene objects
     this.renderEnvironment();
-    /*this.renderHelicopter();
+    //this.renderHelicopter();
     this.renderLake();
     this.renderForest();
-    this.renderFires();
-    this.renderPeople();
-    */
+    //this.renderFires();
+    //this.renderPeople();
+    
     // Reset to default shader
     this.setActiveShader(this.defaultShader);
   }

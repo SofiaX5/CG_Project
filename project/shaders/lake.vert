@@ -26,12 +26,13 @@ void main() {
 
     gl_Position = uPMatrix * uMVMatrix * vec4(wavePosition, 1.0);
 
-    if (filter.r < 0.5 && filter.g < 0.5 && filter.b < 0.5) {
+    /*if (filter.r < 0.5 && filter.g < 0.5 && filter.b < 0.5) {
         gl_Position = uPMatrix * uMVMatrix * vec4(wavePosition, 1.0);
     } else if (filter.r < 0.9 && filter.g < 0.9 && filter.b < 0.9) {
         float borderHeight = smoothstep(0.2, 0.5, filter.r) * 3.0;
         gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition + vec3(0.0, 0.0, borderHeight), 1.0);
     } else {
         gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-    }
+    }*/
+    gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
 }
