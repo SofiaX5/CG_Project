@@ -7,6 +7,7 @@ import {MyCylinder} from '../geometry/MyCylinder.js';
 import {MyCube} from '../geometry/MyCube.js';
 import {MyCustomParallelogram} from '../geometry/MyParallelogram.js';
 import {MyMustache} from '../objects/MyMustache.js';
+import {MyBucket} from '../objects/MyBucket.js';
 
 /**
  * MyHeli - Helicopter model for firefighting
@@ -40,7 +41,6 @@ export class MyHeli extends CGFobject {
         this.ropeLength = 5;
         this.currentRopeLength = 0;
         this.ropeSpeed = 0.05;
-        this.waterLevel = 0;
         this.hasBucket = hasBucket;
         this.bucketDeployed = false;
         this.bucketDeploymentComplete = false;
@@ -51,8 +51,6 @@ export class MyHeli extends CGFobject {
         this.isOverFire = false; 
         this.isBucketEmpty = true;
         this.isFireOn = true;
-        this.waterFallProgress = 0; 
-        this.waterSplayed = 0;
 
         // Position and Movement
         this.x = posX;
@@ -83,7 +81,6 @@ export class MyHeli extends CGFobject {
         this.animationDuration = 3000; // 3 secs for takeoff/landing
         this.takeoffProgress = 0;
 
-        this.bottomOpen = 0; // 0 = close, 1 = open
         
         this.specialMode = specialMode; 
         this.initObjects();
@@ -101,7 +98,7 @@ export class MyHeli extends CGFobject {
         this.parallelogram = new MyCustomParallelogram(this.scene, 7, 3, 2, 3);
         this.halfCircle = new MyCircle(this.scene, 30,undefined, undefined, undefined, undefined, true);
         this.mustache = new MyMustache(this.scene,24);
-        //this.waterSystem = new WaterPart(this.scene);
+        this.bucket = new MyBucket(this.scene);
     }
     
     initMaterials() {
@@ -136,7 +133,7 @@ export class MyHeli extends CGFobject {
         this.metalAccentsMaterial.setTexture(this.metalAccentsTexture);
         this.metalAccentsMaterial.setTextureWrap('REPEAT', 'REPEAT');
         
-        // Meta
+        // Metal
         this.metalMaterial = new CGFappearance(this.scene);
         this.metalMaterial.setAmbient(0.1, 0.1, 0.1, 1);
         this.metalMaterial.setDiffuse(0.25, 0.25, 0.25, 1);
@@ -262,32 +259,32 @@ export class MyHeli extends CGFobject {
 
                 this.currentRopeLength = this.ropeLength;
                 
-                // Check if height adjustment is needed
                 if (Math.abs(this.targetHeight - this.y) > 0.1) {
                     this.state = "adjusting_height";
                     break;
                 }
-                
-                const timeStep = deltaTime % 1000;
+                const timeStep = deltaTime %1000;
                 this.x += this.velocity[0] * timeStep;
                 this.z += this.velocity[2] * timeStep;
                 console.log(`Timestep: [${timeStep},`);
                 console.log(`Position: [${this.x.toFixed(2)}, ${this.y.toFixed(2)}, ${this.z.toFixed(2)}]`);
 
-                // ... rest of your existing flying case code remains the same
+          
                 if (this.x > -56 && this.x < -28 && this.z > 14 && this.z < 48) {
                     console.log(`Above lake`);
                     this.isOverLake = true;
                 } else {
                     this.isOverLake = false;
                 }
-            
+               
                 if (this.x > 9 && this.x < 40 && this.z > 14 && this.z < 35) {
                     console.log(`Above fire`);
                     this.isOverFire = true;
                 } else {
                     this.isOverFire = false;
                 }
+                    
+                
                 break;
                 
             case "landing":
@@ -358,13 +355,15 @@ export class MyHeli extends CGFobject {
                 
                 if (this.y > 5) {
                     this.y -= 0.3;
-                }
-
+                } 
                 break;
 
 
             case "rise_after_fill":
                 console.log(`RISING`);
+                this.bucket.fill(); 
+                this.isBucketEmpty = false; 
+                
                 this.mainRotorSpeed = this.maxRotorSpeed;
                 this.tailRotorSpeed = this.maxRotorSpeed * 2;
 
@@ -376,32 +375,16 @@ export class MyHeli extends CGFobject {
                     this.velocity = [0, 0, 0];
                     this.state = "flying";  
                 }
-
                 break;
 
             case "put_fire":
+                const isWaterDropComplete = this.bucket.updateWaterDrop(deltaTime);
                 
-                if (this.bottomOpen < 1) {
-                    this.bottomOpen += 0.09;
-                    if (this.bottomOpen > 1) this.bottomOpen = 1;
-                }
-
-                console.log(`WATER: ${this.waterFallProgress}`);
-                if (this.waterFallProgress < 1) {
-                    this.waterFallProgress += 0.03;
-                    this.waterLevel -= 0.015;
-                } else {
-                    this.waterFallProgress = 1
-                    this.isBucketEmpty = true;
-                    if (this.waterSplayed < 1) {
-                        this.waterSplayed += 0.01;
-                    } else {
-                        this.isBucketEmpty = true;
-                        this.isFireOn = false;
-                        this.waterFallProgress = 0;
-                        this.waterSplayed = 0;
-                        this.state = "flying";
-                    }
+                console.log(`WATER: ${this.bucket.waterFallProgress}`);
+                
+                if (isWaterDropComplete) {
+                    this.isFireOn = false;
+                    this.state = "flying";
                 }
                 break;
         }
@@ -410,7 +393,17 @@ export class MyHeli extends CGFobject {
     }
     handleStateChange(oldState, newState) {
         if (!this.scene.building) return;
+
+        if (newState === "rise_after_fill") {
+            this.bucket.fill();
+            this.isBucketEmpty = false;
+        }
         
+        if (oldState === "put_fire" && newState === "flying") {
+            this.isBucketEmpty = true;
+        }
+    
+
         if (newState === "taking_off" || newState === "bucket_deploy") {
             this.scene.building.setHelipadTexture('up');
         } 
@@ -504,12 +497,13 @@ export class MyHeli extends CGFobject {
         
         if (this.hasBucket) {
             this.scene.pushMatrix();
-            //this.scene.scale(1.3, 1.3, 1.3);
             this.drawBucket();
             this.scene.popMatrix();
         }
 
-        if (this.state === "put_fire") this.drawWaterFall();        
+        if (this.state === "put_fire") {
+            this.bucket.drawWaterFall(this.currentRopeLength);
+        }    
         
         this.scene.popMatrix();
     }
@@ -712,241 +706,11 @@ export class MyHeli extends CGFobject {
             return;
         }
         
-        // Rope
-        this.scene.pushMatrix();
-        this.metalAccentsMaterial.apply();
-        this.scene.translate(0, -this.bodyHeight/2, 0);
-        this.scene.rotate(Math.PI/2, 1, 0, 0);
-        this.scene.scale(0.05, 0.05, this.currentRopeLength-this.bucketHeight-0.2);
-        this.cylinder.display();
-        this.scene.popMatrix();
-        
-        if (this.currentRopeLength >= this.ropeLength * 0.25) {
-            // Bucket body 
-            this.scene.pushMatrix();
-            this.metalMaterial.apply();
-            this.scene.translate(0, - this.currentRopeLength - this.bucketHeight/2, 0);
-            this.scene.rotate(Math.PI/2, 1, 0, 0);
-            this.scene.scale(this.bucketRadius, this.bucketRadius, this.bucketRadius*1.3);
-            this.bucketCylinder.display(); 
-            this.scene.popMatrix();
-
-            // Rim top bucket
-            const rimThickness = this.bucketHeight * 0.08;
-            const rimRadius = this.bucketRadius * 1.08;
-            this.scene.pushMatrix();
-            this.metalMaterial.apply();
-            this.scene.translate(0, -this.currentRopeLength - this.bucketHeight/2, 0);
-            this.scene.rotate(Math.PI/2, 1, 0, 0);
-            this.scene.scale(rimRadius, rimRadius, rimThickness);
-            this.bucketCylinder.display();
-            this.scene.popMatrix();
-
-           // Handle bucket
-           this.scene.pushMatrix();
-           this.scene.translate(0, -this.currentRopeLength - this.bucketHeight/2 -0.2, 0);
-           this.scene.rotate(Math.PI/2, 0, 1, 0);
-           this.scene.scale(1.6, 1.6, 1.6);
-           this.drawHandleBucket();
-           this.scene.popMatrix();
-
-            
-            if (!this.isBucketEmpty) {
-                // Water
-                this.scene.pushMatrix();
-                this.waterMaterial.apply();
-                this.scene.translate(0, - this.currentRopeLength - this.bucketHeight*0.5 - 0.25 + this.waterLevel, 0);
-                this.scene.scale(this.bucketRadius*0.85+this.waterLevel, this.bucketHeight*0.2, this.bucketRadius*0.85+this.waterLevel);
-                this.sphere.display();
-                this.scene.popMatrix();
-            }
-            
-           
-            if (this.state == "put_fire") {
-                this.drawOpeningBottom();
-
-            } else {
-                // Bucket bottom
-                this.scene.pushMatrix();
-                this.metalMaterial.apply();
-                this.scene.translate(0, - this.currentRopeLength - this.bucketHeight*1.15, 0);
-                this.scene.rotate(Math.PI/2, 1, 0, 0);
-                this.scene.scale(this.bucketRadius*1.4, this.bucketRadius*1.4, this.bucketRadius*1.4);
-                this.circle.display();
-                this.scene.popMatrix();
-                
-            }
-        }
+        const isDropping = (this.state === "put_fire");
+        this.bucket.display(this.ropeLength, this.currentRopeLength, isDropping);
     }
 
 
-    drawOpeningBottom() {
-        const openingAngle = this.bottomOpen * Math.PI * 0.5;
-        
-        // Left circle
-        this.scene.pushMatrix();
-        this.scene.translate(0, -Math.sin(openingAngle)*this.bucketRadius*0.7, (Math.cos(openingAngle)-(1-openingAngle))*this.bucketRadius*0.7+this.bottomOpen*0.2);
-            this.scene.pushMatrix();
-            this.metalMaterial.apply();
-            this.scene.translate(0, - this.currentRopeLength - this.bucketHeight*1.35, 0);
-            this.scene.rotate(openingAngle, 1, 0, 0);
-            this.scene.rotate(-Math.PI/2, 1, 0, 0);
-            this.scene.scale(1, -1, 1);     // Invert side - texture
-            this.scene.scale(this.bucketRadius*1.4, this.bucketRadius*1.4, this.bucketRadius*1.4);
-            this.halfCircle.display();
-            this.scene.popMatrix();
-        this.scene.popMatrix();
-        
-        // Right circle
-        this.scene.pushMatrix();
-        this.scene.translate(0, -Math.sin(openingAngle)*this.bucketRadius*0.7, -(Math.cos(openingAngle)-(1-openingAngle))*this.bucketRadius*0.7-this.bottomOpen*0.2);   
-            this.scene.pushMatrix();
-            this.metalMaterial.apply();
-            this.scene.translate(0, - this.currentRopeLength - this.bucketHeight*1.35, 0);
-            this.scene.rotate(-openingAngle, 1, 0, 0);
-            this.scene.rotate(-Math.PI/2, 1, 0, 0);
-            this.scene.scale(this.bucketRadius*1.4, this.bucketRadius*1.4, this.bucketRadius*1.4);
-            this.halfCircle.display();
-            this.scene.popMatrix();
-        this.scene.popMatrix();
-    }
-
-    drawHandleBucket() {
-        this.scene.pushMatrix();
-        this.metalAccentsMaterial.apply();
-        
-        const handleRadius = this.bucketRadius * 0.8;
-        const tubeRadius = this.bucketRadius * 0.06;   // Thickness of the handle
-        const arcAngle = Math.PI;
-        const arcSegments = 16;
-        
-        // Arc drawing
-        for (let i = 0; i < arcSegments-1; i++) {
-            const angle1 = Math.PI - (i / arcSegments) * arcAngle;
-            const angle2 = Math.PI - ((i + 1) / arcSegments) * arcAngle;
-            
-            const x1 = handleRadius * Math.cos(angle1);
-            const y1 = handleRadius * Math.sin(angle1);
-            const x2 = handleRadius * Math.cos(angle2);
-            const y2 = handleRadius * Math.sin(angle2);
-            
-            const midX = (x1 + x2) / 2;
-            const midY = (y1 + y2) / 2;
-            const segmentAngle = Math.atan2(y2 - y1, x2 - x1);
-            const segmentLength = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-            
-            this.scene.pushMatrix();
-                this.scene.translate(midX, midY, 0);
-                this.scene.rotate(segmentAngle + Math.PI/2, 0, 0, 1);
-                this.scene.rotate(Math.PI/2, 1, 0, 0);
-                this.scene.scale(tubeRadius, tubeRadius, segmentLength);
-                this.cylinder.display();
-            this.scene.popMatrix();
-        }
-        
-        // Spheres connections
-        this.scene.pushMatrix();    // Left
-            this.scene.translate(handleRadius, 0, 0);
-            this.scene.scale(tubeRadius * 1.2, tubeRadius * 1.2, tubeRadius * 1.2);
-            this.sphere.display();
-        this.scene.popMatrix();
-        
-        this.scene.pushMatrix();    // Right
-            this.scene.translate(-handleRadius, 0, 0);
-            this.scene.scale(tubeRadius * 1.2, tubeRadius * 1.2, tubeRadius * 1.2);
-            this.sphere.display();
-        this.scene.popMatrix();
-        
-        
-        // Side connections
-        this.scene.pushMatrix();    // Left
-            this.scene.translate(handleRadius - tubeRadius * 4, 0, 0);
-            this.scene.rotate(Math.PI/2, 0, 1, 0);
-            this.scene.scale(tubeRadius/2, tubeRadius, this.bucketHeight * 0.2);
-            this.cylinder.display();
-        this.scene.popMatrix();
-        
-        this.scene.pushMatrix();    // Right
-            this.scene.translate(-handleRadius + tubeRadius * 4, 0, 0);
-            this.scene.rotate(-Math.PI/2, 0, 1, 0);
-            this.scene.scale(tubeRadius/2, tubeRadius, this.bucketHeight * 0.2);
-            this.cylinder.display();
-        this.scene.popMatrix();
-        
-        this.scene.popMatrix();
-    }
-
-
-    drawWaterFall() {
-        const bottomY = -this.currentRopeLength - this.bucketHeight*1.15;
-        const waterStartY = bottomY;
-        const waterEndY = bottomY - 12 * this.waterFallProgress; // Distância que a água cai
-        const startRadius = this.bucketRadius * 0.8;
-        const endRadius = this.bucketRadius * 1.5 * this.waterFallProgress; // Cone se alarga à medida que cai
-
-        
-        this.waterMaterial.apply();
-        
-        const numParticles = 15;
-        const particleSize = this.bucketRadius * 0.1;
-        
-        // PARTICLES
-        for (let i = 0; i < numParticles; i++) {
-            const progress = i / numParticles;
-            const particleY = waterStartY - (waterStartY - waterEndY) * progress * this.waterFallProgress;
-            
-            const radius = startRadius + (endRadius - startRadius) * progress * this.waterFallProgress;
-            
-            const angle = Math.random() * Math.PI * 2;
-            const distance = Math.random() * radius;
-            const particleX = Math.cos(angle) * distance;
-            const particleZ = Math.sin(angle) * distance;
-        
-            this.scene.pushMatrix();
-            this.scene.translate(particleX, particleY, particleZ);
-            this.scene.scale(particleSize, particleSize, particleSize);
-            this.sphere.display();
-            this.scene.popMatrix();
-        }
-        
-        this.scene.pushMatrix();
-        const coneHeight = (waterStartY - waterEndY);
-        this.scene.translate(0, waterEndY , 0);
-        this.scene.scale(endRadius, coneHeight, endRadius);
-        this.cone.display();
-        this.scene.popMatrix();
-        
-        if (this.waterFallProgress >= 1) {
-            const splashProgress = (this.waterFallProgress - 0.7) / 0.3; // 0 a 1
-            const splashRadius = endRadius * 1.8 * splashProgress;
-            
-            // SPLASH GROUND
-            this.scene.pushMatrix();
-            this.scene.translate(0, waterEndY - 0.3, 0);
-            this.scene.rotate(Math.PI/2, 1, 0, 0);
-            this.scene.scale(splashRadius*(1+6*this.waterSplayed), splashRadius*(1+6*this.waterSplayed), 1);
-            this.circle.display();
-            this.scene.popMatrix();
-            
-            // DROPS
-            const numSplashDrops = 12;
-            const dropSize = particleSize * 0.8;
-            
-            for (let i = 0; i < numSplashDrops; i++) {
-                const splashAngle = (i / numSplashDrops) * Math.PI * 2;
-                const distanceFromCenter = splashRadius * 0.8;
-                const dropX = Math.cos(splashAngle) * distanceFromCenter;
-                const dropZ = Math.sin(splashAngle) * distanceFromCenter;
-                const dropY = waterEndY + 0.1 + Math.random() * 0.2; // Altura aleatória
-                
-                this.scene.pushMatrix();
-                this.scene.translate(dropX, dropY, dropZ);
-                this.scene.scale(dropSize, dropSize, dropSize);
-                this.sphere.display();
-                this.scene.popMatrix();
-            }
-        }
-    }
     
     
     setPosition(x, y, z) {
@@ -1017,6 +781,11 @@ export class MyHeli extends CGFobject {
         this.currentRopeLength = 0;
         this.bucketDeployed = false;
         this.bucketRetracting = false;
+        this.isBucketEmpty = true;
+
+        if (this.hasBucket) {
+            this.bucket.empty();
+        }
         if (this.scene.building) {
             this.scene.building.setHelipadTexture('normal');
         }
@@ -1047,11 +816,12 @@ export class MyHeli extends CGFobject {
     }
 
     put_fire() {
-        if (this.state === "flying" && !this.isBucketEmpty && this.isOverFire) {
-            this.state = "put_fire";
-            this.velocity = [0, 0, 0];
-        }
+    if (this.state === "flying" && !this.isBucketEmpty && this.isOverFire) {
+        this.state = "put_fire";
+        this.velocity = [0, 0, 0];
+        this.bucket.startWaterDrop();
     }
+}
     
 
     setHeliportPosition(x, y, z) {
