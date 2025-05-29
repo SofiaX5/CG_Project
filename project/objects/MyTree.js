@@ -72,6 +72,32 @@ export class MyTree extends CGFobject {
         this.leaves.push(pyramid);
     }
     
+    
+    update(rotatAngle, rotatAxis, height, radius, leafColor) {
+        this.rotatAngle = rotatAngle;
+        this.rotatAxis = rotatAxis;
+        this.height = height;
+
+        this.leafColor = leafColor;
+        this.leafAppearance = new CGFappearance(this.scene);
+        this.leafAppearance.setAmbient(this.leafColor[0] * 0.5, this.leafColor[1] * 0.5, this.leafColor[2] * 0.5, 1);
+        this.leafAppearance.setDiffuse(this.leafColor[0], this.leafColor[1], this.leafColor[2], 1);
+        this.leafAppearance.setSpecular(0.1, 0.1, 0.1, 1);
+        this.leafAppearance.setShininess(10.0);
+        this.leafAppearance.setTexture(this.leafTexture);
+
+        this.numLeaf = (height-(this.height*0.2));
+        this.log = new MyCylinder(this.scene, 20, 1, radius*2);
+        this.leaves = [];
+
+        for (let i = 0; i < this.numLeaf-1; i++) {
+            let myTruncatedPyramid = new MyTruncatedPyramid(this.scene, 8, 1, radius * this.TREE.LEAF_BASE_SCALE, radius * this.TREE.LEAF_BASE_SCALE * this.TREE.LEAF_TOP_SCALE, (height * 0.9) / this.numLeaf);
+            this.leaves.push(myTruncatedPyramid);
+        }
+        let pyramid = new MyTruncatedPyramid(this.scene, 8, 1, radius * this.TREE.LEAF_BASE_SCALE, 0, (height * this.TREE.TOP_LEAF_HEIGHT_RATIO) / this.numLeaf );
+        this.leaves.push(pyramid);
+    }
+    
 
     display() {
         this.scene.pushMatrix();
