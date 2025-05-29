@@ -34,13 +34,32 @@ export class MyPerson extends CGFobject {
 
         this.lastTime = 0;
 
-        this.texture = new CGFtexture(scene, this.texturePath);
 
         this.plane = new MyPlane(scene, 20);
         this.circle = new MyCircle(scene, 30);
         this.cylinder = new MyCylinder(scene, 30, 1, 0.7);
         this.cube = new MyCube(scene);
         this.sphere = new MySphere(scene, 30, 30);
+
+        this.clothTexture = new CGFtexture(scene, this.texturePath);
+        this.clothAppearance = new CGFappearance(scene);
+        this.clothAppearance.setTexture(this.clothTexture);
+        this.clothAppearance.setTextureWrap('REPEAT', 'REPEAT');
+
+        this.faceTexture = new CGFtexture(scene, "textures/people/face.jpg");
+        this.faceAppearance = new CGFappearance(scene);
+        this.faceAppearance.setTexture(this.faceTexture);
+        this.faceAppearance.setTextureWrap('REPEAT', 'REPEAT');
+
+        this.bodyTexture = new CGFtexture(scene, "textures/people/body.jpg");
+        this.bodyAppearance = new CGFappearance(scene);
+        this.bodyAppearance.setTexture(this.bodyTexture);
+        this.bodyAppearance.setTextureWrap('REPEAT', 'REPEAT');
+
+
+    
+        
+
     }
 
     display() {
@@ -65,8 +84,10 @@ export class MyPerson extends CGFobject {
 
     drawHead() {
         this.scene.pushMatrix();
+        this.faceAppearance.apply(); 
         this.scene.translate(0, this.PERSON.TORSO_HEIGHT - this.PERSON.HEAD_SIZE / 3, 0);
         this.scene.scale(this.PERSON.HEAD_SIZE, this.PERSON.HEAD_SIZE, this.PERSON.HEAD_SIZE);
+        this.scene.rotate(Math.PI/2, 0, 1, 0);
         this.sphere.display();
         this.scene.popMatrix();
     }
@@ -74,6 +95,7 @@ export class MyPerson extends CGFobject {
         
     drawBody() {
         this.scene.pushMatrix();
+        this.clothAppearance.apply();
         this.scene.translate(0, 0, 0);
         this.scene.scale(this.PERSON.TORSO_WIDTH, this.PERSON.TORSO_HEIGHT, this.PERSON.TORSO_DEPTH);
         this.cube.display();
@@ -82,6 +104,7 @@ export class MyPerson extends CGFobject {
 
     drawArms() {
         this.scene.pushMatrix();
+        this.bodyAppearance.apply(); 
         this.scene.translate(-(this.PERSON.TORSO_WIDTH/2 + this.PERSON.ARM_WIDTH/2), 
                             this.PERSON.TORSO_HEIGHT/2 - this.PERSON.ARM_HEIGHT/2, 0);
         this.scene.scale(this.PERSON.ARM_WIDTH, this.PERSON.ARM_HEIGHT, this.PERSON.ARM_DEPTH);
@@ -106,6 +129,7 @@ export class MyPerson extends CGFobject {
     drawLegs() {
         // Left leg
         this.scene.pushMatrix();
+        this.bodyAppearance.apply(); 
         this.scene.translate(-this.PERSON.LEG_WIDTH/2, -this.PERSON.LEG_HEIGHT/2, 0);
         this.scene.scale(this.PERSON.LEG_WIDTH, this.PERSON.LEG_HEIGHT, this.PERSON.LEG_DEPTH);
         this.cube.display();
@@ -113,6 +137,7 @@ export class MyPerson extends CGFobject {
 
         // Right leg
         this.scene.pushMatrix();
+        this.bodyAppearance.apply(); 
         this.scene.translate(this.PERSON.LEG_WIDTH/2, -this.PERSON.LEG_HEIGHT/2, 0);
         this.scene.scale(this.PERSON.LEG_WIDTH, this.PERSON.LEG_HEIGHT, this.PERSON.LEG_DEPTH);
         this.cube.display();

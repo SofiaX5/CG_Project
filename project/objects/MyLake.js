@@ -14,16 +14,14 @@ export class MyLake extends CGFobject {
 
     initMaterials() {
         this.lakeAppearance = new CGFappearance(this.scene);
-        this.lakeAppearance.setAmbient(0.1, 0.1, 0.1, 1);
-        this.lakeAppearance.setDiffuse(0.25, 0.25, 0.25, 1);
-        this.lakeAppearance.setSpecular(0.9, 0.9, 0.9, 1);
-        //this.lakeAppearance.setEmission(0.9, 0.3, 0.0, 1.0);
-        this.lakeAppearance.setShininess(120);
+        this.lakeAppearance.setAmbient(0.5, 0.5, 0.5, 1.0);
+        this.lakeAppearance.setDiffuse(0.5, 0.5, 0.5, 1.0);
+        this.lakeAppearance.setSpecular(0.5, 0.5, 0.5, 1.0);
+        this.lakeAppearance.setShininess(10.0);
+        this.lakeAppearance.setEmission(0.9, 0.3, 0.0, 1.0);
         
         this.lakeTexture = new CGFtexture(this.scene, "textures/lake/lake_text.jpg");
-        this.lakeAppearance.setTexture(this.lakeTexture);
-        this.lakeAppearance.setTextureWrap('REPEAT', 'REPEAT');
-
+        this.grassTexture = new CGFtexture(this.scene, "textures/general/grass.jpg");
         this.lakeMap = new CGFtexture(this.scene, "textures/lake/lake_map.jpg");
     }
     
@@ -34,13 +32,12 @@ export class MyLake extends CGFobject {
             "shaders/lake.vert", 
             "shaders/lake.frag"
         );
-        this.lakeShader.setUniformsValues({ uLakeMap: 1 });
-        this.lakeMap.bind(1);
-        
         this.lakeShader.setUniformsValues({
             timeFactor: 0,
             intensityFactor: 1.0,
-            uSampler: 0
+            uSampler: 0,
+            uLakeMap: 1,
+            uGrassSampler: 2
         });
     }
 
@@ -51,10 +48,11 @@ export class MyLake extends CGFobject {
         this.scene.setActiveShader(this.lakeShader);
         this.lakeTexture.bind(0);
         this.lakeMap.bind(1);
-
-        this.plane.display();
-        this.scene.setActiveShader(this.scene.defaultShader);
+        this.grassTexture.bind(2);
         
+        this.plane.display();
+
+        this.scene.setActiveShader(this.scene.defaultShader);
         this.scene.popMatrix();
     }
 
