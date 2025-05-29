@@ -7,6 +7,7 @@ import { MyForest } from "./objects/MyForest.js";
 import { MyHeli } from "./objects/MyHeli.js";
 import { MyFire } from "./objects/MyFire.js";
 import { MyLake } from "./objects/MyLake.js";
+import { MyPerson } from "./objects/MyPerson.js";
 
 
 /**
@@ -49,6 +50,11 @@ export class MyScene extends CGFscene {
     this.fireSize = 5;
     this.fireIntensity = 1.0;
     this.fires = [];
+ 
+    this.showSpecialMode = false;
+
+    this.dianaPosition = [12, 1, 15];
+    this.sofiaPosition = [-40, 0, 20];
   }
   
   init(application) {
@@ -56,6 +62,7 @@ export class MyScene extends CGFscene {
 
     this.initCameras();
     this.initLights();
+    
 
     //Background color
     this.gl.clearColor(0, 0, 0, 1.0);
@@ -109,7 +116,8 @@ export class MyScene extends CGFscene {
       new MyFire(this, [30, 0, 30], this.fireSize * 1.2, 20)
     ];
     this.planeLake = new MyLake(this);
-    //this.heli.setPosition(0, this.building.floorHeight * 4 + this.heli.bodyHeight * 0.75, 0);
+    this.diana = new MyPerson(this, "textures/people/cloth_diana.jpg", true);
+    this.sofia = new MyPerson(this, "textures/people/cloth_sofia.jpg", true);
   }
 
   constrainCamera() {
@@ -182,6 +190,10 @@ export class MyScene extends CGFscene {
     
     this.heli.setHeliportPosition(0, buildingHeight + this.heli.bodyHeight * 0.75, 0);
 }
+
+  updateSpecialMode() {
+    this.heli.setSpecialMode(this.showSpecialMode);
+  }
 
   initLights() {
     this.lights[0].setPosition(0, 0, 0, 1);
@@ -357,16 +369,19 @@ export class MyScene extends CGFscene {
       this.popMatrix();
     }
 
-    // Esfera
-    /*
-    this.pushMatrix();
-    this.appearance.apply();
-    this.setActiveShader(this.shader); 
-    this.translate(50, 10, 0); 
-    this.scale(10, 10, 10);
-    this.sphere.display();
-    this.popMatrix();
-    */
+      this.pushMatrix();
+      this.translate(this.dianaPosition[0], this.dianaPosition[1], this.dianaPosition[2]);
+      this.rotate(-Math.PI/2, 0, 1, 0);
+      this.scale(2.5, 2.5, 2.5);
+      this.diana.display();
+      this.popMatrix();
+
+      this.pushMatrix();
+      this.translate(this.sofiaPosition[0], this.sofiaPosition[1], this.sofiaPosition[2]);
+      this.rotate(Math.PI/2, 0, 1, 0);
+      this.scale(2.5, 2.5, 2.5);
+      this.sofia.display();
+      this.popMatrix();
     
 
     this.setActiveShader(this.defaultShader);

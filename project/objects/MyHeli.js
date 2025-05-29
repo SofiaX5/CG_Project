@@ -4,9 +4,9 @@ import {MyCone} from '../geometry/MyCone.js';
 import {MyPlane} from '../geometry/MyPlane.js';
 import {MyCircle} from '../geometry/MyCircle.js';
 import {MyCylinder} from '../geometry/MyCylinder.js';
-import {MyCustomCube} from '../geometry/MyCube.js';
+import {MyCube} from '../geometry/MyCube.js';
 import {MyCustomParallelogram} from '../geometry/MyParallelogram.js';
-
+import {MyMustache} from '../objects/MyMustache.js';
 
 /**
  * MyHeli - Helicopter model for firefighting
@@ -14,7 +14,7 @@ import {MyCustomParallelogram} from '../geometry/MyParallelogram.js';
  * @param scene - Reference to MyScene object
  */
 export class MyHeli extends CGFobject {
-    constructor(scene, posX=0, posY=0, posZ=0, angleYY=0, speed=0.01, speedFactor = 1, cruisingHeight = 5, hasBucket = true) {
+    constructor(scene, posX=0, posY=0, posZ=0, angleYY=0, speed=0.01, speedFactor = 1, cruisingHeight = 5, hasBucket = true, specialMode = false) {
         super(scene);
         
         // Dimensions
@@ -74,6 +74,8 @@ export class MyHeli extends CGFobject {
         this.cruisingHeight = cruisingHeight;
         this.cruisingAltitude = cruisingHeight + posY;
         this.initialHeight = posY;
+        this.targetHeight = cruisingHeight + posY; 
+        this.heightAdjustmentSpeed = 0.05;
         this.heliportX = 0;
         this.heliportZ = 0;
         this.landingAnimationTime = 0;
@@ -83,6 +85,7 @@ export class MyHeli extends CGFobject {
 
         this.bottomOpen = 0; // 0 = close, 1 = open
         
+        this.specialMode = specialMode; 
         this.initObjects();
         this.initMaterials();
     }
@@ -94,9 +97,10 @@ export class MyHeli extends CGFobject {
         this.circle = new MyCircle(this.scene, 30);
         this.cylinder = new MyCylinder(this.scene, 20, 5); 
         this.bucketCylinder = new MyCylinder(this.scene, 20, 5, 0.7); 
-        this.cube = new MyCustomCube(this.scene, 5, 3, 2);
+        this.cube = new MyCube(this.scene, 5, 3, 2);
         this.parallelogram = new MyCustomParallelogram(this.scene, 7, 3, 2, 3);
         this.halfCircle = new MyCircle(this.scene, 30,undefined, undefined, undefined, undefined, true);
+        this.mustache = new MyMustache(this.scene,24);
         //this.waterSystem = new WaterPart(this.scene);
     }
     
@@ -119,11 +123,8 @@ export class MyHeli extends CGFobject {
         this.tailMaterial.setShininess(200);                
 
         // Glass
-        this.glassMaterial = new CGFappearance(this.scene);
-        this.glassMaterial.setAmbient(0.2, 0.2, 0.3, 1.0);
-        this.glassMaterial.setDiffuse(0.1, 0.2, 0.3, 1.0); 
-        this.glassMaterial.setSpecular(0.9, 0.9, 0.9, 1.0);
-        this.glassMaterial.setShininess(200);
+        this.initGlass();
+
         
         // Metal Accents
         this.metalAccentsMaterial = new CGFappearance(this.scene);
@@ -151,6 +152,24 @@ export class MyHeli extends CGFobject {
         this.waterMaterial.setShininess(140);
         this.waterTexture = new CGFtexture(this.scene, "textures/helicopter/water.jpg");
         this.waterMaterial.setTexture(this.waterTexture);
+    }
+
+    initGlass() {
+        this.glassMaterial = new CGFappearance(this.scene);
+        this.glassMaterial.setSpecular(0.9, 0.9, 0.9, 1.0);
+        this.glassMaterial.setShininess(200);
+
+        if(this.specialMode) {
+            this.glassMaterial.setAmbient(0.5, 0.5, 0.5, 1.0);
+            this.glassMaterial.setDiffuse(0.5, 0.5, 0.5, 1.0);
+            this.glassTexture = new CGFtexture(this.scene, "textures/helicopter/glass.jpg");
+            this.glassMaterial.setTexture(this.glassTexture);
+            this.glassMaterial.setTextureWrap('REPEAT', 'REPEAT');
+        }
+        else {
+            this.glassMaterial.setAmbient(0.2, 0.2, 0.3, 1.0);
+            this.glassMaterial.setDiffuse(0.1, 0.2, 0.3, 1.0);
+        }
     }
     
     update(deltaTime) {
@@ -216,6 +235,26 @@ export class MyHeli extends CGFobject {
                     this.state = "landing";
                 }
                 break;
+            case "adjusting_height":
+                this.mainRotorSpeed = this.maxRotorSpeed;
+                this.tailRotorSpeed = this.maxRotorSpeed * 2;
+                
+                const heightDiff = this.targetHeight - this.y;
+                
+                if (Math.abs(heightDiff) > 0.1) {
+                    // Move towards target height
+                    if (heightDiff > 0) {
+                        this.y += this.heightAdjustmentSpeed;
+                    } else {
+                        this.y -= this.heightAdjustmentSpeed;
+                    }
+                } else {
+                    // Close enough to target height
+                    this.y = this.targetHeight;
+                    this.state = "flying";
+                    console.log(`Height adjustment complete at ${this.y}`);
+                }
+                break;
     
             case "flying":
                 this.mainRotorSpeed = this.maxRotorSpeed;
@@ -223,28 +262,32 @@ export class MyHeli extends CGFobject {
 
                 this.currentRopeLength = this.ropeLength;
                 
-                const timeStep = deltaTime %1000;
+                // Check if height adjustment is needed
+                if (Math.abs(this.targetHeight - this.y) > 0.1) {
+                    this.state = "adjusting_height";
+                    break;
+                }
+                
+                const timeStep = deltaTime % 1000;
                 this.x += this.velocity[0] * timeStep;
                 this.z += this.velocity[2] * timeStep;
                 console.log(`Timestep: [${timeStep},`);
                 console.log(`Position: [${this.x.toFixed(2)}, ${this.y.toFixed(2)}, ${this.z.toFixed(2)}]`);
 
-          
+                // ... rest of your existing flying case code remains the same
                 if (this.x > -56 && this.x < -28 && this.z > 14 && this.z < 48) {
                     console.log(`Above lake`);
                     this.isOverLake = true;
                 } else {
                     this.isOverLake = false;
                 }
-               
+            
                 if (this.x > 9 && this.x < 40 && this.z > 14 && this.z < 35) {
                     console.log(`Above fire`);
                     this.isOverFire = true;
                 } else {
                     this.isOverFire = false;
                 }
-                    
-                
                 break;
                 
             case "landing":
@@ -440,7 +483,11 @@ export class MyHeli extends CGFobject {
     setCruisingHeight(cruisingHeight) {
         this.cruisingHeight = cruisingHeight;
         this.cruisingAltitude = cruisingHeight + this.initialHeight;
-
+        this.targetHeight = this.cruisingAltitude;
+        
+        if (this.state === "flying") {
+            console.log(`Adjusting height from ${this.y} to ${this.targetHeight}`);
+        }
     }
     
     display() {
@@ -488,6 +535,15 @@ export class MyHeli extends CGFobject {
         this.scene.scale(this.bodyLength/4, this.bodyHeight/3, this.bodyWidth/2.5);
         this.sphere.display();
         this.scene.popMatrix();
+
+        if(this.specialMode) {
+            this.scene.pushMatrix();
+            this.scene.translate(this.bodyLength/2.2, 0, 0);
+            this.scene.rotate(Math.PI/2, 0, 1, 0); 
+            this.scene.scale(10, 10, 10); 
+            this.mustache.display();
+            this.scene.popMatrix();
+        }
     }
     
     drawMainRotor() {
@@ -1009,5 +1065,10 @@ export class MyHeli extends CGFobject {
             this.cruisingAltitude = this.cruisingHeight + y;
 
         }
+    }
+
+    setSpecialMode(specialMode) {
+        this.specialMode = specialMode;
+        this.initGlass();
     }
 }
