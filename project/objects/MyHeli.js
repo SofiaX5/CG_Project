@@ -12,7 +12,16 @@ import {MyBucket} from '../objects/MyBucket.js';
 /**
  * MyHeli - Helicopter model for firefighting
  * @constructor
- * @param scene - Reference to MyScene object
+ * @param {MyScene} scene - Reference to MyScene object
+ * @param {number} [posX=0] - Initial X position
+ * @param {number} [posY=0] - Initial Y position  
+ * @param {number} [posZ=0] - Initial Z position
+ * @param {number} [angleYY=0] - Initial Y-axis rotation angle
+ * @param {number} [speed=0.01] - Base movement speed
+ * @param {number} [speedFactor=1] - Speed multiplier factor
+ * @param {number} [cruisingHeight=5] - Default cruising altitude
+ * @param {boolean} [hasBucket=true] - Whether the object has a bucket attachment
+ * @param {boolean} [specialMode=false] - Enable special mode functionality
  */
 export class MyHeli extends CGFobject {
     constructor(scene, posX=0, posY=0, posZ=0, angleYY=0, speed=0.01, speedFactor = 1, cruisingHeight = 5, hasBucket = true, specialMode = false) {
