@@ -40,27 +40,24 @@ export class MyForest extends CGFobject {
         this.trees = [];
         this.offsets = [];
 
+        this.tree = new MyTree(this.scene);
+
         this.generateTrees();
         this.generateOffsets();
-
     }
 
     generateTrees() {
         const totalTrees = this.numRows * this.numCols;
-        
         for (let i = 0; i < totalTrees; i++) {
-            const tree = new MyTree(
-                this.scene,
-                getRandomFloat(this.FOREST.HEIGHT_VARIATION_MIN, this.FOREST.HEIGHT_VARIATION_MAX), 
-                getRandomOrient(),
-                getRandomInt(this.FOREST.CROWN_LEVELS_MIN, this.FOREST.CROWN_LEVELS_MAX), 
-                getRandomFloat(this.FOREST.CROWN_SCALE_MIN, this.FOREST.CROWN_SCALE_MAX), 
-                getRandomColorLeaf() 
-            );
+            let tree = [getRandomFloat(this.FOREST.HEIGHT_VARIATION_MIN, this.FOREST.HEIGHT_VARIATION_MAX), 
+                        getRandomOrient(),
+                        getRandomInt(this.FOREST.CROWN_LEVELS_MIN, this.FOREST.CROWN_LEVELS_MAX), 
+                        getRandomFloat(this.FOREST.CROWN_SCALE_MIN, this.FOREST.CROWN_SCALE_MAX), 
+                        getRandomColorLeaf()];
             this.trees.push(tree);
         }
     }
-    
+
 
     generateOffsets() {
         const totalTrees = this.numRows * this.numCols;
@@ -72,11 +69,20 @@ export class MyForest extends CGFobject {
             this.offsets.push([offsetX, offsetZ]);
         }
     }
+
+
+    update(numRows=5, numCols=4, dist=6) {
+        this.numRows = numRows;
+        this.numCols = numCols;
+        this.dist = dist;
+
+        this.generateTrees();
+        this.generateOffsets();
+    }
     
 
     display() {
         let treeIndex = 0;
-
         // Iterate through grid positions
         for (let row = 0; row < this.numRows; row++) {
             for (let col = 0; col < this.numCols; col++) {
@@ -86,10 +92,11 @@ export class MyForest extends CGFobject {
                 const baseX = this.dist * row + this.offsets[treeIndex][0];
                 const baseZ = this.dist * col + this.offsets[treeIndex][1];
 
-                 this.scene.translate(baseX, 0, baseZ);
-                this.trees[treeIndex].display();
+                this.scene.translate(baseX, 0, baseZ);
+                this.tree.update(this.trees[treeIndex][0], this.trees[treeIndex][1], this.trees[treeIndex][2], this.trees[treeIndex][3], this.trees[treeIndex][4]);
+                this.tree.display();
                 this.scene.popMatrix();
-                treeIndex++;
+                treeIndex += 1;
             }
         }
     }

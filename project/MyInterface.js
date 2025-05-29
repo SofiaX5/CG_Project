@@ -66,18 +66,28 @@ export class MyInterface extends CGFinterface {
             .name('Blue')
             .onChange(() => this.scene.updateBuilding());
 
+        //Forest
+        const forestFolder = this.gui.addFolder('Forest');
+        forestFolder.add(this.scene, 'forestRow', 2, 6).step(1)
+            .name('Number of Row Trees')
+            .onChange(() => this.scene.updateForest());
+        forestFolder.add(this.scene, 'forestCol', 2, 6).step(1)
+            .name('Number of Column Trees')
+            .onChange(() => this.scene.updateForest());
+        forestFolder.add(this.scene, 'forestDist', 4, 8).step(1)
+            .name('Distance Between Trees')
+            .onChange(() => this.scene.updateForest());
+
         //Helicopter
         const helicopterFolder = this.gui.addFolder('Helicopter');
         helicopterFolder.add(this.scene, 'showHelicopterBucket')
             .name('Bucket')
             .onChange(() => this.scene.updateHelicopterBucket());
 
-        //CruisingHeight
         helicopterFolder.add(this.scene, 'cruisingHeight', 5, 15).step(0.1)
         .name('Cruising Height')
         .onChange(() => this.scene.updateHelicopterCruisingHeight());
 
-        //speedFactor
         helicopterFolder.add(this.scene, 'speedFactor', 0.1, 3).step(0.1)
             .name('Speed Factor')
             .onChange(() => this.scene.updateHelicopterSpeedFactor());

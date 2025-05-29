@@ -22,6 +22,7 @@ export class MyLake extends CGFobject {
         
         this.lakeTexture = new CGFtexture(this.scene, "textures/lake/lake_text.jpg");
         this.grassTexture = new CGFtexture(this.scene, "textures/general/grass.jpg");
+        this.rockTexture = new CGFtexture(this.scene, "textures/general/rock.jpg");
         this.lakeMap = new CGFtexture(this.scene, "textures/lake/lake_map.jpg");
     }
     
@@ -37,7 +38,8 @@ export class MyLake extends CGFobject {
             intensityFactor: 1.0,
             uSampler: 0,
             uLakeMap: 1,
-            uGrassSampler: 2
+            uGrassSampler: 2,
+            uRockSampler: 3
         });
     }
 
@@ -49,6 +51,7 @@ export class MyLake extends CGFobject {
         this.lakeTexture.bind(0);
         this.lakeMap.bind(1);
         this.grassTexture.bind(2);
+        this.rockTexture.bind(3);
         
         this.plane.display();
 
