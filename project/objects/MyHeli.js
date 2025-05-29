@@ -35,6 +35,7 @@ export class MyHeli extends CGFobject {
             MAX_ROTOR_SPEED: 0.01,
             ROPE_LENGTH: 5,
             ROPE_SPEED: 0.05,
+            TAKE_OFF_AND_LAND_SPEED: 0.1,
             
             // Movement parameters
             MAX_TILT_ANGLE: 0.15,
@@ -280,7 +281,7 @@ export class MyHeli extends CGFobject {
         this.takeoffProgress += 0.5;
         this.mainRotorSpeed = this.maxRotorSpeed * Math.min(this.takeoffProgress * 2, 1);
         this.tailRotorSpeed = this.maxRotorSpeed * 2 * Math.min(this.takeoffProgress * 2, 1);
-        this.y += 0.05;
+        this.y += this.HELI.TAKE_OFF_AND_LAND_SPEED;
         
         if (this.y >= this.cruisingAltitude) {
             this.y = this.cruisingAltitude;
@@ -417,8 +418,8 @@ export class MyHeli extends CGFobject {
         const moveX = xDiff / distanceToTarget * movingSpace;
         const moveZ = zDiff / distanceToTarget * movingSpace;
         
-        this.velocity[0] = moveX * 0.5;
-        this.velocity[2] = moveZ * 0.5;
+        this.velocity[0] = moveX * this.HELI.TAKE_OFF_AND_LAND_SPEED;
+        this.velocity[2] = moveZ * this.HELI.TAKE_OFF_AND_LAND_SPEED;
         
         this.x += moveX;
         this.z += moveZ;
@@ -442,8 +443,7 @@ export class MyHeli extends CGFobject {
     
     handleLandingDescent(distanceToTarget, movingSpace) {
         if (this.y > this.initialHeight) {
-            const descentFactor = 1 - distanceToTarget / (movingSpace * 5);
-            this.y -= movingSpace * descentFactor;
+            this.y -= this.HELI.TAKE_OFF_AND_LAND_SPEED;
             
             if (this.hasBucket && this.currentRopeLength > 0 && !this.bucketRetracting) {
                 this.state = "bucket_retract";
