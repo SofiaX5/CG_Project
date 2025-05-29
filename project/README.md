@@ -2,8 +2,8 @@
 
 ## Group T05G08
 **Developed by**:
-- Diana Nunes
-- Sofia Gonçalves
+- Diana Nunes: up202208247
+- Sofia Gonçalves: up202205020
 
 ### 1. Panorama
 ![Screenshot Fig. 1](screenshots/project-t05g08-1.png)
