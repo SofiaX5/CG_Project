@@ -193,7 +193,6 @@ export class MyScene extends CGFscene {
 
   updateSpecialMode() {
     this.heli.setSpecialMode(this.showSpecialMode);
-    this.displayPeople(this.showSpecialMode);
   }
 
   initLights() {
@@ -379,7 +378,7 @@ export class MyScene extends CGFscene {
     this.lake.display();
     this.popMatrix();
 
-    this.displayPeople(this.showSpecialMode);
+    this.displayPeople();
   
     // Esfera
     /*
@@ -396,8 +395,7 @@ export class MyScene extends CGFscene {
     this.setActiveShader(this.defaultShader);
   }
 
-  displayPeople(SpecialMode) {
-      if(SpecialMode){
+  displayPeople() {
       this.pushMatrix();
       this.translate(this.dianaPosition[0], this.dianaPosition[1], this.dianaPosition[2]);
       this.scale(2.5, 2.5, 2.5);
@@ -409,6 +407,5 @@ export class MyScene extends CGFscene {
       this.scale(2.5, 2.5, 2.5);
       this.sofia.display();
       this.popMatrix();
-    }
   }
 }
