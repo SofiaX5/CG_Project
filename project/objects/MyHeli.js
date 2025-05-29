@@ -503,12 +503,14 @@ export class MyHeli extends CGFobject {
     }
     
     updatePutFireState(deltaTime) {
-        const isWaterDropComplete = this.bucket.updateWaterDrop(deltaTime);
+        const dropResult  = this.bucket.updateWaterDrop(deltaTime);
         console.log(`WATER: ${this.bucket.waterFallProgress}`);
         
-        if (isWaterDropComplete) {
+        if (dropResult.fireExtinguished && this.isFireOn) {
             this.isFireOn = false;
-            this.state = "flying";
+        }
+        if (dropResult.waterDropComplete) {
+            this.state = "flying"; 
         }
     }
     

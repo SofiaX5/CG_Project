@@ -376,6 +376,8 @@ export class MyBucket extends CGFobject {
             this.bottomOpen += 0.09;
             if (this.bottomOpen > 1) this.bottomOpen = 1;
         }
+
+        let fireExtinguished = false;
         
         if (this.waterFallProgress < 1) {
             this.waterFallProgress += 0.03;
@@ -394,6 +396,7 @@ export class MyBucket extends CGFobject {
                     if (this.fadeProgress < 1) {
                         this.fadeProgress += 0.02;
                     } else {
+                        fireExtinguished = true;
                         // Then fade the splash effect
                         this.fadeProgressSplash += 0.02;
                         if (this.fadeProgressSplash >= 1) {
@@ -401,12 +404,12 @@ export class MyBucket extends CGFobject {
                             this.waterFading = false;
                             this.fadeProgress = 0;
                             this.fadeProgressSplash = 0;
-                            return true; // Water drop complete
+                            return { waterDropComplete: true, fireExtinguished: true };; // Water drop complete
                         }
                     }
                 }
             }
         }
-        return false;
+        return { waterDropComplete: false, fireExtinguished: fireExtinguished };
     }
 }
