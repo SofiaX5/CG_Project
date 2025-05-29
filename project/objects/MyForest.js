@@ -69,6 +69,16 @@ export class MyForest extends CGFobject {
             this.offsets.push([offsetX, offsetZ]);
         }
     }
+
+
+    update(numRows=5, numCols=4, dist=6) {
+        this.numRows = numRows;
+        this.numCols = numCols;
+        this.dist = dist;
+
+        this.generateTrees();
+        this.generateOffsets();
+    }
     
 
     display() {

@@ -46,6 +46,10 @@ export class MyScene extends CGFscene {
     this.heliportHeight = 0;
     this.cruisingHeight = 6.0;
 
+    this.forestRow = 5;
+    this.forestCol = 4;
+    this.forestDist = 6;
+
     this.fireEnabled = true;
     this.fireSize = 5;
     this.fireIntensity = 1.0;
@@ -172,6 +176,10 @@ export class MyScene extends CGFscene {
     )
     this.updateHeliportPosition();
     //this.heli.setPosition(0, 3 * (this.buildingSideFloors + 1) + this.heli.bodyHeight * 0.75, 0);
+  }
+
+  updateForest() {
+    this.forest.update(this.forestRow, this.forestCol, this.forestDist)
   }
 
   updateHelicopterBucket() {
