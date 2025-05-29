@@ -74,6 +74,8 @@ export class MyHeli extends CGFobject {
         this.cruisingHeight = cruisingHeight;
         this.cruisingAltitude = cruisingHeight + posY;
         this.initialHeight = posY;
+        this.targetHeight = cruisingHeight + posY; 
+        this.heightAdjustmentSpeed = 0.05;
         this.heliportX = 0;
         this.heliportZ = 0;
         this.landingAnimationTime = 0;
@@ -233,6 +235,26 @@ export class MyHeli extends CGFobject {
                     this.state = "landing";
                 }
                 break;
+            case "adjusting_height":
+                this.mainRotorSpeed = this.maxRotorSpeed;
+                this.tailRotorSpeed = this.maxRotorSpeed * 2;
+                
+                const heightDiff = this.targetHeight - this.y;
+                
+                if (Math.abs(heightDiff) > 0.1) {
+                    // Move towards target height
+                    if (heightDiff > 0) {
+                        this.y += this.heightAdjustmentSpeed;
+                    } else {
+                        this.y -= this.heightAdjustmentSpeed;
+                    }
+                } else {
+                    // Close enough to target height
+                    this.y = this.targetHeight;
+                    this.state = "flying";
+                    console.log(`Height adjustment complete at ${this.y}`);
+                }
+                break;
     
             case "flying":
                 this.mainRotorSpeed = this.maxRotorSpeed;
@@ -240,28 +262,32 @@ export class MyHeli extends CGFobject {
 
                 this.currentRopeLength = this.ropeLength;
                 
-                const timeStep = deltaTime %1000;
+                // Check if height adjustment is needed
+                if (Math.abs(this.targetHeight - this.y) > 0.1) {
+                    this.state = "adjusting_height";
+                    break;
+                }
+                
+                const timeStep = deltaTime % 1000;
                 this.x += this.velocity[0] * timeStep;
                 this.z += this.velocity[2] * timeStep;
                 console.log(`Timestep: [${timeStep},`);
                 console.log(`Position: [${this.x.toFixed(2)}, ${this.y.toFixed(2)}, ${this.z.toFixed(2)}]`);
 
-          
+                // ... rest of your existing flying case code remains the same
                 if (this.x > -56 && this.x < -28 && this.z > 14 && this.z < 48) {
                     console.log(`Above lake`);
                     this.isOverLake = true;
                 } else {
                     this.isOverLake = false;
                 }
-               
+            
                 if (this.x > 9 && this.x < 40 && this.z > 14 && this.z < 35) {
                     console.log(`Above fire`);
                     this.isOverFire = true;
                 } else {
                     this.isOverFire = false;
                 }
-                    
-                
                 break;
                 
             case "landing":
@@ -457,7 +483,11 @@ export class MyHeli extends CGFobject {
     setCruisingHeight(cruisingHeight) {
         this.cruisingHeight = cruisingHeight;
         this.cruisingAltitude = cruisingHeight + this.initialHeight;
-
+        this.targetHeight = this.cruisingAltitude;
+        
+        if (this.state === "flying") {
+            console.log(`Adjusting height from ${this.y} to ${this.targetHeight}`);
+        }
     }
     
     display() {
