@@ -279,11 +279,9 @@ export class MyPerson extends CGFobject {
         }
     }
 
-    // NEW: Render particles
     renderParticles() {
         if (!this.celebrating) return;
         
-        // Disable depth writing for particles to avoid sorting issues
         this.scene.gl.depthMask(false);
         this.scene.gl.enable(this.scene.gl.BLEND);
         this.scene.gl.blendFunc(this.scene.gl.SRC_ALPHA, this.scene.gl.ONE);
@@ -305,12 +303,11 @@ export class MyPerson extends CGFobject {
             this.scene.setSpecular(1.0, 1.0, 1.0, alpha);
             this.scene.setEmission(...particle.color, alpha * 0.3);
             
-            // Use sphere for particle (efficient single geometry)
+            // Use sphere for particle 
             this.sphere.display();
             this.scene.popMatrix();
         }
         
-        // Re-enable depth writing
         this.scene.gl.depthMask(true);
         this.scene.gl.disable(this.scene.gl.BLEND);
     }
