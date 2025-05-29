@@ -445,6 +445,9 @@ export class MyScene extends CGFscene {
   update(t) {
     // Update building animations
     this.building.update(t);
+
+    this.diana.update(t);
+    this.sofia.update(t);
     
     // Handle input
     this.checkKeys();
