@@ -32,6 +32,9 @@ export class MyBucket extends CGFobject {
         this.isEmpty = true;
         this.waterFallProgress = 0;
         this.waterSplayed = 0;
+        this.waterFading = false;
+        this.fadeProgress = 0;
+        this.fadeProgressSplash = 0;
         
         this.initObjects();
         this.initMaterials();
@@ -262,8 +265,7 @@ export class MyBucket extends CGFobject {
     }
     
     drawWaterFall(currentRopeLength) {
-        if (this.waterFallProgress <= 0) return;
-        
+        if (this.waterFallProgress <= 0 && !this.waterFading) return;        
         const bottomY = -currentRopeLength - this.BUCKET.HEIGHT * 1.15;
         const waterStartY = bottomY;
         const waterEndY = bottomY - 12 * this.waterFallProgress;
@@ -279,7 +281,8 @@ export class MyBucket extends CGFobject {
         this.scene.pushMatrix();
         const coneHeight = (waterStartY - waterEndY);
         this.scene.translate(0, waterEndY, 0);
-        this.scene.scale(endRadius, coneHeight, endRadius);
+        const fadeScale = this.waterFading ? (1 - this.fadeProgress) : 1;
+        this.scene.scale(endRadius * fadeScale, coneHeight * fadeScale, endRadius * fadeScale);
         this.cone.display();
         this.scene.popMatrix();
         
@@ -305,7 +308,8 @@ export class MyBucket extends CGFobject {
             
             this.scene.pushMatrix();
             this.scene.translate(particleX, particleY, particleZ);
-            this.scene.scale(particleSize, particleSize, particleSize);
+            const fadeScale = this.waterFading ? (1 - this.fadeProgress) : 1;
+            this.scene.scale(particleSize * fadeScale, particleSize * fadeScale, particleSize * fadeScale);
             this.sphere.display();
             this.scene.popMatrix();
         }
@@ -318,10 +322,11 @@ export class MyBucket extends CGFobject {
         this.scene.pushMatrix();
         this.scene.translate(0, waterEndY - 0.3, 0);
         this.scene.rotate(Math.PI/2, 1, 0, 0);
+        const fadeScale = this.waterFading ? (1 - this.fadeProgressSplash) : 1; 
         this.scene.scale(
-            splashRadius * (1 + 6 * this.waterSplayed),
-            splashRadius * (1 + 6 * this.waterSplayed),
-            1
+            splashRadius * (1 + 6 * this.waterSplayed) * fadeScale,
+            splashRadius * (1 + 6 * this.waterSplayed) * fadeScale,
+            1 * fadeScale
         );
         this.circle.display();
         this.scene.popMatrix();
@@ -339,7 +344,8 @@ export class MyBucket extends CGFobject {
             
             this.scene.pushMatrix();
             this.scene.translate(dropX, dropY, dropZ);
-            this.scene.scale(dropSize, dropSize, dropSize);
+            const fadeScale = this.waterFading ? (1 - this.fadeProgressSplash) : 1; 
+            this.scene.scale(dropSize * fadeScale, dropSize * fadeScale, dropSize * fadeScale);
             this.sphere.display();
             this.scene.popMatrix();
         }
@@ -370,6 +376,8 @@ export class MyBucket extends CGFobject {
             this.bottomOpen += 0.09;
             if (this.bottomOpen > 1) this.bottomOpen = 1;
         }
+
+        let fireExtinguished = false;
         
         if (this.waterFallProgress < 1) {
             this.waterFallProgress += 0.03;
@@ -379,10 +387,29 @@ export class MyBucket extends CGFobject {
             if (this.waterSplayed < 1) {
                 this.waterSplayed += 0.01;
             } else {
-                this.empty();
-                return true; // Water drop complete
+            if (!this.waterFading) {
+                this.waterFading = true;
+                this.fadeProgress = 0;
+                this.fadeProgressSplash = 0;
+                } else {
+                    // First fade the cone and particles
+                    if (this.fadeProgress < 1) {
+                        this.fadeProgress += 0.02;
+                    } else {
+                        fireExtinguished = true;
+                        // Then fade the splash effect
+                        this.fadeProgressSplash += 0.02;
+                        if (this.fadeProgressSplash >= 1) {
+                            this.empty();
+                            this.waterFading = false;
+                            this.fadeProgress = 0;
+                            this.fadeProgressSplash = 0;
+                            return { waterDropComplete: true, fireExtinguished: true };; // Water drop complete
+                        }
+                    }
+                }
             }
         }
-        return false;
+        return { waterDropComplete: false, fireExtinguished: fireExtinguished };
     }
 }

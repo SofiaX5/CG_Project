@@ -12,7 +12,7 @@ import {getRandomFloat, getRandomInt, getRandomOrient, getRandomColorLeaf} from 
  */
 
 export class MyForest extends CGFobject {
-    constructor(scene, numRows=5, numCols=4, dist=6) {  
+    constructor(scene, numRows=5, numCols=4, dist=6, treeText = "leaf.jpg") {  
         super(scene);
 
         // Forest constants
@@ -39,6 +39,7 @@ export class MyForest extends CGFobject {
         // Array to store tree objects and their random offsets
         this.trees = [];
         this.offsets = [];
+        this.treeText = treeText;
 
         this.tree = new MyTree(this.scene);
 
@@ -71,10 +72,11 @@ export class MyForest extends CGFobject {
     }
 
 
-    update(numRows=5, numCols=4, dist=6) {
+    update(numRows=5, numCols=4, dist=6, treeText = "leaf.jpg") {
         this.numRows = numRows;
         this.numCols = numCols;
         this.dist = dist;
+        this.treeText = treeText;
 
         this.generateTrees();
         this.generateOffsets();
@@ -93,7 +95,7 @@ export class MyForest extends CGFobject {
                 const baseZ = this.dist * col + this.offsets[treeIndex][1];
 
                 this.scene.translate(baseX, 0, baseZ);
-                this.tree.update(this.trees[treeIndex][0], this.trees[treeIndex][1], this.trees[treeIndex][2], this.trees[treeIndex][3], this.trees[treeIndex][4]);
+                this.tree.update(this.trees[treeIndex][0], this.trees[treeIndex][1], this.trees[treeIndex][2], this.trees[treeIndex][3], this.trees[treeIndex][4], this.treeText);
                 this.tree.display();
                 this.scene.popMatrix();
                 treeIndex += 1;
